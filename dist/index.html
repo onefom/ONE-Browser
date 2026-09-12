@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>One Browser</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop stop-color='%235cc7df'/%3E%3Cstop offset='.52' stop-color='%237a69ec'/%3E%3Cstop offset='1' stop-color='%23d469dc'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='15' cy='15' r='10' fill='none' stroke='url(%23g)' stroke-width='6'/%3E%3Ccircle cx='15' cy='15' r='6.5' fill='white'/%3E%3Ccircle cx='25' cy='24' r='4' fill='%235cc7df' stroke='white' stroke-width='2'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./features.css" />
+  <link rel="stylesheet" href="./preset.css" />
+  <link rel="stylesheet" href="./menu.css" />
+  <link rel="stylesheet" href="./elegant.css" />
+  <link rel="stylesheet" href="./alignment-fix.css" />
+  <link rel="stylesheet" href="./sidebar-refine.css" />
+  <link rel="stylesheet" href="./viewport-fix.css" />
+  <link rel="stylesheet" href="./collapsed-center-fix.css" />
+  <link rel="stylesheet" href="./window-table.css" />
+  <link rel="stylesheet" href="./icon-polish.css" />
+  <link rel="stylesheet" href="./config-icon-refine.css" />
+  <link rel="stylesheet" href="./preview-polish.css" />
+  <style>.modal{max-height:92vh;overflow:auto}.window-name small{display:block;color:var(--muted);margin-top:3px}.table-wrap{overflow:visible}@media(max-width:900px){.table-wrap{overflow:auto}}</style>
+  <link rel="stylesheet" href="theme-refresh.css">
+  <link rel="stylesheet" href="color-balance.css">
+  <link rel="stylesheet" href="account-security.css">
+  <link rel="stylesheet" href="detail-adjustments.css">
+  <link rel="stylesheet" href="backup-ui.css">
+  <link rel="stylesheet" href="kernel-manager.css">
+  <link rel="stylesheet" href="usability-fixes.css">
+  <link rel="stylesheet" href="help-dark-refine.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="logo logo-ring" id="brandMark">O</span><span id="brandName">ONLINE</span></div>
+      <nav>
+        <button class="nav-item active" data-page="environments"><span><svg viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="16" rx="3"/><path d="M8 4v16M8 9h12"/></svg></span>窗口管理</button>
+        <button class="nav-item" data-page="accounts"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="9.3" r="2.25"/><path d="M7.9 16.2c.8-2.05 2.15-3.05 4.1-3.05s3.3 1 4.1 3.05"/></svg></span>账号管理</button>
+        <button class="nav-item" data-page="kernels"><span><svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="3"/><path d="M9 9h6v6H9zM9 2.8V5M15 2.8V5M9 19v2.2M15 19v2.2M2.8 9H5M19 9h2.2M2.8 15H5M19 15h2.2"/></svg></span>内核管理</button>
+        <button class="nav-item" data-page="proxy"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.7 12h16.6M12 3.5c2.2 2.3 3.4 5.1 3.4 8.5S14.2 18.2 12 20.5C9.8 18.2 8.6 15.4 8.6 12S9.8 5.8 12 3.5z"/></svg></span>代理管理</button>
+        <button class="nav-item" data-page="plugins"><span><svg viewBox="0 0 24 24"><path d="M8.5 3.8h7v4.7H20v7h-4.5v4.7h-7v-4.7H4v-7h4.5z"/></svg></span>插件中心</button>
+        <button class="nav-item" data-page="logs"><span><svg viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4.5" cy="6" r=".8" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r=".8" fill="currentColor" stroke="none"/><circle cx="4.5" cy="18" r=".8" fill="currentColor" stroke="none"/></svg></span>操作日志</button>
+        <button class="nav-item" data-page="settings"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3.5v2M12 18.5v2M20.5 12h-2M5.5 12h-2M18 6l-1.4 1.4M7.4 16.6 6 18M18 18l-1.4-1.4M7.4 7.4 6 6"/><circle cx="12" cy="12" r="7"/></svg></span>外观设置</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <button class="nav-item" data-page="help"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.8 9a2.4 2.4 0 0 1 4.5 1.2c0 2-2.3 2.1-2.3 4M12 17.5h.01"/></svg></span>帮助中心</button>
+        <button class="nav-item collapse-btn" id="collapseSidebar" aria-label="折叠侧边栏" title="折叠侧边栏"><span class="collapse-arrow"><svg viewBox="0 0 24 24"><path d="m14.5 6-6 6 6 6"/></svg></span><span class="collapse-label">收起侧栏</span></button>
+        <div class="account is-guest" id="currentAccount"><div class="avatar">O</div><div><strong>未登录</strong><small>点击登录</small></div><button class="account-menu-btn" id="accountMenuBtn" aria-label="账号菜单">•••</button></div>
+      </div>
+    </aside>
+
+    <main>
+      <header>
+        <div><h1 id="pageTitle">窗口管理</h1><p id="pageSub">独立管理每个浏览器窗口的数据与访问权限</p></div>
+        <div class="header-actions">
+          <button class="top-icon" id="coreUpdateBtn" aria-label="内核升级" title="内核升级"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 16V8m-3 3 3-3 3 3"/></svg><i></i></button>
+          <button class="top-icon cloud-icon" id="cloudBackupBtn" aria-label="数据备份" title="数据备份"><svg viewBox="0 0 24 24"><path d="M7.2 18.5h9.3a3.7 3.7 0 0 0 .6-7.4A5.5 5.5 0 0 0 6.7 9.6a4.5 4.5 0 0 0 .5 8.9Z"/><path d="M12 15V9m-2.5 2.5L12 9l2.5 2.5"/></svg></button>
+          <button class="primary" id="createBtn">＋ 创建窗口</button>
+          <div class="core-update-popover" id="coreUpdatePopover"><div class="core-popover-head"><span>内核升级</span><b id="coreUpdateBadge">发现更新</b></div><div class="core-version-row"><span class="core-version-icon">↑</span><div><b>Chromium 152</b><small>当前内核：Chromium 151</small></div></div><p>新版本包含稳定性与安全性改进，升级后将于下次启动生效。</p><div class="core-popover-actions"><button class="ghost" id="ignoreCoreUpdate">忽略</button><button class="primary" id="upgradeCore">升级内核</button></div></div>
+        </div>
+      </header>
+
+      <section class="page active" id="environments">
+        <div class="metrics">
+          <article><span>窗口总数</span><strong id="metricTotal">0</strong><em>本月 +3</em></article>
+          <article><span>运行中</span><strong class="green" id="metricRunning">0</strong><em>状态正常</em></article>
+          <article><span>账号成员</span><strong id="metricAccounts">0</strong><em id="metricAccountsMeta">0 个账号</em></article>
+          <article><span>代理信息</span><strong id="metricProxyStatus">未开启</strong><em id="metricProxyMeta">尚未加载代理</em></article>
+        </div>
+        <div class="toolbar">
+          <label class="search">⌕<input id="search" placeholder="搜索名称、标签或账号" /></label>
+          <div class="filters"><button class="filter active" data-filter="all">全部 <span id="filterAllCount">0</span></button><button class="filter" data-filter="running">运行中 <span id="filterRunningCount">0</span></button><button class="filter" data-filter="stopped">已停止 <span id="filterStoppedCount">0</span></button><button class="ghost">筛选 ⌄</button></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th><input type="checkbox" /></th><th class="serial-head">序号</th><th>窗口名称</th><th>配置</th><th>状态</th><th>标签</th><th>最后打开</th><th></th></tr></thead>
+            <tbody id="envRows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="page" id="accounts">
+        <div class="section-bar"><div><h2>账号保险箱</h2><p>将业务账号分配到指定窗口，敏感信息仅对授权成员可见。</p></div><button class="primary" id="addAccount">＋ 添加账号</button></div>
+        <div class="account-grid" id="accountGrid"></div>
+      </section>
+
+      <section class="page kernel-page" id="kernels"><div class="section-bar"><div><h2>浏览器内核</h2><p>按需下载官方浏览器内核，安装后才能创建和启动对应窗口。</p></div><span class="kernel-storage-note">初始版本不包含内核</span></div><div class="kernel-grid"><article class="kernel-card" data-kernel-card="chrome"><div class="kernel-brand chromium-mark">C</div><div class="kernel-copy"><div><b>Chromium</b><span>Google 官方源</span></div><p>适合 Chrome 扩展及多数网站，推荐作为默认内核。</p><small>预计占用 230 MB</small></div><div class="kernel-action"><span class="kernel-status">未安装</span><button class="primary kernel-download" data-kernel="chrome">下载内核</button></div></article><article class="kernel-card" data-kernel-card="edge"><div class="kernel-brand edge-mark">E</div><div class="kernel-copy"><div><b>Microsoft Edge</b><span>Microsoft 官方源</span></div><p>适合微软账号、企业服务和 Edge 扩展环境。</p><small>预计占用 245 MB</small></div><div class="kernel-action"><span class="kernel-status">未安装</span><button class="primary kernel-download" data-kernel="edge">下载内核</button></div></article><article class="kernel-card" data-kernel-card="firefox"><div class="kernel-brand firefox-mark">F</div><div class="kernel-copy"><div><b>Firefox</b><span>Mozilla 官方源</span></div><p>独立 Gecko 内核，适合兼容测试与多浏览器环境。</p><small>预计占用 210 MB</small></div><div class="kernel-action"><span class="kernel-status">未安装</span><button class="primary kernel-download" data-kernel="firefox">下载内核</button></div></article></div></section>
+      <section class="page proxy-page" id="proxy">
+        <div class="section-bar"><div><h2>代理节点</h2><p>支持 Clash、HTTP / SOCKS5 与链式代理，导入后可直接分配给窗口。</p></div><button class="primary" id="openProxyImport">＋ 导入代理配置</button></div>
+        <div class="clash-import-card"><div class="clash-mark">◎</div><div class="clash-import-copy"><b>导入 Clash 订阅</b><span>仅支持 HTTP / HTTPS 链接，节点数据仅在当前设备会话中使用。</span></div><div class="clash-import-form"><input id="clashLink" type="url" placeholder="粘贴 Clash 订阅链接" autocomplete="off" /><button class="primary" id="importClash">导入节点</button></div></div>
+        <div class="proxy-node-head"><b>已导入节点</b><span id="proxyNodeCount">0 个节点</span></div>
+        <div class="proxy-node-grid" id="proxyNodeGrid"><div class="proxy-empty"><span>◎</span><b>尚未导入节点</b><small>粘贴 Clash 订阅链接后，节点将在这里显示。</small></div></div>
+      </section>
+      <section class="page" id="logs"><div class="log-card"><h2>最近操作</h2><div class="log"><b>Admin</b> 启动了「欧洲客服 A」<span>3 分钟前</span></div><div class="log"><b>Anna Li</b> 更新了「品牌店铺 UK」权限<span>28 分钟前</span></div><div class="log"><b>系统</b> 完成全部环境安全检查<span>1 小时前</span></div></div></section>
+      <section class="page" id="plugins">
+        <div class="section-bar"><div><h2>插件中心</h2><p>为指定浏览器窗口配置扩展程序。</p></div><a class="primary link-btn" href="https://chromewebstore.google.com/" target="_blank" rel="noreferrer">打开 Chrome 应用商店 ↗</a></div>
+        <div class="plugin-grid">
+          <article class="plugin-card"><div class="plugin-icon adguard-icon">A</div><div><b>AdGuard 广告拦截器</b><p>拦截广告、跟踪器与恶意页面</p></div><label class="switch"><input type="checkbox" data-plugin="adguard" checked><span></span></label></article>
+          <article class="plugin-card"><div class="plugin-icon tampermonkey-icon">T</div><div><b>篡改猴</b><p>管理和运行浏览器用户脚本</p></div><label class="switch"><input type="checkbox" data-plugin="tampermonkey" checked><span></span></label></article>
+          <article class="plugin-card"><div class="plugin-icon translate-icon">G</div><div><b>Google 翻译</b><p>自动翻译网页及选中的文字</p></div><label class="switch"><input type="checkbox" data-plugin="google-translate" checked><span></span></label></article>
+          <button class="plugin-add" id="importPlugin"><span>＋</span><b>导入扩展程序</b><small>支持后续 Windows 客户端加载</small></button>
+        </div>
+        <div class="compat-note"><b>自动加载规则</b><p>启动 Chromium 或 Microsoft Edge 窗口时自动加载已启用插件；Firefox 窗口不会加载这三个 Chromium 插件。</p></div>
+      </section>
+      <section class="page" id="settings">
+        <div class="settings-grid">
+          <article class="settings-card"><h2>品牌设置</h2><label>产品名称<input id="productName" value="Online"></label><label>品牌字母<input id="productMark" maxlength="2" value="O"></label><button class="primary" id="saveBrand">保存品牌</button></article>
+          <article class="settings-card"><h2>主题与配色</h2><p>选择从参考图提取的预设配色，或使用自定义品牌色。</p><div class="theme-options"><button class="theme-choice active" data-theme="aurora"><i class="gradient-swatch"></i>晨雾渐变</button><button class="theme-choice" data-theme="lime"><i style="background:#9fdf6c"></i>青柠</button><button class="theme-choice" data-theme="mint"><i style="background:#55c9aa"></i>薄荷</button><button class="theme-choice" data-theme="coral"><i style="background:#f46573"></i>珊瑚</button><button class="theme-choice" data-theme="orange"><i style="background:#f3a13b"></i>暖橙</button><button class="theme-choice" data-theme="violet"><i style="background:#7165ee"></i>柔紫</button><button class="theme-choice" data-theme="aqua"><i style="background:#55cdbf"></i>湖青</button></div><div class="custom-color-control"><div><b>自定义主色</b><small>选择颜色后立即应用于按钮和强调元素</small></div><label class="color-picker-button" aria-label="选择自定义主色"><input type="color" id="customColor" value="#7165ee"><span id="customColorSwatch"></span></label><input id="customColorHex" class="color-hex" value="#7165EE" maxlength="7" aria-label="自定义颜色代码"></div><label class="toggle-row">深色内容区<label class="switch"><input id="darkMode" type="checkbox"><span></span></label></label></article>
+        </div>
+      </section>
+      <section class="page help-page" id="help">
+        <div class="help-intro"><div><h2>One Browser 使用帮助</h2><p>从首次配置到日常管理，点击问题即可查看操作方法。</p></div><label class="help-search"><svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m15.5 15.5 4 4"/></svg><input id="helpSearch" placeholder="搜索问题或功能" /></label></div>
+        <div class="help-layout">
+          <nav class="help-index" aria-label="帮助分类"><b>快速导航</b><a href="#help-start">开始使用</a><a href="#help-window">窗口与账号</a><a href="#help-network">代理与插件</a><a href="#help-data">数据与外观</a><a href="#help-trouble">常见问题</a></nav>
+          <div class="help-content">
+            <section class="help-group" id="help-start"><h3><span>01</span>开始使用</h3>
+              <details class="help-item" open><summary>第一次使用应该如何配置？</summary><p>先进入「内核管理」下载 Chromium、Microsoft Edge 或 Firefox 内核；然后按需添加账号和代理；最后回到「窗口管理」创建并启动窗口。初始版本不附带内核，可显著减小安装包体积。</p></details>
+              <details class="help-item"><summary>如何下载、切换、更新或删除内核？</summary><p>打开「内核管理」，未安装时点击「下载内核」。安装完成后按钮变为「管理」，可在对话框中选择版本、更新或删除。删除后，依赖该内核的窗口暂时无法启动。</p></details>
+            </section>
+            <section class="help-group" id="help-window"><h3><span>02</span>窗口与账号</h3>
+              <details class="help-item"><summary>如何创建和启动浏览器窗口？</summary><p>点击右上角「创建窗口」，填写窗口名称，并选择账号、代理、系统和已安装的浏览器内核。启动后默认打开「工作台配置页」和 Google 首页两个标签，每个窗口的 Cookie、缓存和本地存储彼此隔离。</p></details>
+              <details class="help-item"><summary>如何添加、登录或切换账号？</summary><p>在「账号管理」中填写账号名称、密码和备注。点击侧栏底部的头像或名字可打开登录对话框；切换账号时必须再次输入对应密码。未登录时头像为灰色 O，登录后显示账号名称首字母并使用主题色。</p></details>
+              <details class="help-item"><summary>账号如何关联到窗口？</summary><p>创建窗口时，在「账号管理」输入框中选择已有账号或直接输入内容。也可在账号管理中设置关联窗口；备注为自由填写文本。</p></details>
+            </section>
+            <section class="help-group" id="help-network"><h3><span>03</span>代理与插件</h3>
+              <details class="help-item"><summary>支持哪些代理导入方式？</summary><p>支持 Clash 订阅或 YAML、HTTP / SOCKS5 单层代理，以及两层链式代理。导入成功后，主页代理信息会显示「已开启」，并可在创建窗口时选择节点。</p></details>
+              <details class="help-item"><summary>默认插件如何加载？</summary><p>插件中心默认提供 AdGuard 广告拦截器、篡改猴和 Google 翻译。已启用的插件会在 Chromium 或 Microsoft Edge 窗口启动时自动加载；Firefox 不加载这三个 Chromium 插件。</p></details>
+            </section>
+            <section class="help-group" id="help-data"><h3><span>04</span>数据与外观</h3>
+              <details class="help-item"><summary>如何备份或恢复个人数据？</summary><p>点击右上角云端图标，可登录 Google Drive 后上传压缩包，也可直接导出 OneBrowser-data.zip。备份包括设置、窗口、账号、内核、代理和本地数据；未连接云端时，桌面版将数据保存在安装目录的 data 文件夹。</p></details>
+              <details class="help-item"><summary>如何更换主题或深色模式？</summary><p>进入「外观设置」选择预设配色或自定义主色。开启「深色内容区」后，页面、表单、卡片、空状态与对话框会同步切换为高对比深色样式。</p></details>
+            </section>
+            <section class="help-group" id="help-trouble"><h3><span>05</span>常见问题</h3>
+              <details class="help-item"><summary>为什么窗口无法启动？</summary><p>请先确认对应浏览器内核已经安装。如果窗口使用代理，也请确认代理已成功导入。在线预览展示完整交互流程，实际启动内核、读取外部订阅和加载扩展需在桌面客户端完成。</p></details>
+              <details class="help-item"><summary>为什么看不到刚发布的界面？</summary><p>浏览器可能仍在使用缓存。请按 Ctrl + F5 强制刷新，或关闭当前标签后重新打开预览地址。</p></details>
+            </section>
+            <div class="help-no-results" id="helpNoResults">没有找到相关内容，请尝试更换关键词。</div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="modal">
+    <div class="modal">
+      <div class="modal-head"><div><h2 id="modalTitle">创建浏览器窗口</h2><p id="modalSub">每个窗口拥有独立的 Cookie、缓存和本地存储。</p></div><button id="closeModal">×</button></div>
+      <form id="createForm">
+        <label>窗口名称<input id="envName" required placeholder="例如：品牌店铺 DE" /></label>
+        <div class="form-grid"><label>账号管理<input id="envOwner" list="accountOptions" autocomplete="off" placeholder="选择已有账号或手动输入" /><datalist id="accountOptions"></datalist></label><label>代理位置<select id="envProxy"><option>不使用代理（默认）</option><option>美国 · Virginia</option><option>德国 · Frankfurt</option><option>英国 · London</option><option>新加坡 · Singapore</option></select></label></div>
+        <label>标签<input id="envTag" placeholder="例如：客户服务" /></label>
+        <details class="advanced" open><summary>窗口配置</summary>
+          <div class="quick-preset">
+            <div class="preset-head"><div><b>快速预设</b><small>选择典型使用环境，自动生成一致的参数组合</small></div><button type="button" class="preset-magic" id="applyPreset">✦ 应用预设</button></div>
+            <div class="preset-grid">
+              <label>国家 / 地区<select id="presetCountry"><option value="de">🇩🇪 德国</option><option value="us">🇺🇸 美国</option><option value="uk">🇬🇧 英国</option><option value="sg">🇸🇬 新加坡</option><option value="jp">🇯🇵 日本</option><option value="cn">🇨🇳 中国</option><option value="fr">🇫🇷 法国</option><option value="nl">🇳🇱 荷兰</option><option value="es">🇪🇸 西班牙</option><option value="it">🇮🇹 意大利</option><option value="ca">🇨🇦 加拿大</option><option value="au">🇦🇺 澳大利亚</option><option value="br">🇧🇷 巴西</option><option value="ae">🇦🇪 阿联酋</option><option value="in">🇮🇳 印度</option><option value="kr">🇰🇷 韩国</option><option value="ch">🇨🇭 瑞士</option><option value="se">🇸🇪 瑞典</option></select></label>
+              <label>操作系统<select id="presetOs"><option value="win11">Windows 11</option><option value="win10">Windows 10</option><option value="mac">macOS 15</option><option value="ubuntu">Ubuntu 24.04</option></select></label>
+              <label>使用场景<select id="presetUse"><option value="office">日常办公</option><option value="support">客户服务</option><option value="ecommerce">电商运营</option><option value="social">社媒运营</option><option value="development">开发测试</option></select></label>
+              <label>浏览器<select id="presetBrowser"><option value="chrome">Google Chrome</option><option value="edge">Microsoft Edge</option><option value="firefox">Mozilla Firefox</option></select></label>
+            </div>
+            <div class="preset-result"><span>✓</span><div><b id="presetTitle">德国 · Windows 11 · 日常办公 · Chrome</b><small id="presetMeta">de-DE / Europe-Berlin / 1440 × 900 / 稳定版</small></div></div>
+          </div>
+          <label>User Agent<select id="userAgent"><option>跟随浏览器版本（推荐）</option><option>Google Chrome · Windows</option><option>Google Chrome · macOS</option><option>Google Chrome · Linux</option><option>Microsoft Edge · Windows</option><option>Microsoft Edge · macOS</option><option>Microsoft Edge · Linux</option><option>Mozilla Firefox · Windows</option><option>Mozilla Firefox · macOS</option><option>Mozilla Firefox · Linux</option><option>自定义 User Agent</option></select></label>
+          <div class="form-grid"><label>浏览器版本<select id="browserVersion"><option>稳定版 · 自动更新</option><option>固定版本</option></select></label><label>语言<select id="browserLanguage"><option>zh-CN · 简体中文</option><option>en-US · English</option><option>en-GB · English (UK)</option><option>en-CA · English (Canada)</option><option>en-AU · English (Australia)</option><option>de-DE · Deutsch</option><option>ja-JP · 日本語</option><option>fr-FR · Français</option><option>nl-NL · Nederlands</option><option>es-ES · Español</option><option>it-IT · Italiano</option><option>pt-BR · Português</option><option>ar-AE · العربية</option><option>hi-IN · हिन्दी</option><option>ko-KR · 한국어</option><option>de-CH · Deutsch (CH)</option><option>sv-SE · Svenska</option></select></label></div>
+          <div class="form-grid"><label>窗口位置<select id="windowPosition"><option>居中</option><option>左上</option><option>左下</option><option>右上</option><option>右下</option></select></label><label>窗口大小<select id="windowSize"><optgroup label="桌面"><option>1440 × 900</option><option>1920 × 1080</option><option>1366 × 768</option><option>1280 × 800</option></optgroup><optgroup label="手机竖屏"><option>390 × 844</option><option>393 × 852</option><option>360 × 800</option><option>412 × 915</option></optgroup><option>自定义</option></select></label></div>
+          <div class="config-row"><span><b>基础指纹配置</b><small>画布、WebGL、字体和时区采用系统一致性策略</small></span><button type="button" class="ghost" id="configDetail">查看配置</button></div>
+        </details>
+        <div class="notice"><span>✓</span><div><b>默认安全隔离已开启</b><p>窗口数据相互独立，并记录团队操作日志。</p></div></div>
+        <div class="modal-actions"><button type="button" class="ghost" id="cancelModal">取消</button><button class="primary" id="submitEnv" type="submit">创建窗口</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="accountModal">
+    <div class="modal account-modal-panel">
+      <div class="modal-head"><div><h2>添加账号</h2><p>将业务账号关联到指定浏览器窗口。</p></div><button id="closeAccountModal" aria-label="关闭">×</button></div>
+      <form id="accountForm">
+        <label>账号名称<input id="accountService" required placeholder="请输入名字" /></label>
+        <label>密码<div class="password-field"><input id="accountIdentity" type="password" required placeholder="请输入密码" /><button type="button" class="password-eye" data-password-toggle="accountIdentity" aria-label="显示密码">◉</button></div></label>
+        <div class="form-grid"><label>关联窗口<select id="accountWindow"></select></label><label>备注<input id="accountOwner" placeholder="可自行填写备注" /></label></div>
+        <div class="modal-actions"><button type="button" class="ghost" id="cancelAccountModal">取消</button><button type="submit" class="primary">添加账号</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="deleteAccountModal">
+    <div class="modal confirm-delete-panel">
+      <div class="confirm-delete-icon">!</div>
+      <h2>删除账号？</h2>
+      <p id="deleteAccountText">删除后将无法恢复。</p>
+      <div class="modal-actions"><button type="button" class="ghost" id="cancelDeleteAccount">取消</button><button type="button" class="danger-primary" id="confirmDeleteAccount">确认删除</button></div>
+    </div>
+  </div>
+  <div class="modal-backdrop" id="loginAccountModal">
+    <div class="modal login-account-panel">
+      <div class="modal-head"><div><h2 id="loginDialogTitle">登录账号</h2><p>请选择账号并确认密码。</p></div><button id="closeLoginAccount" aria-label="关闭">×</button></div>
+      <form id="loginAccountForm"><label>账号<select id="loginAccountSelect"></select></label><label>密码<div class="password-field"><input id="loginAccountPassword" type="password" placeholder="••••••••" required /><button type="button" class="password-eye" data-password-toggle="loginAccountPassword" aria-label="显示密码">◉</button></div></label><p class="login-error" id="loginAccountError"></p><div class="modal-actions"><button type="button" class="ghost" id="cancelLoginAccount">取消</button><button type="submit" class="primary">确认登录</button></div></form>
+    </div>
+  </div>
+  <div class="modal-backdrop" id="cloudBackupModal">
+    <div class="modal cloud-backup-panel">
+      <div class="modal-head"><div><h2>账号数据备份</h2><p>将窗口、账号和全部个人设置统一保存。</p></div><button id="closeCloudBackup" aria-label="关闭">×</button></div>
+      <div class="cloud-backup-body">
+        <div class="backup-summary"><span class="backup-folder-icon">D</span><div><b>One Browser 数据包</b><small id="backupFileName">OneBrowser-data.zip</small></div><span class="backup-ready">可备份</span></div>
+        <section class="backup-option drive-option"><div class="google-drive-mark"><i></i><i></i><i></i></div><div><b>Google Drive</b><p>登录 Google 账号后，以压缩包形式上传到云端。</p></div><button class="primary" id="connectGoogleDrive">登录 Google Drive</button></section>
+        <div class="drive-connected" id="driveConnected"><span>✓</span><div><b>Google Drive 已连接</b><small>备份文件将保存到 One Browser 文件夹</small></div><button class="ghost" id="disconnectGoogleDrive">断开</button></div>
+        <section class="backup-option local-option"><span class="local-data-icon">⌂</span><div><b>本地 data 文件夹</b><p>未登录云端时，数据默认保存在安装目录的 <code>data</code> 文件夹。</p></div><button class="ghost" id="downloadLocalBackup">导出压缩包</button></section>
+        <div class="backup-includes"><b>备份内容</b><span>账号信息</span><span>窗口数据</span><span>主题设置</span><span>代理与内核配置</span><span>本地个人信息</span></div>
+      </div>
+      <div class="modal-actions cloud-actions"><button class="ghost" id="cancelCloudBackup">取消</button><button class="primary" id="startCloudBackup">立即备份</button></div>
+    </div>
+  </div>
+  <div class="modal-backdrop" id="kernelManagerModal">
+    <div class="modal kernel-manager-panel">
+      <div class="modal-head"><div><h2>管理浏览器内核</h2><p>选择版本、更新或移除当前内核。</p></div><button id="closeKernelManager" aria-label="关闭">×</button></div>
+      <div class="kernel-manager-body">
+        <div class="managed-kernel-summary"><span class="managed-kernel-icon" id="managedKernelIcon">C</span><div><b id="managedKernelName">Chromium</b><small id="managedKernelSource">Google 官方源</small></div><span class="installed-pill">已安装</span></div>
+        <label class="kernel-version-field">内核版本<select id="kernelVersionSelect"></select><small>选择需要使用的内核版本，更新后将在下次启动窗口时生效。</small></label>
+        <div class="kernel-info-row"><span>当前版本</span><b id="currentKernelVersion">—</b></div>
+        <div class="kernel-info-row"><span>安装位置</span><b>data/kernels</b></div>
+        <div class="kernel-manager-actions"><button class="danger-outline" id="deleteKernel">删除内核</button><button class="primary" id="updateKernel">更新并应用</button></div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop" id="deleteKernelModal">
+    <div class="modal confirm-delete-panel">
+      <div class="confirm-delete-icon">!</div><h2>删除内核？</h2><p id="deleteKernelText">删除后，对应浏览器窗口将无法启动，直到重新安装内核。</p>
+      <div class="modal-actions"><button class="ghost" id="cancelDeleteKernel">取消</button><button class="danger-primary" id="confirmDeleteKernel">确认删除</button></div>
+    </div>
+  </div>
+  <div class="row-menu" id="rowMenu"><button data-menu-action="edit">✎ 编辑窗口</button><button data-menu-action="clone">▣ 复制窗口</button><button class="danger" data-menu-action="delete">⌫ 删除窗口</button></div>
+  <div class="row-menu account-popover" id="accountMenu"><button data-account-action="login">◎ 登录账号</button><button data-account-action="switch">⇄ 切换账号</button><button data-account-action="settings">⚙ 账号设置</button><button data-account-action="logout">↪ 退出登录</button></div>
+  <div class="row-menu tag-popover" id="tagMenu"><button data-tag="客户服务">客户服务</button><button data-tag="电商运营">电商运营</button><button data-tag="内容团队">内容团队</button><button data-tag="项目协作">项目协作</button><button data-tag="供应链">供应链</button><button data-tag="市场部">市场部</button></div>
+  <div class="row-menu profile-popover" id="profileMenu"><button data-profile-action="add">＋ 添加账号</button><button data-profile-action="select">⇄ 选择账号</button></div>
+  <input type="color" id="iconColorPicker" class="hidden-color-picker" value="#7468e8" aria-label="选择窗口图标颜色">
+  <div class="toast" id="toast">窗口已创建</div>
+  <div class="overlay" id="proxyImportModal"><section class="proxy-dialog"><button class="modal-close" id="closeProxyImport">×</button><h2>导入代理配置</h2><div class="proxy-tabs"><button class="selected" data-proxy-tab="clash">Clash 订阅 / YAML<small>订阅或 Clash 节点列表</small></button><button data-proxy-tab="http">HTTP / SOCKS5<small>单层代理或批量文本</small></button><button data-proxy-tab="chain">链式代理<small>本机出口 + 落地代理</small></button></div><div data-pane="clash" class="proxy-pane"><label>订阅 URL（可选）<input placeholder="订阅 URL"></label><label>Clash YAML / 节点文本<textarea placeholder="proxies:\n - name: vless-v6\n   type: vless\n   server: example.com\n   port: 443"></textarea></label><label>分组名称（可选）<input placeholder="分组名称"></label></div><div data-pane="http" class="proxy-pane hidden"><div class="two"><label>代理协议<select><option>HTTP</option><option>SOCKS5</option></select></label><label>代理名称（可选）<input placeholder="节点名称"></label><label>代理地址<input placeholder="127.0.0.1 或 hk.example.com"></label><label>代理端口<input placeholder="1080"></label><label>账号（可选）<input placeholder="留空则不认证"></label><label>密码（可选）<input placeholder="留空则不使用密码"></label></div><label>文本辅助（可选）<textarea placeholder='{"name":"","protocol":"http","server":"","port":""}'></textarea></label></div><div data-pane="chain" class="proxy-pane hidden"><div class="two"><label>代理名称（可选）<input placeholder="例如：双层英国链路"></label><label>本地监听端口（可选）<input placeholder="留空自动分配"></label></div><h3>第一层代理</h3><div class="two"><label>协议<select><option>HTTP</option><option>SOCKS5</option></select></label><label>代理地址<input placeholder="代理地址"></label><label>代理端口<input placeholder="端口"></label><label>账号（可选）<input></label></div><h3>第二层代理</h3><div class="two"><label>协议<select><option>HTTP</option><option>SOCKS5</option></select></label><label>代理地址<input placeholder="代理地址"></label><label>代理端口<input placeholder="端口"></label><label>账号（可选）<input></label></div></div><footer><button class="ghost" id="cancelProxyImport">取消</button><button class="primary" id="parseProxyImport">解析</button></footer></section></div><script src="./app.js"></script>
+<div class="browser-preview" id="browserPreview"><div class="browser-shell"><div class="browser-tabs"><button class="tab active" data-browser-tab="workspace">◒　工作台　×</button><button class="tab" data-browser-tab="google">G　Google　×</button><button class="browser-close" id="closeBrowserPreview">×</button></div><div class="browser-content" id="workspacePane"><h2>One Browser 工作台</h2><p>当前窗口的独立配置与网络状态</p><div class="workspace-grid"><div>窗口名称<br><b>欧洲客服 A</b></div><div>代理节点<br><b>德国 · Frankfurt</b></div><div>出口 IP<br><b>198.51.100.24</b></div><div>浏览器内核<br><b>Chromium · Google Chrome</b></div><div>操作系统<br><b>Windows 11</b></div><div>语言 / 时区<br><b>de-DE · Europe/Berlin</b></div><div>自动加载插件<br><b id="workspacePlugins">AdGuard、篡改猴、Google 翻译</b></div></div></div><div class="browser-content hidden" id="googlePane"><div class="google-page"><b>Google</b><input placeholder="在 Google 中搜索，或输入网址"><small>Google 首页预览</small></div></div></div></div>
+<script>window.addEventListener('DOMContentLoaded',()=>{const open=document.querySelector('#openProxyImport'),modal=document.querySelector('#proxyImportModal'),close=()=>modal?.classList.remove('show');if(open&&modal)open.onclick=()=>modal.classList.add('show');document.querySelector('#closeProxyImport')?.addEventListener('click',close);document.querySelector('#cancelProxyImport')?.addEventListener('click',close);document.querySelectorAll('[data-proxy-tab]').forEach(btn=>btn.onclick=()=>{document.querySelectorAll('[data-proxy-tab]').forEach(x=>x.classList.remove('selected'));btn.classList.add('selected');document.querySelectorAll('[data-pane]').forEach(x=>x.classList.toggle('hidden',x.dataset.pane!==btn.dataset.proxyTab))});document.querySelector('#parseProxyImport')?.addEventListener('click',()=>{const tab=document.querySelector('[data-proxy-tab].selected')?.dataset.proxyTab||'clash',pane=document.querySelector('[data-pane="'+tab+'"]'),values=[...pane.querySelectorAll('input,select,textarea')],node=tab==='http'?{name:values[1].value||values[0].value+' 代理',type:values[0].value.toLowerCase(),server:values[2].value||'未填写地址',port:values[3].value||'—'}:tab==='chain'?{name:values[0].value||'链式代理',type:'chain',server:'第一层 → 第二层',port:values[1].value||'自动'}:{name:'Clash 节点',type:'clash',server:'订阅节点',port:'—'};importedClashNodes.splice(0,importedClashNodes.length,node);syncImportedProxyOptions();renderProxyNodes([node]);close();showToast('代理已导入，可在新建窗口中选择')})});</script>
+<script>window.addEventListener('DOMContentLoaded',()=>{const preview=document.querySelector('#browserPreview');document.addEventListener('click',e=>{if(e.target.closest('[data-action="start"]'))setTimeout(()=>preview?.classList.add('show'),650)});document.querySelector('#closeBrowserPreview')?.addEventListener('click',()=>preview.classList.remove('show'));document.querySelectorAll('[data-browser-tab]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-browser-tab]').forEach(x=>x.classList.remove('active'));btn.classList.add('active');document.querySelector('#workspacePane').classList.toggle('hidden',btn.dataset.browserTab!=='workspace');document.querySelector('#googlePane').classList.toggle('hidden',btn.dataset.browserTab!=='google')}))});</script>
+</body>
+</html>
