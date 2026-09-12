@@ -1,0 +1,15 @@
+{
+  "name": "one-browser",
+  "version": "1.0.0",
+  "description": "One Browser Windows portable desktop client",
+  "main": "desktop/main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "package:win": "electron-packager . \"One Browser\" --platform=win32 --arch=x64 --out=release --overwrite --prune=true --ignore=release --ignore=\\.git"
+  },
+  "devDependencies": {
+    "electron": "44.3.0",
+    "electron-packager": "18.4.0"
+  }
+}
