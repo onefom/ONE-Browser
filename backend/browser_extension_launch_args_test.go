@@ -10,4 +10,7 @@ func TestBuildBrowserLaunchArgsDoesNotLoadExtensionsFromStartupFlags(t *testing.
 	if slices.Contains(args, "--load-extension") || slices.Contains(args, "--disable-extensions-except") {
 		t.Fatalf("args = %#v, production extensions must not be loaded from startup flags", args)
 	}
+	if !slices.Contains(args, "--new-window") {
+		t.Fatalf("args = %#v, every profile must open an independent browser window", args)
+	}
 }

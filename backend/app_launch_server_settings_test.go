@@ -10,8 +10,9 @@ import (
 )
 
 func TestRestartLaunchServerRestoresPreviousServerWhenNewPortFails(t *testing.T) {
-	app := NewApp(t.TempDir())
-	app.config = &config.Config{}
+	// This unit exercises only restartLaunchServer. Construct the App directly
+	// so NewApp's asynchronous startup cannot replace launchServer mid-assertion.
+	app := &App{config: &config.Config{}}
 
 	previousServer := launchcode.NewLaunchServer(nil, nil, nil, 0)
 	if err := previousServer.Start(); err != nil {

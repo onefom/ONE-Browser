@@ -67,7 +67,7 @@ assert.equal(appSource.includes('enabledPluginKeys()'), true, '启动窗口时�
 assert.equal(appSource.includes("title=\"删除节点\"") && appSource.includes('>×</button>'), true, '代理删除按钮必须显示为 X');
 assert.equal(appSource.includes('data-show-account-password'), false, '账号列表不能提供密码预览按钮');
 assert.equal(htmlSource.includes('class="help-search"'), false, '帮助中心右侧搜索控件必须移除');
-assert.equal(htmlSource.includes('<div class="help-version">当前版本 <span>1.8.3</span></div>'), true, '帮助中心必须显示当前版本');
+assert.equal(htmlSource.includes('<div class="help-version">当前版本 <span>1.8.4</span></div>'), true, '帮助中心必须显示当前版本');
 assert.equal(stage3Source.includes('"PingFang SC"'), true, '界面字体必须优先使用苹方');
 assert.equal(stage3Source.includes('box-shadow: none !important'), true, '筛选控件不能保留描边阴影');
 

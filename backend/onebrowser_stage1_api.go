@@ -272,13 +272,17 @@ func (a *App) oneBrowserWorkspaceURL(profileID, profileName string, request OneB
 		data.Timezone = "跟随窗口配置"
 	}
 	if strings.TrimSpace(data.UserAgent) == "" {
-		data.UserAgent = "Fingerprint Chromium · Windows"
+		chromeVersion := strings.TrimSpace(data.Version)
+		if chromeVersion == "" {
+			chromeVersion = "148.0.7778.215"
+		}
+		data.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/" + chromeVersion + " Safari/537.36"
 	}
 	if strings.TrimSpace(data.WindowSize) == "" {
 		data.WindowSize = "自适应"
 	}
-	const page = `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>工作台 · {{.Name}}</title><style>:root{color-scheme:light}*{box-sizing:border-box}body{margin:0;font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;background:linear-gradient(145deg,#f2f5fc,#eaf0fb);color:#232940;min-height:100vh;padding:42px}main{max-width:1040px;margin:auto}.top{display:flex;justify-content:space-between;align-items:end;margin-bottom:24px}.top h1{margin:0;font-size:28px;font-weight:600}.top p{margin:8px 0 0;color:#7d859d;font-size:14px}.badge{padding:8px 13px;border-radius:999px;background:#e7f7f1;color:#35a37d;font-size:12px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.card{background:rgba(255,255,255,.88);border:1px solid rgba(255,255,255,.95);border-radius:17px;padding:19px 20px;box-shadow:0 9px 28px rgba(66,81,120,.08)}.card span{display:block;color:#8a92a8;font-size:12px;margin-bottom:9px}.card b{font-size:15px;font-weight:550;overflow-wrap:anywhere}.wide{grid-column:span 2}.network-pair{display:grid;grid-template-columns:1fr 1fr;gap:18px}.network-pair div+div{border-left:1px solid #e8eaf1;padding-left:18px}.ip b{color:#655cd0}.footer{margin-top:18px;color:#8a92a8;font-size:12px}@media(max-width:720px){body{padding:22px}.grid{grid-template-columns:1fr}.wide{grid-column:auto}.top{align-items:start;gap:12px}.network-pair{grid-template-columns:1fr}.network-pair div+div{border-left:0;border-top:1px solid #e8eaf1;padding:14px 0 0}}</style></head><body><main><div class="top"><div><h1>{{.Name}}</h1><p>当前窗口配置与网络状态</p></div><span class="badge">独立工作区</span></div><section class="grid"><div class="card ip wide network-pair"><div><span>出口 IP</span><b id="publicIp">正在检测…</b></div><div><span>网络位置</span><b id="networkLocation">正在检测…</b></div></div><div class="card"><span>代理</span><b>{{.Proxy}}</b></div><div class="card"><span>账号</span><b>{{.Account}}</b></div><div class="card"><span>操作系统</span><b>{{.OS}}</b></div><div class="card"><span>语言</span><b>{{.Language}}</b></div><div class="card"><span>时区</span><b>{{.Timezone}}</b></div><div class="card"><span>浏览器内核</span><b>Fingerprint Chromium</b></div><div class="card"><span>内核版本</span><b>{{.Version}}</b></div><div class="card"><span>窗口尺寸</span><b>{{.WindowSize}}</b></div><div class="card wide"><span>User-Agent</span><b>{{.UserAgent}}</b></div></section><p class="footer">Google 已在相邻标签页打开。出口信息由当前窗口网络实时检测。</p></main><script>Promise.allSettled([fetch('https://api.ipify.org?format=json').then(r=>r.json()).then(v=>publicIp.textContent=v.ip||'检测失败'),fetch('https://ipwho.is/').then(r=>r.json()).then(v=>networkLocation.textContent=[v.country,v.city].filter(Boolean).join(' · ')||'检测失败')]).then(results=>results.forEach((r,i)=>{if(r.status==='rejected')(i?networkLocation:publicIp).textContent='检测失败'}));</script></body></html>`
-	t, err := template.New("workspace").Parse(page)
+	pageTemplate := compactOneBrowserWorkspacePage
+	t, err := template.New("workspace").Parse(pageTemplate)
 	if err != nil {
 		return "", err
 	}

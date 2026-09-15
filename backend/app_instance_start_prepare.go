@@ -353,6 +353,9 @@ func buildBrowserLaunchArgs(userDataDir string, debugPort int, effectiveProxy st
 		fmt.Sprintf("--user-data-dir=%s", userDataDir),
 		fmt.Sprintf("--remote-debugging-port=%d", debugPort),
 		"--disable-session-crashed-bubble",
+		// Force fingerprint-chromium to create a separate frame for this
+		// profile instead of handing its URLs to an existing browser window.
+		"--new-window",
 	}
 	if restoreLastSession {
 		args = append(args, "--restore-last-session")
