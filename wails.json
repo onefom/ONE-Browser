@@ -1,0 +1,21 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "One Browser",
+  "outputfilename": "one-browser",
+  "frontend:install": "npm install",
+  "frontend:build": "npm run build:clean",
+  "author": {
+    "name": "One Browser",
+    "email": ""
+  },
+  "info": {
+    "companyName": "One Browser",
+    "productName": "One Browser",
+  "productVersion": "1.8.3",
+    "copyright": "Copyright © 2026",
+    "comments": "面向多账号隔离、代理绑定和本地环境管理的桌面浏览器工具"
+  },
+  "nsisType": "multiple",
+  "obfuscated": false,
+  "wailsjsdir": "./frontend/src"
+}

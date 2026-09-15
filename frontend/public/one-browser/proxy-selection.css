@@ -1,0 +1,8 @@
+.proxy-node{cursor:pointer}.proxy-node.selected{border-color:rgba(111,95,224,.52);box-shadow:0 9px 26px rgba(105,91,216,.16);background:linear-gradient(135deg,rgba(243,242,255,.96),rgba(251,247,255,.94))}
+.proxy-node-actions{display:grid;gap:10px;justify-items:end;min-width:86px}
+.proxy-node-actions button{border:0;border-radius:9px;padding:6px 9px;background:#efeffb;color:#625ac9;font:500 10px/1.2 inherit;cursor:pointer}
+.proxy-node-actions .proxy-delete{background:#fff0f1;color:#d35e70}
+.proxy-node.selected .proxy-node-actions button:first-child{background:linear-gradient(135deg,#6faef0,#a56ce6);color:#fff}
+.dark-content .proxy-node.selected{background:linear-gradient(135deg,#2b2e46,#292d3d)!important;border-color:rgba(145,130,255,.55)!important}
+.dark-content .proxy-node-actions button{background:#34384d;color:#c4bcff}
+.dark-content .proxy-node-actions .proxy-delete{background:#482f3a;color:#ffafbc}

@@ -1,0 +1,51 @@
+/* One Browser 1.8.3: final spacing, help, font and control refinements. */
+:root, body, button, input, select, textarea {
+  font-family: "PingFang SC", "PingFang TC", "Microsoft YaHei", "Segoe UI", sans-serif !important;
+}
+
+.filter[data-filter], .filter[data-filter].active,
+.filter[data-filter]:focus, .filter[data-filter]:focus-visible {
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+.proxy-node-actions .proxy-delete {
+  width: 30px !important;
+  min-width: 30px !important;
+  height: 30px !important;
+  padding: 0 !important;
+  border-radius: 9px !important;
+  font-size: 18px !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+}
+
+.account {
+  grid-template-columns: 26px minmax(0, 1fr) 31px !important;
+  gap: 11px !important;
+  padding: 14px 12px 12px !important;
+}
+
+.account-menu-btn {
+  width: 28px !important;
+  height: 25px !important;
+  margin-left: 3px !important;
+  font-size: 7.5px !important;
+  letter-spacing: 1px !important;
+}
+
+.help-version {
+  margin: -3px 0 16px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.help-version span { margin-left: 4px; color: var(--ink); font-weight: 500; }
+.help-page.active { display: block !important; height: auto !important; overflow: visible !important; }
+.help-layout { min-height: 0 !important; }
+.help-content { overflow: visible !important; padding-right: 0 !important; scrollbar-gutter: auto !important; }
+main { scrollbar-width: none; }
+main::-webkit-scrollbar { display: none; }
+.account-card-copy p { min-height: 22px; }
