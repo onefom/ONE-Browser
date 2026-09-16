@@ -37,6 +37,7 @@
   <link rel="stylesheet" href="stage6-system-polish.css">
   <link rel="stylesheet" href="stage7-unified-layout.css">
   <link rel="stylesheet" href="stage8-interaction-polish.css">
+  <link rel="stylesheet" href="stage9-plugin-sidebar-fix.css">
 </head>
 <body>
   <div class="app-shell">
@@ -64,6 +65,11 @@
         <div class="header-actions">
           <button class="top-icon home-only-action" id="coreUpdateBtn" aria-label="内核升级" title="内核升级"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 16V8m-3 3 3-3 3 3"/></svg><i></i></button>
           <button class="top-icon cloud-icon home-only-action" id="cloudBackupBtn" aria-label="数据备份" title="数据备份"><svg viewBox="0 0 24 24"><path d="M7.2 18.5h9.3a3.7 3.7 0 0 0 .6-7.4A5.5 5.5 0 0 0 6.7 9.6a4.5 4.5 0 0 0 .5 8.9Z"/><path d="M12 15V9m-2.5 2.5L12 9l2.5 2.5"/></svg></button>
+          <button class="primary header-page-action" id="openProxyImport" data-header-page="proxy" hidden>＋ 导入代理配置</button>
+          <button class="primary header-page-action" id="addAccount" data-header-page="accounts" hidden>＋ 添加账号</button>
+          <button class="primary link-btn header-page-action" id="openChromeWebStore" data-header-page="plugins" hidden>打开 Chrome 应用商店 ↗</button>
+          <button class="primary header-page-action kernel-download" data-header-page="kernels" data-kernel="chrome" hidden>下载内核</button>
+          <div class="header-version" data-header-page="settings" hidden>当前版本 <span>1.8.12</span></div>
           <button class="primary" id="createBtn">＋ 创建窗口</button>
           <div class="core-update-popover" id="coreUpdatePopover"><div class="core-popover-head"><span>内核升级</span><b id="coreUpdateBadge" class="up-to-date">当前无内核</b></div><div class="core-version-row"><span class="core-version-icon">↑</span><div><b id="coreUpdateTitle">当前无内核，请先下载</b><small id="coreUpdateMeta">下载后才会检查版本更新</small></div></div><p id="coreUpdateDescription">当前最新版本：148.0.7778.215</p><div class="core-popover-actions"><button class="ghost" id="ignoreCoreUpdate" hidden>忽略</button><button class="primary" id="upgradeCore">前往下载</button></div></div>
         </div>
@@ -89,20 +95,17 @@
       </section>
 
       <section class="page" id="accounts">
-        <div class="section-bar page-action-only"><span></span><button class="primary" id="addAccount">＋ 添加账号</button></div>
         <div class="account-grid" id="accountGrid"></div>
       </section>
 
-      <section class="page kernel-page" id="kernels"><div class="kernel-grid"><article class="kernel-card" data-kernel-card="chrome"><div class="kernel-brand chromium-mark">C</div><div class="kernel-copy"><div><b>Fingerprint Chromium</b></div><p>下载并验证后供所有独立窗口使用，窗口数据与浏览器配置彼此隔离。</p><small>Windows x64 · 按需安装</small></div><div class="kernel-action"><span class="kernel-status">未安装</span><button class="primary kernel-download" data-kernel="chrome">下载内核</button></div></article></div><div class="kernel-secondary-actions"><div><b>已有本地内核？</b><span>支持导入压缩包，或直接选择已解压的内核目录。</span></div><button class="ghost" id="importKernelArchive">导入内核包</button><button class="ghost" id="importKernelDirectory">导入本地内核</button></div></section>
+      <section class="page kernel-page" id="kernels"><div class="kernel-grid"><article class="kernel-card" data-kernel-card="chrome"><div class="kernel-brand chromium-mark">C</div><div class="kernel-copy"><div><b>Fingerprint Chromium</b></div><p>下载并验证后供所有独立窗口使用，窗口数据与浏览器配置彼此隔离。</p><small>Windows x64 · 按需安装</small></div><div class="kernel-action kernel-version-summary"><span>当前内核版本</span><b class="kernel-status">未安装</b></div></article></div><div class="kernel-secondary-actions"><div><b>已有本地内核？</b><span>支持导入压缩包，或直接选择已解压的内核目录。</span></div><button class="ghost" id="importKernelArchive">导入内核包</button><button class="ghost" id="importKernelDirectory">导入本地内核</button></div></section>
       <section class="page proxy-page" id="proxy">
-        <div class="section-bar page-action-only"><span></span><button class="primary" id="openProxyImport">＋ 导入代理配置</button></div>
         <div class="clash-import-card"><div class="clash-mark">◎</div><div class="clash-import-copy"><b>导入 Clash 订阅</b><span>仅支持 HTTP / HTTPS 链接，节点数据仅在当前设备会话中使用。</span></div><div class="clash-import-form"><input id="clashLink" type="url" placeholder="粘贴 Clash 订阅链接" autocomplete="off" /><button class="primary" id="importClash">导入节点</button></div></div>
         <div class="proxy-node-head"><b>已导入节点</b><span id="proxyNodeCount">0 个节点</span></div>
         <div class="proxy-node-grid" id="proxyNodeGrid"><div class="proxy-empty"><span>◎</span><b>尚未导入节点</b><small>粘贴 Clash 订阅链接后，节点将在这里显示。</small></div></div>
       </section>
       <section class="page" id="logs"><div class="log-toolbar"><div class="log-level-filters" role="group" aria-label="日志级别筛选"><button class="active" data-log-level="ALL">ALL</button><button data-log-level="DEBUG">DEBUG</button><button data-log-level="INFO">INFO</button><button data-log-level="WARN">WARN</button><button data-log-level="ERROR">ERROR</button></div><div class="log-actions"><button class="ghost" id="exportSystemLogs">导出日志</button><button class="ghost" id="clearOldSystemLogs">清理30天以上</button><button class="ghost" id="clearSystemLogs">清空当前列表</button></div></div><div class="log-card system-log-card"><div class="system-log-head"><span>级别</span><span>内容</span><span>时间</span></div><div id="systemLogRows"></div><div class="system-log-empty" id="systemLogEmpty">暂时没有系统日志</div></div></section>
       <section class="page" id="plugins">
-        <div class="section-bar page-action-only"><span></span><button class="primary link-btn" id="openChromeWebStore">打开 Chrome 应用商店 ↗</button></div>
         <div class="plugin-grid">
           <article class="plugin-card"><div class="plugin-icon adguard-icon">A</div><div><b>AdGuard 广告拦截器</b><p>拦截广告、跟踪器与恶意页面</p></div><label class="switch"><input type="checkbox" data-plugin="adguard" checked><span></span></label></article>
           <article class="plugin-card"><div class="plugin-icon tampermonkey-icon">T</div><div><b>篡改猴</b><p>管理和运行浏览器用户脚本</p></div><label class="switch"><input type="checkbox" data-plugin="tampermonkey" checked><span></span></label></article>
@@ -119,7 +122,6 @@
         </div>
       </section>
       <section class="page help-page" id="help">
-        <div class="help-version">当前版本 <span>1.8.10</span></div>
         <div class="help-layout">
           <nav class="help-index" aria-label="帮助分类"><b>快速导航</b><a href="#help-start">开始使用</a><a href="#help-window">窗口与账号</a><a href="#help-network">代理与插件</a><a href="#help-data">数据与外观</a><a href="#help-trouble">常见问题</a></nav>
           <div class="help-content">
@@ -128,18 +130,18 @@
               <details class="help-item"><summary>如何下载、导入、更新或删除内核？</summary><p>打开「内核管理」，未安装时点击「下载内核」。下载连接中断时程序会自动重试、断点续传并校验完整性；网络仍无法连接 GitHub 时，可使用「导入内核包」或「导入本地内核」。安装完成后按钮变为「管理」，可更新或删除。</p></details>
             </section>
             <section class="help-group" id="help-window"><h3><span>02</span>窗口与账号</h3>
-              <details class="help-item"><summary>如何创建和启动浏览器窗口？</summary><p>点击右上角「创建窗口」，填写窗口名称，并选择账号、代理、系统和已安装的浏览器内核。列表中的系统、网络和加号图标可分别查看窗口配置、查看网络配置、添加或关联账号。启动后默认打开「工作台配置页」和 Google 首页两个标签，每个窗口的 Cookie、缓存和本地存储彼此隔离。</p></details>
+              <details class="help-item"><summary>如何创建和启动浏览器窗口？</summary><p>点击右上角「创建窗口」，填写窗口名称，并选择账号、代理、系统和已安装的浏览器内核。列表中的系统、网络和加号图标可分别查看窗口配置、查看出口 IP 与位置、添加或关联账号。启动后默认打开「工作台配置页」和 Google 首页两个标签，每个窗口的 Cookie、缓存和本地存储彼此隔离。</p></details>
               <details class="help-item"><summary>如何添加、登录或切换账号？</summary><p>在「账号管理」中填写账号名称、密码和备注。点击侧栏底部的头像或名字可打开登录对话框；切换账号时必须再次输入对应密码。未登录时头像为灰色 O，登录后显示账号名称首字母并使用主题色。</p></details>
               <details class="help-item"><summary>账号如何关联到窗口？</summary><p>创建窗口时，在「账号管理」输入框中选择已有账号或直接输入内容。也可在账号管理中设置关联窗口；备注为自由填写文本。</p></details>
             </section>
             <section class="help-group" id="help-network"><h3><span>03</span>代理与插件</h3>
               <details class="help-item"><summary>支持哪些代理导入方式？</summary><p>支持 Clash 订阅或 YAML、HTTP / SOCKS5 单层代理，以及两层链式代理。导入成功后，主页代理信息会显示「已开启」，并可在创建窗口时选择节点。</p></details>
-              <details class="help-item"><summary>默认插件如何加载？</summary><p>插件中心默认提供 AdGuard 广告拦截器、篡改猴和 Google 翻译。插件包会在后台准备，不再阻塞窗口启动；已经准备完成的启用插件会随 fingerprint-chromium 窗口自动加载，刚开始下载的插件会在下次启动时生效。</p></details>
+              <details class="help-item"><summary>默认插件如何加载？</summary><p>插件中心默认提供 AdGuard 广告拦截器、篡改猴和 Google 翻译。程序打开后会提前准备插件包；首次启动窗口会等待启用的插件下载并校验完成，确认安装成功后才打开 fingerprint-chromium。浏览器扩展程序页会自动开启“开发者模式”。若下载失败，窗口不会以缺少插件的状态启动，请根据提示检查系统代理后重试。</p></details>
             </section>
             <section class="help-group" id="help-data"><h3><span>04</span>数据与外观</h3>
               <details class="help-item"><summary>如何备份或恢复个人数据？</summary><p>点击右上角云端图标可导出 OneBrowser-data.zip，同时会把最新数据快照写入安装目录的 data/backups。点击“打开 Google Drive”会在当前已启动的 One Browser 窗口内打开 Drive，登录后上传该压缩包即可。</p></details>
               <details class="help-item"><summary>系统日志保存在哪里？为什么升级后还能看到？</summary><p>页面只显示当前应用进程的会话日志，并每 3 秒刷新；磁盘日志保存在程序旁的 data/logs/app.log，最多保留 30 天。若把新版解压到旧目录、复制旧版 data 文件夹，或旧程序尚未退出，历史文件与旧进程仍会保留。需要全新环境时，请先退出 One Browser，再将新版解压到新的独立目录；「清空当前列表」只清除当前会话列表，「清理30天以上」清理过期磁盘日志。</p></details>
-              <details class="help-item"><summary>如何更换主题、迁移配置或初始化系统？</summary><p>进入「系统设置」可选择预设配色、自定义主色或开启深色内容区。「高级设置」提供清除缓存、加载配置、导出配置和初始化系统；初始化会清除业务数据但保留已经下载的内核。</p></details>
+              <details class="help-item"><summary>如何更换主题、窗口图标颜色或迁移配置？</summary><p>进入「系统设置」可选择预设配色、自定义主色或开启深色内容区；内核图标和默认窗口图标会同步使用当前主题色。点击窗口列表中的彩色图标，可在圆角配色面板中选择跟随主题、预设色或输入十六进制颜色。「高级设置」提供清除缓存、加载配置、导出配置和初始化系统；初始化会清除业务数据但保留已经下载的内核。</p></details>
             </section>
             <section class="help-group" id="help-trouble"><h3><span>05</span>常见问题</h3>
               <details class="help-item"><summary>为什么窗口无法启动或内核无法下载？</summary><p>请先确认 Fingerprint Chromium 内核已经安装。如果下载提示 EOF，新版本会自动分段重试并切换断点续传；仍失败通常是当前系统代理无法稳定访问 GitHub，可暂时切换网络，或下载内核压缩包后在「内核管理」中本地导入。窗口使用代理时也请确认节点已成功导入。</p></details>
@@ -261,7 +263,12 @@
   <div class="row-menu account-popover" id="accountMenu"><button data-account-action="login">◎ 登录账号</button><button data-account-action="switch">⇄ 切换账号</button><button data-account-action="settings">⚙ 账号设置</button><button data-account-action="logout">↪ 退出登录</button></div>
   <div class="row-menu tag-popover" id="tagMenu"><button data-tag="客户服务">客户服务</button><button data-tag="电商运营">电商运营</button><button data-tag="内容团队">内容团队</button><button data-tag="项目协作">项目协作</button><button data-tag="供应链">供应链</button><button data-tag="市场部">市场部</button></div>
   <div class="row-menu profile-popover" id="profileMenu"><button data-profile-action="add">＋ 添加账号</button><button data-profile-action="select">⇄ 选择账号</button></div>
-  <input type="color" id="iconColorPicker" class="hidden-color-picker" value="#7468e8" aria-label="选择窗口图标颜色">
+  <div class="window-color-popover" id="windowColorPopover" role="dialog" aria-label="窗口图标颜色">
+    <div class="window-color-head"><b>窗口图标颜色</b><button type="button" id="closeWindowColor" aria-label="关闭">×</button></div>
+    <button type="button" class="window-color-theme" data-window-color="theme"><span></span>跟随当前主题</button>
+    <div class="window-color-swatches" id="windowColorSwatches"></div>
+    <div class="window-color-custom"><input id="windowColorHex" value="#7165EE" maxlength="7" aria-label="窗口图标颜色代码"><button type="button" id="applyWindowColor">应用</button></div>
+  </div>
   <div class="toast" id="toast">窗口已创建</div>
   <div class="overlay" id="proxyImportModal"><section class="proxy-dialog"><button class="modal-close" id="closeProxyImport">×</button><h2>导入代理配置</h2><div class="proxy-tabs"><button class="selected" data-proxy-tab="clash">Clash 订阅 / YAML<small>订阅或 Clash 节点列表</small></button><button data-proxy-tab="http">HTTP / SOCKS5<small>单层代理或批量文本</small></button><button data-proxy-tab="chain">链式代理<small>本机出口 + 落地代理</small></button></div><div data-pane="clash" class="proxy-pane"><label>订阅 URL（可选）<input placeholder="订阅 URL"></label><label>Clash YAML / 节点文本<textarea placeholder="proxies:\n - name: vless-v6\n   type: vless\n   server: example.com\n   port: 443"></textarea></label><label>分组名称（可选）<input placeholder="分组名称"></label></div><div data-pane="http" class="proxy-pane hidden"><div class="two"><label>代理协议<select><option>HTTP</option><option>SOCKS5</option></select></label><label>代理名称（可选）<input placeholder="节点名称"></label><label>代理地址<input placeholder="127.0.0.1 或 hk.example.com"></label><label>代理端口<input placeholder="1080"></label><label>账号（可选）<input placeholder="留空则不认证"></label><label>密码（可选）<input placeholder="留空则不使用密码"></label></div><label>文本辅助（可选）<textarea placeholder='{"name":"","protocol":"http","server":"","port":""}'></textarea></label></div><div data-pane="chain" class="proxy-pane hidden"><div class="two"><label>代理名称（可选）<input placeholder="例如：双层英国链路"></label><label>本地监听端口（可选）<input placeholder="留空自动分配"></label></div><h3>第一层代理</h3><div class="two"><label>协议<select><option>HTTP</option><option>SOCKS5</option></select></label><label>代理地址<input placeholder="代理地址"></label><label>代理端口<input placeholder="端口"></label><label>账号（可选）<input></label></div><h3>第二层代理</h3><div class="two"><label>协议<select><option>HTTP</option><option>SOCKS5</option></select></label><label>代理地址<input placeholder="代理地址"></label><label>代理端口<input placeholder="端口"></label><label>账号（可选）<input></label></div></div><footer><button class="ghost" id="cancelProxyImport">取消</button><button class="primary" id="parseProxyImport">解析</button></footer></section></div>
 <div class="browser-preview" id="browserPreview"><div class="browser-shell browser-preview-shell"><div class="browser-tabs"><button class="tab">◒　工作台配置　×</button><button class="tab active">G　Google　×</button><button class="browser-close" id="closeBrowserPreview">×</button></div><div class="browser-toolbar"><button>‹</button><button>›</button><button>↻</button><button>⌂</button><div>⌕　https://www.google.com/</div><button>☆</button></div><div class="browser-content browser-google"><div class="google-page"><b>Google</b><input placeholder="在 Google 中搜索，或输入网址"><small>Google 首页 · 可登录账号</small></div></div><div class="browser-bookmarks"><span>书签</span><button>G Google</button><button>GPT ChatGPT</button><button>X</button><button>Instagram</button><button>Facebook</button><button>YouTube</button></div></div></div>

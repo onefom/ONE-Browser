@@ -163,6 +163,9 @@ func (a *App) OneBrowserStart(request OneBrowserStartRequest) (OneBrowserStartRe
 	if !status.Installed || strings.TrimSpace(status.CoreID) == "" {
 		return OneBrowserStartResult{}, fmt.Errorf("请先下载并完成 fingerprint-chromium 内核安装")
 	}
+	if warnings := a.OneBrowserSyncBuiltinExtensions(request.Extensions); len(warnings) > 0 {
+		return OneBrowserStartResult{}, fmt.Errorf("插件准备失败：%s", strings.Join(warnings, "；"))
+	}
 
 	profileID := strings.TrimSpace(request.ProfileID)
 	name := strings.TrimSpace(request.Name)
@@ -231,14 +234,6 @@ func (a *App) OneBrowserStart(request OneBrowserStartRequest) (OneBrowserStartRe
 	if err != nil {
 		return OneBrowserStartResult{}, err
 	}
-	// Missing built-in extensions may require network downloads. Keep them out of
-	// the browser-start critical path; installed extensions are prepared above,
-	// while missing packages are readied for the next launch in the background.
-	go func(enabled []string) {
-		if warnings := a.OneBrowserSyncBuiltinExtensions(enabled); len(warnings) > 0 {
-			fmt.Fprintf(os.Stderr, "One Browser extensions: %s\n", strings.Join(warnings, "; "))
-		}
-	}(append([]string(nil), request.Extensions...))
 	return OneBrowserStartResult{ProfileID: started.ProfileId, Running: started.Running}, nil
 }
 

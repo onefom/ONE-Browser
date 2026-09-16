@@ -10,6 +10,7 @@ const stage4Source = await readFile(new URL('../public/one-browser/stage4-portab
 const stage5Source = await readFile(new URL('../public/one-browser/stage5-window-polish.css', import.meta.url), 'utf8');
 const stage6Source = await readFile(new URL('../public/one-browser/stage6-system-polish.css', import.meta.url), 'utf8');
 const stage7Source = await readFile(new URL('../public/one-browser/stage7-unified-layout.css', import.meta.url), 'utf8');
+const stage9Source = await readFile(new URL('../public/one-browser/stage9-plugin-sidebar-fix.css', import.meta.url), 'utf8');
 const transferSource = await readFile(new URL('../../backend/internal/browser/download_core_transfer.go', import.meta.url), 'utf8');
 
 const context = { module: { exports: {} }, globalThis: {} };
@@ -69,7 +70,7 @@ assert.equal(htmlSource.includes('id="exportSystemLogs"'), true, '日志页必�
 assert.equal(htmlSource.includes('id="clearOldSystemLogs"'), true, '日志页必须提供30天以上清理');
 assert.equal(appSource.includes("const noteDefaults=['暂无备注']"), true, '新窗口不能再默认显示德国客服主窗口');
 assert.equal(appSource.includes('enabledPluginKeys()'), true, '启动窗口时必须同步启用的内置扩展');
-assert.equal(appSource.includes('await window.oneBrowserPluginSync'), false, '启动窗口不能等待扩展网络下载');
+assert.equal(appSource.includes('await window.oneBrowserPluginSync'), true, '首次启动必须等待共享的扩展准备任务');
 assert.equal(appSource.includes('data-action="config"') && appSource.includes('data-action="network"'), true, '配置和网络图标必须提供点击操作');
 assert.equal(appSource.includes('class="hover-card"'), false, '表格配置按钮不能残留会被裁切的悬浮黑条');
 assert.equal(appSource.includes("document.querySelectorAll('.home-only-action').forEach"), true, '升级与云备份入口只能显示在窗口管理首页');
@@ -79,7 +80,15 @@ assert.equal(sidebarPositions.every((position,index)=>index===0||position>sideba
 assert.equal(appSource.includes("title=\"删除节点\"") && appSource.includes('>×</button>'), true, '代理删除按钮必须显示为 X');
 assert.equal(appSource.includes('data-show-account-password'), false, '账号列表不能提供密码预览按钮');
 assert.equal(htmlSource.includes('class="help-search"'), false, '帮助中心右侧搜索控件必须移除');
-assert.equal(htmlSource.includes('<div class="help-version">当前版本 <span>1.8.10</span></div>'), true, '帮助中心必须显示当前版本');
+assert.equal(htmlSource.includes('<div class="header-version" data-header-page="settings" hidden>当前版本 <span>1.8.12</span></div>'), true, '版本号必须以纯文字显示在系统设置页头');
+assert.equal((htmlSource.match(/data-header-page=/g) || []).length, 5, '内核、代理、账号、插件和系统版本必须使用统一页头位置');
+assert.equal(appSource.includes("document.querySelectorAll('[data-header-page]')"), true, '切换页面时必须同步切换页头操作');
+assert.equal(htmlSource.includes('data-header-page="kernels" data-kernel="chrome"'), true, '内核下载按钮必须显示在统一页头操作区');
+assert.equal(htmlSource.includes('id="iconColorPicker"'), false, '窗口颜色不能再调用位置不可控的系统原生取色器');
+assert.equal(htmlSource.includes('id="windowColorPopover"'), true, '窗口颜色必须使用应用内圆角配色面板');
+assert.equal(appSource.includes("showConfigDetails([['出口 IP',ip],['位置'"), true, '网络详情只保留出口 IP 和位置');
+assert.equal(stage9Source.includes('grid-template-rows: 43px 43px 52px'), true, '折叠侧栏底部三行必须使用固定高度');
+assert.equal(stage9Source.includes('#currentAccount > div:not(.avatar)'), true, '折叠侧栏必须隐藏未登录文字，避免竖排跳动');
 assert.equal(stage3Source.includes('"PingFang SC"'), true, '界面字体必须优先使用苹方');
 assert.equal(stage3Source.includes('box-shadow: none !important'), true, '筛选控件不能保留描边阴影');
 assert.equal(htmlSource.includes('id="createFormScroll"'), true, '新建窗口必须使用独立滚动内容区');

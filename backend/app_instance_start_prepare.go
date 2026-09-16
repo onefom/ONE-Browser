@@ -175,6 +175,11 @@ func (a *App) prepareBrowserStartPlan(input browserStartInput, profile *BrowserP
 		logger.New("Browser").Warn("写入扩展开发者模式失败", logger.F("profile_id", input.ProfileID), logger.F("error", err.Error()))
 	}
 	_, extensionWarnings := a.browserMgr.PrepareProfileExtensions(profile, chromeBinaryPath, userDataDir, extensionInstallArgs)
+	// The persistent installer can update profile preference files. Re-assert the
+	// UI preference afterwards so chrome://extensions always opens in developer mode.
+	if err := browser.EnableProfileExtensionDeveloperMode(userDataDir); err != nil {
+		logger.New("Browser").Warn("再次写入扩展开发者模式失败", logger.F("profile_id", input.ProfileID), logger.F("error", err.Error()))
+	}
 	extensionWarning := joinBrowserStartExtensionWarnings(extensionWarnings)
 
 	return &browserStartPlan{

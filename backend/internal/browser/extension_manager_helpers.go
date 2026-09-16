@@ -38,15 +38,23 @@ func downloadChromeExtensionCRX(ctx context.Context, extensionID string, client 
 	if client == nil {
 		client = &http.Client{Timeout: extensionDownloadTimeout}
 	}
-	downloadURL := BuildChromeExtensionDownloadURL(extensionID)
+	downloadURLs := buildChromeExtensionDownloadURLs(extensionID)
+	if len(downloadURLs) == 0 {
+		return nil, fmt.Errorf("插件 ID 无效")
+	}
 	var lastErr error
 	for attempt := 1; attempt <= 3; attempt++ {
-		data, err := downloadChromeExtensionCRXOnce(ctx, client, downloadURL)
-		if err == nil {
-			return data, nil
+		for _, downloadURL := range downloadURLs {
+			data, err := downloadChromeExtensionCRXOnce(ctx, client, downloadURL)
+			if err == nil {
+				return data, nil
+			}
+			lastErr = err
+			if !isRetryableExtensionDownloadError(err) {
+				break
+			}
 		}
-		lastErr = err
-		if !isRetryableExtensionDownloadError(err) {
+		if !isRetryableExtensionDownloadError(lastErr) {
 			break
 		}
 		select {
@@ -63,7 +71,7 @@ func downloadChromeExtensionCRXOnce(ctx context.Context, client *http.Client, do
 	if err != nil {
 		return nil, err
 	}
-	request.Header.Set("User-Agent", "Mozilla/5.0 AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36")
+	request.Header.Set("User-Agent", "Mozilla/5.0 AppleWebKit/537.36 Chrome/148.0.0.0 Safari/537.36")
 	request.Header.Set("Accept", "*/*")
 	response, err := client.Do(request)
 	if err != nil {
@@ -81,6 +89,9 @@ func downloadChromeExtensionCRXOnce(ctx context.Context, client *http.Client, do
 	if len(data) > extensionMaxPackageBytes {
 		return nil, fmt.Errorf("插件包超过限制")
 	}
+	if len(data) == 0 {
+		return nil, fmt.Errorf("下载插件失败: 服务返回空插件包（HTTP %d）", response.StatusCode)
+	}
 	return data, nil
 }
 
@@ -90,6 +101,13 @@ func isRetryableExtensionDownloadError(err error) bool {
 	}
 	message := strings.ToLower(err.Error())
 	return strings.Contains(message, "eof") ||
+		strings.Contains(message, "空插件包") ||
+		strings.Contains(message, "http 204") ||
+		strings.Contains(message, "http 429") ||
+		strings.Contains(message, "http 500") ||
+		strings.Contains(message, "http 502") ||
+		strings.Contains(message, "http 503") ||
+		strings.Contains(message, "http 504") ||
 		strings.Contains(message, "connection reset") ||
 		strings.Contains(message, "connection refused") ||
 		strings.Contains(message, "timeout") ||

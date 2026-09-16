@@ -55,11 +55,25 @@ func BuildChromeWebStoreURL(extensionID string) string {
 }
 
 func BuildChromeExtensionDownloadURL(extensionID string) string {
-	normalizedID := NormalizeExtensionID(extensionID)
-	if normalizedID == "" {
+	urls := buildChromeExtensionDownloadURLs(extensionID)
+	if len(urls) == 0 {
 		return ""
 	}
-	return "https://clients2.google.com/service/update2/crx?response=redirect&prodversion=120.0.0.0&acceptformat=crx2,crx3&x=id%3D" + normalizedID + "%26installsource%3Dondemand%26uc"
+	return urls[0]
+}
+
+func buildChromeExtensionDownloadURLs(extensionID string) []string {
+	normalizedID := NormalizeExtensionID(extensionID)
+	if normalizedID == "" {
+		return nil
+	}
+	const prefix = "https://clients2.google.com/service/update2/crx?response=redirect&os=win&arch=x64&os_arch=x86_64&prodchannel=stable&prodversion=148.0.7778.215&acceptformat=crx2,crx3&x=id%3D"
+	suffix := normalizedID + "%26installsource%3Dondemand%26uc"
+	return []string{
+		prefix + suffix + "&prod=chromecrx",
+		prefix + suffix + "&prod=chromiumcrx",
+		"https://clients2.google.com/service/update2/crx?response=redirect&prodversion=148.0.7778.215&acceptformat=crx2,crx3&x=id%3D" + suffix,
+	}
 }
 
 func (m *Manager) LookupExtension(query string) (ExtensionLookupResult, error) {

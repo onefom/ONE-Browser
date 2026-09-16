@@ -164,19 +164,20 @@ func (a *App) OneBrowserSyncBuiltinExtensions(enabledKeys []string) []string {
 	}
 	warnings := []string{}
 	for key, extensionID := range oneBrowserBuiltinExtensions {
+		a.maintenanceMu.Lock()
 		extension, getErr := a.browserMgr.ExtensionDAO.Get(extensionID)
 		if !desired[key] {
 			if getErr == nil {
 				_ = a.browserMgr.ExtensionDAO.SetDefaultInstall(extensionID, false)
 			}
+			a.maintenanceMu.Unlock()
 			continue
 		}
 		if getErr == sql.ErrNoRows {
-			a.maintenanceMu.Lock()
 			extension, getErr = a.browserMgr.InstallExtensionFromWebStoreWithHTTPClient(a.ctx, extensionID, client)
-			a.maintenanceMu.Unlock()
 		}
 		if getErr != nil {
+			a.maintenanceMu.Unlock()
 			warnings = append(warnings, key+": "+getErr.Error())
 			continue
 		}
@@ -184,6 +185,7 @@ func (a *App) OneBrowserSyncBuiltinExtensions(enabledKeys []string) []string {
 		if setErr := a.browserMgr.ExtensionDAO.SetDefaultInstall(extension.ExtensionID, true); setErr != nil {
 			warnings = append(warnings, key+": "+setErr.Error())
 		}
+		a.maintenanceMu.Unlock()
 	}
 	if len(warnings) == 0 {
 		logger.New("Extension").Info("内置扩展已同步", logger.F("count", len(desired)))
