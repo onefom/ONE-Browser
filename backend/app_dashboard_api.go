@@ -53,6 +53,9 @@ func (a *App) GetLogLevel() string      { return logger.New("App").GetLevel().St
 
 // GetAppLogs 获取内存缓冲日志
 func (a *App) GetAppLogs() []logger.MemoryLogEntry {
+	// The One Browser log page provides its own ALL/DEBUG/INFO/WARN/ERROR
+	// filters, so return the complete in-memory stream instead of hiding routine
+	// backend INFO entries here.
 	return logger.GetMemoryWriter().GetEntries()
 }
 

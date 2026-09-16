@@ -29,17 +29,18 @@ type OneBrowserKernelStatus struct {
 // owns the presentation state while Ant Browser owns the persisted profile,
 // browser executable and proxy bridge.
 type OneBrowserStartRequest struct {
-	ProfileID  string   `json:"profileId"`
-	Name       string   `json:"name"`
-	ProxyID    string   `json:"proxyId"`
-	ProxyName  string   `json:"proxyName"`
-	Account    string   `json:"account"`
-	OS         string   `json:"os"`
-	Language   string   `json:"language"`
-	Timezone   string   `json:"timezone"`
-	UserAgent  string   `json:"userAgent"`
-	WindowSize string   `json:"windowSize"`
-	Extensions []string `json:"extensions"`
+	ProfileID      string   `json:"profileId"`
+	Name           string   `json:"name"`
+	ProxyID        string   `json:"proxyId"`
+	ProxyName      string   `json:"proxyName"`
+	Account        string   `json:"account"`
+	OS             string   `json:"os"`
+	Language       string   `json:"language"`
+	Timezone       string   `json:"timezone"`
+	UserAgent      string   `json:"userAgent"`
+	WindowSize     string   `json:"windowSize"`
+	WindowPosition string   `json:"windowPosition"`
+	Extensions     []string `json:"extensions"`
 }
 
 type OneBrowserStartResult struct {
@@ -52,10 +53,35 @@ func (a *App) OneBrowserKernelStatus() OneBrowserKernelStatus {
 	if a == nil || a.browserMgr == nil {
 		return OneBrowserKernelStatus{}
 	}
-	for _, core := range a.browserMgr.ListCores() {
+	cores := a.browserMgr.ListCores()
+	for _, core := range cores {
 		if strings.Contains(strings.ToLower(core.CoreName+" "+core.CorePath), "fingerprint-chromium") {
-			return OneBrowserKernelStatus{Installed: true, Version: fingerprintChromiumVersion, CoreID: core.CoreId}
+			version := strings.TrimSpace(a.browserMgr.GetChromeVersion(core.CorePath))
+			if version == "" {
+				version = strings.TrimPrefix(strings.TrimSpace(core.CoreName), "fingerprint-chromium-")
+			}
+			if version == "" || version == core.CoreName {
+				version = fingerprintChromiumVersion
+			}
+			return OneBrowserKernelStatus{Installed: true, Version: version, CoreID: core.CoreId}
 		}
+	}
+	// A manually imported and validated directory may use its original folder
+	// name (for example chrome-win). Treat the default/first registered core as
+	// available so local imports are immediately usable from One Browser.
+	if len(cores) > 0 {
+		core := cores[0]
+		for _, item := range cores {
+			if item.IsDefault {
+				core = item
+				break
+			}
+		}
+		version := strings.TrimSpace(a.browserMgr.GetChromeVersion(core.CorePath))
+		if version == "" {
+			version = "本地版本"
+		}
+		return OneBrowserKernelStatus{Installed: true, Version: version, CoreID: core.CoreId}
 	}
 	return OneBrowserKernelStatus{}
 }
@@ -166,7 +192,7 @@ func (a *App) OneBrowserStart(request OneBrowserStartRequest) (OneBrowserStartRe
 				ProxyId:            proxyID,
 				ProxyConfig:        proxyConfig,
 				MemoryLimitMB:      item.MemoryLimitMB,
-				LaunchArgs:         ensureOneBrowserLaunchArgs(item.LaunchArgs),
+				LaunchArgs:         oneBrowserWindowLaunchArgs(item.LaunchArgs, request),
 				Tags:               item.Tags,
 				Keywords:           item.Keywords,
 				GroupId:            item.GroupId,
@@ -186,7 +212,7 @@ func (a *App) OneBrowserStart(request OneBrowserStartRequest) (OneBrowserStartRe
 			ProxyId:     proxyID,
 			ProxyConfig: proxyConfig,
 			Tags:        []string{"One Browser"},
-			LaunchArgs:  ensureOneBrowserLaunchArgs(nil),
+			LaunchArgs:  oneBrowserWindowLaunchArgs(nil, request),
 		})
 		if err != nil {
 			return OneBrowserStartResult{}, err
@@ -197,9 +223,6 @@ func (a *App) OneBrowserStart(request OneBrowserStartRequest) (OneBrowserStartRe
 	_, _ = browser.RemoveBookmarkName(a.browserMgr.ResolveUserDataDir(profile), "指纹检测")
 	_, _ = browser.RemoveBookmarkName(a.browserMgr.ResolveUserDataDir(profile), "Ant 指纹检测")
 
-	if warnings := a.OneBrowserSyncBuiltinExtensions(request.Extensions); len(warnings) > 0 {
-		fmt.Fprintf(os.Stderr, "One Browser extensions: %s\n", strings.Join(warnings, "; "))
-	}
 	workspaceURL, err := a.oneBrowserWorkspaceURL(profile.ProfileId, profile.ProfileName, request, status, proxyConfig)
 	if err != nil {
 		return OneBrowserStartResult{}, err
@@ -208,6 +231,14 @@ func (a *App) OneBrowserStart(request OneBrowserStartRequest) (OneBrowserStartRe
 	if err != nil {
 		return OneBrowserStartResult{}, err
 	}
+	// Missing built-in extensions may require network downloads. Keep them out of
+	// the browser-start critical path; installed extensions are prepared above,
+	// while missing packages are readied for the next launch in the background.
+	go func(enabled []string) {
+		if warnings := a.OneBrowserSyncBuiltinExtensions(enabled); len(warnings) > 0 {
+			fmt.Fprintf(os.Stderr, "One Browser extensions: %s\n", strings.Join(warnings, "; "))
+		}
+	}(append([]string(nil), request.Extensions...))
 	return OneBrowserStartResult{ProfileID: started.ProfileId, Running: started.Running}, nil
 }
 
@@ -237,6 +268,32 @@ func ensureOneBrowserLaunchArgs(items []string) []string {
 	return result
 }
 
+func oneBrowserWindowLaunchArgs(items []string, request OneBrowserStartRequest) []string {
+	result := make([]string, 0, len(items)+4)
+	for _, item := range items {
+		value := strings.TrimSpace(item)
+		lower := strings.ToLower(value)
+		if value == "" || lower == "--start-maximized" || strings.HasPrefix(lower, "--window-size") || strings.HasPrefix(lower, "--window-position") || strings.HasPrefix(lower, "--user-agent") {
+			continue
+		}
+		result = append(result, value)
+	}
+	result = ensureOneBrowserLaunchArgs(result)
+
+	width, height := 900, 680
+	if _, err := fmt.Sscanf(strings.NewReplacer("×", "x", "X", "x", " ", "").Replace(request.WindowSize), "%dx%d", &width, &height); err != nil || width < 360 || height < 480 {
+		width, height = 900, 680
+	}
+	result = append(result, fmt.Sprintf("--window-size=%d,%d", width, height))
+	// Use a stable top-left origin so Chromium does not apply a half-screen
+	// placement heuristic and the One Browser manager remains visible.
+	result = append(result, "--window-position=12,12")
+	if userAgent := strings.TrimSpace(request.UserAgent); userAgent != "" {
+		result = append(result, "--user-agent="+userAgent)
+	}
+	return result
+}
+
 func (a *App) oneBrowserWorkspaceURL(profileID, profileName string, request OneBrowserStartRequest, status OneBrowserKernelStatus, systemProxy string) (string, error) {
 	if strings.TrimSpace(profileID) == "" {
 		return "", fmt.Errorf("窗口配置不存在")
@@ -254,10 +311,11 @@ func (a *App) oneBrowserWorkspaceURL(profileID, profileName string, request OneB
 			proxyName = "直连（未检测到系统代理）"
 		}
 	}
-	data := struct{ Name, Account, Proxy, OS, Language, Timezone, UserAgent, WindowSize, Version string }{
+	data := struct{ Name, Account, Proxy, OS, Language, Timezone, UserAgent, WindowSize, Version, Extensions, WorkspaceID string }{
 		Name: profileName, Account: request.Account, Proxy: proxyName, OS: request.OS,
 		Language: request.Language, Timezone: request.Timezone, UserAgent: request.UserAgent,
 		WindowSize: request.WindowSize, Version: status.Version,
+		Extensions: fmt.Sprintf("%d 个已启用", len(request.Extensions)), WorkspaceID: profileID,
 	}
 	if strings.TrimSpace(data.Account) == "" {
 		data.Account = "未关联账号"

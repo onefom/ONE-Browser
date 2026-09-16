@@ -781,6 +781,7 @@ export namespace backend {
 	    timezone: string;
 	    userAgent: string;
 	    windowSize: string;
+	    windowPosition: string;
 	    extensions: string[];
 	
 	    static createFrom(source: any = {}) {
@@ -799,6 +800,7 @@ export namespace backend {
 	        this.timezone = source["timezone"];
 	        this.userAgent = source["userAgent"];
 	        this.windowSize = source["windowSize"];
+	        this.windowPosition = source["windowPosition"];
 	        this.extensions = source["extensions"];
 	    }
 	}

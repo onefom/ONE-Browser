@@ -32,6 +32,11 @@
   <link rel="stylesheet" href="stage2-fixes.css">
   <link rel="stylesheet" href="browser-preview.css">
   <link rel="stylesheet" href="stage3-fixes.css">
+  <link rel="stylesheet" href="stage4-portable-data.css">
+  <link rel="stylesheet" href="stage5-window-polish.css">
+  <link rel="stylesheet" href="stage6-system-polish.css">
+  <link rel="stylesheet" href="stage7-unified-layout.css">
+  <link rel="stylesheet" href="stage8-interaction-polish.css">
 </head>
 <body>
   <div class="app-shell">
@@ -39,12 +44,12 @@
       <div class="brand"><span class="logo logo-ring" id="brandMark">O</span><span id="brandName">ONLINE</span></div>
       <nav>
         <button class="nav-item active" data-page="environments"><span><svg viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="16" rx="3"/><path d="M8 4v16M8 9h12"/></svg></span>窗口管理</button>
-        <button class="nav-item" data-page="accounts"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="9.3" r="2.25"/><path d="M7.9 16.2c.8-2.05 2.15-3.05 4.1-3.05s3.3 1 4.1 3.05"/></svg></span>账号管理</button>
         <button class="nav-item" data-page="kernels"><span><svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="3"/><path d="M9 9h6v6H9zM9 2.8V5M15 2.8V5M9 19v2.2M15 19v2.2M2.8 9H5M19 9h2.2M2.8 15H5M19 15h2.2"/></svg></span>内核管理</button>
         <button class="nav-item" data-page="proxy"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.7 12h16.6M12 3.5c2.2 2.3 3.4 5.1 3.4 8.5S14.2 18.2 12 20.5C9.8 18.2 8.6 15.4 8.6 12S9.8 5.8 12 3.5z"/></svg></span>代理管理</button>
+        <button class="nav-item" data-page="accounts"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="9.3" r="2.25"/><path d="M7.9 16.2c.8-2.05 2.15-3.05 4.1-3.05s3.3 1 4.1 3.05"/></svg></span>账号管理</button>
         <button class="nav-item" data-page="plugins"><span><svg viewBox="0 0 24 24"><path d="M8.5 3.8h7v4.7H20v7h-4.5v4.7h-7v-4.7H4v-7h4.5z"/></svg></span>插件中心</button>
         <button class="nav-item" data-page="logs"><span><svg viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4.5" cy="6" r=".8" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r=".8" fill="currentColor" stroke="none"/><circle cx="4.5" cy="18" r=".8" fill="currentColor" stroke="none"/></svg></span>系统日志</button>
-        <button class="nav-item" data-page="settings"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3.5v2M12 18.5v2M20.5 12h-2M5.5 12h-2M18 6l-1.4 1.4M7.4 16.6 6 18M18 18l-1.4-1.4M7.4 7.4 6 6"/><circle cx="12" cy="12" r="7"/></svg></span>外观设置</button>
+        <button class="nav-item" data-page="settings"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3.5v2M12 18.5v2M20.5 12h-2M5.5 12h-2M18 6l-1.4 1.4M7.4 16.6 6 18M18 18l-1.4-1.4M7.4 7.4 6 6"/><circle cx="12" cy="12" r="7"/></svg></span>系统设置</button>
       </nav>
       <div class="sidebar-bottom">
         <button class="nav-item" data-page="help"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.8 9a2.4 2.4 0 0 1 4.5 1.2c0 2-2.3 2.1-2.3 4M12 17.5h.01"/></svg></span>帮助中心</button>
@@ -57,10 +62,10 @@
       <header>
         <div><h1 id="pageTitle">窗口管理</h1><p id="pageSub">独立管理每个浏览器窗口的数据与访问权限</p></div>
         <div class="header-actions">
-          <button class="top-icon" id="coreUpdateBtn" aria-label="内核升级" title="内核升级"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 16V8m-3 3 3-3 3 3"/></svg><i></i></button>
-          <button class="top-icon cloud-icon" id="cloudBackupBtn" aria-label="数据备份" title="数据备份"><svg viewBox="0 0 24 24"><path d="M7.2 18.5h9.3a3.7 3.7 0 0 0 .6-7.4A5.5 5.5 0 0 0 6.7 9.6a4.5 4.5 0 0 0 .5 8.9Z"/><path d="M12 15V9m-2.5 2.5L12 9l2.5 2.5"/></svg></button>
+          <button class="top-icon home-only-action" id="coreUpdateBtn" aria-label="内核升级" title="内核升级"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 16V8m-3 3 3-3 3 3"/></svg><i></i></button>
+          <button class="top-icon cloud-icon home-only-action" id="cloudBackupBtn" aria-label="数据备份" title="数据备份"><svg viewBox="0 0 24 24"><path d="M7.2 18.5h9.3a3.7 3.7 0 0 0 .6-7.4A5.5 5.5 0 0 0 6.7 9.6a4.5 4.5 0 0 0 .5 8.9Z"/><path d="M12 15V9m-2.5 2.5L12 9l2.5 2.5"/></svg></button>
           <button class="primary" id="createBtn">＋ 创建窗口</button>
-          <div class="core-update-popover" id="coreUpdatePopover"><div class="core-popover-head"><span>内核升级</span><b id="coreUpdateBadge">当前无需更新</b></div><div class="core-version-row"><span class="core-version-icon">↑</span><div><b id="coreUpdateTitle">尚未下载内核</b><small id="coreUpdateMeta">下载任一内核后，才可检查更新</small></div></div><p id="coreUpdateDescription">当前没有可升级的浏览器内核。</p><div class="core-popover-actions"><button class="ghost" id="ignoreCoreUpdate">忽略</button><button class="primary" id="upgradeCore">升级内核</button></div></div>
+          <div class="core-update-popover" id="coreUpdatePopover"><div class="core-popover-head"><span>内核升级</span><b id="coreUpdateBadge" class="up-to-date">当前无内核</b></div><div class="core-version-row"><span class="core-version-icon">↑</span><div><b id="coreUpdateTitle">当前无内核，请先下载</b><small id="coreUpdateMeta">下载后才会检查版本更新</small></div></div><p id="coreUpdateDescription">当前最新版本：148.0.7778.215</p><div class="core-popover-actions"><button class="ghost" id="ignoreCoreUpdate" hidden>忽略</button><button class="primary" id="upgradeCore">前往下载</button></div></div>
         </div>
       </header>
 
@@ -84,20 +89,20 @@
       </section>
 
       <section class="page" id="accounts">
-        <div class="section-bar"><div><h2>账号保险箱</h2><p>将业务账号分配到指定窗口，敏感信息仅对授权成员可见。</p></div><button class="primary" id="addAccount">＋ 添加账号</button></div>
+        <div class="section-bar page-action-only"><span></span><button class="primary" id="addAccount">＋ 添加账号</button></div>
         <div class="account-grid" id="accountGrid"></div>
       </section>
 
-      <section class="page kernel-page" id="kernels"><div class="section-bar"><div><h2>浏览器内核</h2><p>One Browser 统一使用 fingerprint-chromium Windows x64 内核。</p></div><span class="kernel-storage-note">初始版本不包含内核</span></div><div class="kernel-grid"><article class="kernel-card" data-kernel-card="chrome"><div class="kernel-brand chromium-mark">C</div><div class="kernel-copy"><div><b>Fingerprint Chromium</b><span>fingerprint-chromium 发布源</span></div><p>唯一受支持的浏览器内核，下载并验证后供所有独立窗口使用。</p><small>Windows x64 · 按需下载</small></div><div class="kernel-action"><span class="kernel-status">未安装</span><button class="primary kernel-download" data-kernel="chrome">下载内核</button></div></article></div></section>
+      <section class="page kernel-page" id="kernels"><div class="kernel-grid"><article class="kernel-card" data-kernel-card="chrome"><div class="kernel-brand chromium-mark">C</div><div class="kernel-copy"><div><b>Fingerprint Chromium</b></div><p>下载并验证后供所有独立窗口使用，窗口数据与浏览器配置彼此隔离。</p><small>Windows x64 · 按需安装</small></div><div class="kernel-action"><span class="kernel-status">未安装</span><button class="primary kernel-download" data-kernel="chrome">下载内核</button></div></article></div><div class="kernel-secondary-actions"><div><b>已有本地内核？</b><span>支持导入压缩包，或直接选择已解压的内核目录。</span></div><button class="ghost" id="importKernelArchive">导入内核包</button><button class="ghost" id="importKernelDirectory">导入本地内核</button></div></section>
       <section class="page proxy-page" id="proxy">
-        <div class="section-bar"><div><h2>代理节点</h2><p>支持 Clash、HTTP / SOCKS5 与链式代理，导入后可直接分配给窗口。</p></div><button class="primary" id="openProxyImport">＋ 导入代理配置</button></div>
+        <div class="section-bar page-action-only"><span></span><button class="primary" id="openProxyImport">＋ 导入代理配置</button></div>
         <div class="clash-import-card"><div class="clash-mark">◎</div><div class="clash-import-copy"><b>导入 Clash 订阅</b><span>仅支持 HTTP / HTTPS 链接，节点数据仅在当前设备会话中使用。</span></div><div class="clash-import-form"><input id="clashLink" type="url" placeholder="粘贴 Clash 订阅链接" autocomplete="off" /><button class="primary" id="importClash">导入节点</button></div></div>
         <div class="proxy-node-head"><b>已导入节点</b><span id="proxyNodeCount">0 个节点</span></div>
         <div class="proxy-node-grid" id="proxyNodeGrid"><div class="proxy-empty"><span>◎</span><b>尚未导入节点</b><small>粘贴 Clash 订阅链接后，节点将在这里显示。</small></div></div>
       </section>
-      <section class="page" id="logs"><div class="section-bar"><div><h2>系统日志</h2><p>自动记录启动、停止、编辑、代理、扩展、备份、错误和异常；每 3 秒刷新。</p></div><div class="log-actions"><button class="ghost" id="exportSystemLogs">导出日志</button><button class="ghost" id="clearOldSystemLogs">清理30天以上</button><button class="ghost" id="clearSystemLogs">清空当前列表</button></div></div><div class="log-card system-log-card"><div class="system-log-head"><span>级别</span><span>内容</span><span>时间</span></div><div id="systemLogRows"></div><div class="system-log-empty" id="systemLogEmpty">暂时没有系统日志</div></div></section>
+      <section class="page" id="logs"><div class="log-toolbar"><div class="log-level-filters" role="group" aria-label="日志级别筛选"><button class="active" data-log-level="ALL">ALL</button><button data-log-level="DEBUG">DEBUG</button><button data-log-level="INFO">INFO</button><button data-log-level="WARN">WARN</button><button data-log-level="ERROR">ERROR</button></div><div class="log-actions"><button class="ghost" id="exportSystemLogs">导出日志</button><button class="ghost" id="clearOldSystemLogs">清理30天以上</button><button class="ghost" id="clearSystemLogs">清空当前列表</button></div></div><div class="log-card system-log-card"><div class="system-log-head"><span>级别</span><span>内容</span><span>时间</span></div><div id="systemLogRows"></div><div class="system-log-empty" id="systemLogEmpty">暂时没有系统日志</div></div></section>
       <section class="page" id="plugins">
-        <div class="section-bar"><div><h2>插件中心</h2><p>为指定浏览器窗口配置扩展程序。</p></div><button class="primary link-btn" id="openChromeWebStore">打开 Chrome 应用商店 ↗</button></div>
+        <div class="section-bar page-action-only"><span></span><button class="primary link-btn" id="openChromeWebStore">打开 Chrome 应用商店 ↗</button></div>
         <div class="plugin-grid">
           <article class="plugin-card"><div class="plugin-icon adguard-icon">A</div><div><b>AdGuard 广告拦截器</b><p>拦截广告、跟踪器与恶意页面</p></div><label class="switch"><input type="checkbox" data-plugin="adguard" checked><span></span></label></article>
           <article class="plugin-card"><div class="plugin-icon tampermonkey-icon">T</div><div><b>篡改猴</b><p>管理和运行浏览器用户脚本</p></div><label class="switch"><input type="checkbox" data-plugin="tampermonkey" checked><span></span></label></article>
@@ -110,33 +115,34 @@
         <div class="settings-grid">
           <article class="settings-card"><h2>品牌设置</h2><label>产品名称<input id="productName" value="Online"></label><label>品牌字母<input id="productMark" maxlength="2" value="O"></label><button class="primary" id="saveBrand">保存品牌</button></article>
           <article class="settings-card"><h2>主题与配色</h2><p>选择从参考图提取的预设配色，或使用自定义品牌色。</p><div class="theme-options"><button class="theme-choice active" data-theme="aurora"><i class="gradient-swatch"></i>晨雾渐变</button><button class="theme-choice" data-theme="lime"><i style="background:#9fdf6c"></i>青柠</button><button class="theme-choice" data-theme="mint"><i style="background:#55c9aa"></i>薄荷</button><button class="theme-choice" data-theme="coral"><i style="background:#f46573"></i>珊瑚</button><button class="theme-choice" data-theme="orange"><i style="background:#f3a13b"></i>暖橙</button><button class="theme-choice" data-theme="violet"><i style="background:#7165ee"></i>柔紫</button><button class="theme-choice" data-theme="aqua"><i style="background:#55cdbf"></i>湖青</button></div><div class="custom-color-control"><div><b>自定义主色</b><small>选择颜色后立即应用于按钮和强调元素</small></div><label class="color-picker-button" aria-label="选择自定义主色"><input type="color" id="customColor" value="#7165ee"><span id="customColorSwatch"></span></label><input id="customColorHex" class="color-hex" value="#7165EE" maxlength="7" aria-label="自定义颜色代码"></div><label class="toggle-row">深色内容区<label class="switch"><input id="darkMode" type="checkbox"><span></span></label></label></article>
+          <article class="settings-card advanced-settings-card"><div class="advanced-settings-head"><div><h2>高级设置</h2><p>维护缓存、迁移配置或恢复干净状态。</p></div><span>数据仍保存在 data 文件夹</span></div><div class="advanced-action-grid"><button id="clearBrowserCache"><i><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg></i><span><b>清除缓存</b><small>释放浏览器临时文件</small></span></button><button id="loadSystemConfig"><i><svg viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M5 19h14"/></svg></i><span><b>加载配置</b><small>从 JSON 恢复设置</small></span></button><button id="exportSystemConfig"><i><svg viewBox="0 0 24 24"><path d="M12 16V4m-4 4 4-4 4 4M5 20h14"/></svg></i><span><b>导出配置</b><small>保存当前窗口与设置</small></span></button><button class="danger-setting" id="initializeSystem"><i><svg viewBox="0 0 24 24"><path d="M12 8v5m0 3.5h.01M4.7 19h14.6L12 5 4.7 19Z"/></svg></i><span><b>初始化系统</b><small>清除业务数据，保留内核</small></span></button></div></article>
         </div>
       </section>
       <section class="page help-page" id="help">
-        <div class="help-version">当前版本 <span>1.8.4</span></div>
+        <div class="help-version">当前版本 <span>1.8.10</span></div>
         <div class="help-layout">
           <nav class="help-index" aria-label="帮助分类"><b>快速导航</b><a href="#help-start">开始使用</a><a href="#help-window">窗口与账号</a><a href="#help-network">代理与插件</a><a href="#help-data">数据与外观</a><a href="#help-trouble">常见问题</a></nav>
           <div class="help-content">
             <section class="help-group" id="help-start"><h3><span>01</span>开始使用</h3>
               <details class="help-item" open><summary>第一次使用应该如何配置？</summary><p>先进入「内核管理」下载 fingerprint-chromium Windows x64 内核；然后按需添加账号和代理；最后回到「窗口管理」创建并启动窗口。初始版本不附带内核，可显著减小安装包体积。</p></details>
-              <details class="help-item"><summary>如何下载、切换、更新或删除内核？</summary><p>打开「内核管理」，未安装时点击「下载内核」。安装完成后按钮变为「管理」，可在对话框中选择版本、更新或删除。删除后，依赖该内核的窗口暂时无法启动。</p></details>
+              <details class="help-item"><summary>如何下载、导入、更新或删除内核？</summary><p>打开「内核管理」，未安装时点击「下载内核」。下载连接中断时程序会自动重试、断点续传并校验完整性；网络仍无法连接 GitHub 时，可使用「导入内核包」或「导入本地内核」。安装完成后按钮变为「管理」，可更新或删除。</p></details>
             </section>
             <section class="help-group" id="help-window"><h3><span>02</span>窗口与账号</h3>
-              <details class="help-item"><summary>如何创建和启动浏览器窗口？</summary><p>点击右上角「创建窗口」，填写窗口名称，并选择账号、代理、系统和已安装的浏览器内核。启动后默认打开「工作台配置页」和 Google 首页两个标签，每个窗口的 Cookie、缓存和本地存储彼此隔离。</p></details>
+              <details class="help-item"><summary>如何创建和启动浏览器窗口？</summary><p>点击右上角「创建窗口」，填写窗口名称，并选择账号、代理、系统和已安装的浏览器内核。列表中的系统、网络和加号图标可分别查看窗口配置、查看网络配置、添加或关联账号。启动后默认打开「工作台配置页」和 Google 首页两个标签，每个窗口的 Cookie、缓存和本地存储彼此隔离。</p></details>
               <details class="help-item"><summary>如何添加、登录或切换账号？</summary><p>在「账号管理」中填写账号名称、密码和备注。点击侧栏底部的头像或名字可打开登录对话框；切换账号时必须再次输入对应密码。未登录时头像为灰色 O，登录后显示账号名称首字母并使用主题色。</p></details>
               <details class="help-item"><summary>账号如何关联到窗口？</summary><p>创建窗口时，在「账号管理」输入框中选择已有账号或直接输入内容。也可在账号管理中设置关联窗口；备注为自由填写文本。</p></details>
             </section>
             <section class="help-group" id="help-network"><h3><span>03</span>代理与插件</h3>
               <details class="help-item"><summary>支持哪些代理导入方式？</summary><p>支持 Clash 订阅或 YAML、HTTP / SOCKS5 单层代理，以及两层链式代理。导入成功后，主页代理信息会显示「已开启」，并可在创建窗口时选择节点。</p></details>
-              <details class="help-item"><summary>默认插件如何加载？</summary><p>插件中心默认提供 AdGuard 广告拦截器、篡改猴和 Google 翻译。已启用的插件会在 fingerprint-chromium 窗口启动时自动加载。</p></details>
+              <details class="help-item"><summary>默认插件如何加载？</summary><p>插件中心默认提供 AdGuard 广告拦截器、篡改猴和 Google 翻译。插件包会在后台准备，不再阻塞窗口启动；已经准备完成的启用插件会随 fingerprint-chromium 窗口自动加载，刚开始下载的插件会在下次启动时生效。</p></details>
             </section>
             <section class="help-group" id="help-data"><h3><span>04</span>数据与外观</h3>
               <details class="help-item"><summary>如何备份或恢复个人数据？</summary><p>点击右上角云端图标可导出 OneBrowser-data.zip，同时会把最新数据快照写入安装目录的 data/backups。点击“打开 Google Drive”会在当前已启动的 One Browser 窗口内打开 Drive，登录后上传该压缩包即可。</p></details>
-              <details class="help-item"><summary>系统日志记录哪些内容？</summary><p>「系统日志」会记录关键操作、编辑、错误和异常，例如添加或删除账号、导入代理、备份、主题保存及页面异常。页面每 3 秒刷新一次，可随时点击「清理日志」清空记录；日志会一并包含在本地数据备份中。</p></details>
-              <details class="help-item"><summary>如何更换主题或深色模式？</summary><p>进入「外观设置」选择预设配色或自定义主色。开启「深色内容区」后，页面、表单、卡片、空状态与对话框会同步切换为高对比深色样式。</p></details>
+              <details class="help-item"><summary>系统日志保存在哪里？为什么升级后还能看到？</summary><p>页面只显示当前应用进程的会话日志，并每 3 秒刷新；磁盘日志保存在程序旁的 data/logs/app.log，最多保留 30 天。若把新版解压到旧目录、复制旧版 data 文件夹，或旧程序尚未退出，历史文件与旧进程仍会保留。需要全新环境时，请先退出 One Browser，再将新版解压到新的独立目录；「清空当前列表」只清除当前会话列表，「清理30天以上」清理过期磁盘日志。</p></details>
+              <details class="help-item"><summary>如何更换主题、迁移配置或初始化系统？</summary><p>进入「系统设置」可选择预设配色、自定义主色或开启深色内容区。「高级设置」提供清除缓存、加载配置、导出配置和初始化系统；初始化会清除业务数据但保留已经下载的内核。</p></details>
             </section>
             <section class="help-group" id="help-trouble"><h3><span>05</span>常见问题</h3>
-              <details class="help-item"><summary>为什么窗口无法启动？</summary><p>请先确认对应浏览器内核已经安装。如果窗口使用代理，也请确认代理已成功导入。在线预览展示完整交互流程，实际启动内核、读取外部订阅和加载扩展需在桌面客户端完成。</p></details>
+              <details class="help-item"><summary>为什么窗口无法启动或内核无法下载？</summary><p>请先确认 Fingerprint Chromium 内核已经安装。如果下载提示 EOF，新版本会自动分段重试并切换断点续传；仍失败通常是当前系统代理无法稳定访问 GitHub，可暂时切换网络，或下载内核压缩包后在「内核管理」中本地导入。窗口使用代理时也请确认节点已成功导入。</p></details>
               <details class="help-item"><summary>为什么看不到刚发布的界面？</summary><p>浏览器可能仍在使用缓存。请按 Ctrl + F5 强制刷新，或关闭当前标签后重新打开预览地址。</p></details>
             </section>
             <div class="help-no-results" id="helpNoResults">没有找到相关内容，请尝试更换关键词。</div>
@@ -150,6 +156,7 @@
     <div class="modal">
       <div class="modal-head"><div><h2 id="modalTitle">创建浏览器窗口</h2><p id="modalSub">每个窗口拥有独立的 Cookie、缓存和本地存储。</p></div><button id="closeModal">×</button></div>
       <form id="createForm">
+        <div class="create-form-scroll" id="createFormScroll">
         <label>窗口名称<input id="envName" required placeholder="例如：品牌店铺 DE" /></label>
         <div class="form-grid"><label>账号管理<input id="envOwner" autocomplete="new-password" spellcheck="false" placeholder="关联已有账号或手动输入" /></label><label>代理位置<select id="envProxy"><option>使用系统代理（默认）</option><option>美国 · Virginia</option><option>德国 · Frankfurt</option><option>英国 · London</option><option>新加坡 · Singapore</option></select></label></div>
         <label>标签<input id="envTag" placeholder="例如：客户服务" /></label>
@@ -164,14 +171,25 @@
             </div>
             <div class="preset-result"><span>✓</span><div><b id="presetTitle">德国 · Windows 11 · 日常办公 · Chrome</b><small id="presetMeta">de-DE / Europe-Berlin / 1440 × 900 / 稳定版</small></div></div>
           </div>
-          <label>User Agent<select id="userAgent"><option>跟随 fingerprint-chromium 版本（推荐）</option><option>Fingerprint Chromium · Windows</option><option>自定义 User Agent</option></select></label>
+          <label>User Agent<select id="userAgent"><option value="auto">Fingerprint-Chromium（推荐）</option><option value="windows">Fingerprint Chromium · Windows</option><option value="custom">自定义 User Agent</option></select></label>
+          <label class="custom-ua-field" id="customUserAgentField" hidden>自定义 User Agent<textarea id="customUserAgentInput" rows="3" placeholder="例如：Mozilla/5.0 (Windows NT 10.0; Win64; x64) ..."></textarea><small>启动此窗口时会通过 --user-agent 应用。</small></label>
           <div class="form-grid"><label>浏览器版本<select id="browserVersion"><option>稳定版 · 自动更新</option><option>固定版本</option></select></label><label>语言<select id="browserLanguage"><option>zh-CN · 简体中文</option><option>en-US · English</option><option>en-GB · English (UK)</option><option>en-CA · English (Canada)</option><option>en-AU · English (Australia)</option><option>de-DE · Deutsch</option><option>ja-JP · 日本語</option><option>fr-FR · Français</option><option>nl-NL · Nederlands</option><option>es-ES · Español</option><option>it-IT · Italiano</option><option>pt-BR · Português</option><option>ar-AE · العربية</option><option>hi-IN · हिन्दी</option><option>ko-KR · 한국어</option><option>de-CH · Deutsch (CH)</option><option>sv-SE · Svenska</option></select></label></div>
-          <div class="form-grid"><label>窗口位置<select id="windowPosition"><option>居中</option><option>左上</option><option>左下</option><option>右上</option><option>右下</option></select></label><label>窗口大小<select id="windowSize"><optgroup label="桌面"><option>1440 × 900</option><option>1920 × 1080</option><option>1366 × 768</option><option>1280 × 800</option></optgroup><optgroup label="手机竖屏"><option>390 × 844</option><option>393 × 852</option><option>360 × 800</option><option>412 × 915</option></optgroup><option>自定义</option></select></label></div>
+          <div class="form-grid"><label>窗口位置<select id="windowPosition"><option>左上</option><option>居中</option><option>左下</option><option>右上</option><option>右下</option></select></label><label>窗口大小<select id="windowSize"><optgroup label="桌面"><option>900 × 680</option><option>1440 × 900</option><option>1920 × 1080</option><option>1366 × 768</option><option>1280 × 800</option></optgroup><optgroup label="手机竖屏"><option>390 × 844</option><option>393 × 852</option><option>360 × 800</option><option>412 × 915</option></optgroup><option>自定义</option></select></label></div>
           <div class="config-row"><span><b>基础指纹配置</b><small>画布、WebGL、字体和时区采用系统一致性策略</small></span><button type="button" class="ghost" id="configDetail">查看配置</button></div>
         </details>
         <div class="notice"><span>✓</span><div><b>默认安全隔离已开启</b><p>窗口数据相互独立，并记录系统日志。</p></div></div>
-        <div class="modal-actions"><button type="button" class="ghost" id="cancelModal">取消</button><button class="primary" id="submitEnv" type="submit">创建窗口</button></div>
+        </div>
+        <div class="create-scroll-hint" id="createScrollHint"><span>⌄</span>向下滑动查看更多</div>
+        <div class="modal-actions create-modal-actions"><button type="button" class="ghost" id="cancelModal">取消</button><button class="primary" id="submitEnv" type="submit">创建窗口</button></div>
       </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop config-detail-backdrop" id="configDetailModal" aria-hidden="true">
+    <div class="modal config-detail-panel" role="dialog" aria-modal="true" aria-labelledby="configDetailTitle">
+      <div class="modal-head"><div><h2 id="configDetailTitle">浏览器配置详情</h2><p>以下参数将应用到当前独立窗口。</p></div><button id="closeConfigDetail" aria-label="关闭">×</button></div>
+      <div class="config-detail-body" id="configDetailBody"></div>
+      <div class="modal-actions config-detail-actions"><button type="button" class="primary" id="confirmConfigDetail">知道了</button></div>
     </div>
   </div>
 
@@ -230,6 +248,13 @@
     <div class="modal confirm-delete-panel">
       <div class="confirm-delete-icon">!</div><h2>删除内核？</h2><p id="deleteKernelText">删除后，对应浏览器窗口将无法启动，直到重新安装内核。</p>
       <div class="modal-actions"><button class="ghost" id="cancelDeleteKernel">取消</button><button class="danger-primary" id="confirmDeleteKernel">确认删除</button></div>
+    </div>
+  </div>
+  <div class="modal-backdrop" id="initializeSystemModal">
+    <div class="modal confirm-delete-panel system-reset-panel">
+      <div class="confirm-delete-icon">!</div><h2>初始化 One Browser？</h2><p>将清除窗口、账号、代理、浏览器缓存、数据快照和日志，并恢复界面设置。已下载的浏览器内核会保留。</p>
+      <label class="reset-confirm-check"><input type="checkbox" id="initializeSystemCheck"> 我已了解此操作无法撤销</label>
+      <div class="modal-actions"><button class="ghost" id="cancelInitializeSystem">取消</button><button class="danger-primary" id="confirmInitializeSystem" disabled>确认初始化</button></div>
     </div>
   </div>
   <div class="row-menu" id="rowMenu"><button data-menu-action="edit">✎ 编辑窗口</button><button data-menu-action="clone">▣ 复制窗口</button><button class="danger" data-menu-action="delete">⌫ 删除窗口</button></div>

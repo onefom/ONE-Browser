@@ -19,6 +19,32 @@ func TestEnsureOneBrowserLaunchArgsDisablesDefaultBrowserPrompt(t *testing.T) {
 	}
 }
 
+func TestOneBrowserWindowLaunchArgsUseCompactTopLeftWindow(t *testing.T) {
+	args := oneBrowserWindowLaunchArgs([]string{"--start-maximized", "--window-size=1440,900", "--window-position=500,200"}, OneBrowserStartRequest{WindowSize: "900 × 680", WindowPosition: "左上"})
+	joined := strings.Join(args, " ")
+	for _, want := range []string{"--window-size=900,680", "--window-position=12,12", "--no-default-browser-check"} {
+		if !strings.Contains(joined, want) {
+			t.Fatalf("args = %v, missing %s", args, want)
+		}
+	}
+	for _, unwanted := range []string{"--start-maximized", "--window-size=1440,900", "--window-position=500,200"} {
+		if strings.Contains(joined, unwanted) {
+			t.Fatalf("args = %v, kept stale %s", args, unwanted)
+		}
+	}
+}
+
+func TestOneBrowserWindowLaunchArgsApplyCustomUserAgent(t *testing.T) {
+	args := oneBrowserWindowLaunchArgs([]string{"--user-agent=stale", "--disable-sync"}, OneBrowserStartRequest{UserAgent: "Mozilla/5.0 OneBrowserCustom"})
+	joined := strings.Join(args, " ")
+	if strings.Contains(joined, "--user-agent=stale") {
+		t.Fatalf("args = %v, kept stale user agent", args)
+	}
+	if !strings.Contains(joined, "--user-agent=Mozilla/5.0 OneBrowserCustom") {
+		t.Fatalf("args = %v, missing custom user agent", args)
+	}
+}
+
 func TestOneBrowserWorkspaceContainsConfiguration(t *testing.T) {
 	app := NewApp(t.TempDir())
 	url, err := app.oneBrowserWorkspaceURL("profile-1", "窗口一", OneBrowserStartRequest{ProxyName: "节点 A", Account: "Admin", OS: "Windows 11", Language: "de-DE", Timezone: "Europe/Berlin", WindowSize: "1440 × 900"}, OneBrowserKernelStatus{Version: "148.0"}, "")

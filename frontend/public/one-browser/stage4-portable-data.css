@@ -1,0 +1,113 @@
+/* One Browser 1.8.7: portable data storage and fixed create-window actions. */
+#modal .modal {
+  display: flex;
+  flex-direction: column;
+  max-height: min(92vh, 920px);
+  overflow: hidden !important;
+}
+
+#modal .modal-head {
+  position: relative;
+  z-index: 4;
+  flex: 0 0 auto;
+}
+
+#modal #createForm {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+#modal .create-form-scroll {
+  min-height: 0;
+  padding: 17px 26px 52px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+#modal .create-form-scroll::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+#modal .create-scroll-hint {
+  position: absolute;
+  z-index: 5;
+  right: 0;
+  bottom: 68px;
+  left: 0;
+  display: flex;
+  height: 66px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 12px 0 5px;
+  border-top: 1px solid rgba(113,101,238,.08);
+  background: linear-gradient(180deg, rgba(240,242,255,0), rgba(238,241,255,.9) 48%, rgba(235,238,255,.99));
+  color: #6861c8;
+  font-size: 11px;
+  line-height: 1.2;
+  pointer-events: none;
+  transition: opacity .2s ease, visibility .2s ease;
+}
+
+#modal .create-scroll-hint span {
+  display: grid;
+  width: 18px;
+  height: 14px;
+  place-items: center;
+  color: #7165ee;
+  font-size: 18px;
+  line-height: 1;
+  animation: create-scroll-cue 1.25s ease-in-out infinite;
+}
+
+#modal .create-scroll-hint.is-hidden {
+  visibility: hidden;
+  opacity: 0;
+}
+
+#modal .create-modal-actions {
+  position: relative;
+  z-index: 6;
+  flex: 0 0 auto;
+  min-height: 68px;
+  margin: 0;
+  padding: 14px 26px 16px;
+  border-top: 1px solid rgba(111,115,147,.1);
+  background: rgba(253,254,255,.98);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.dark-content #modal .create-scroll-hint {
+  border-top-color: rgba(163,153,255,.1);
+  background: linear-gradient(180deg, rgba(53,53,80,0), rgba(49,49,78,.93) 48%, #30314f);
+  color: #c8c3ff;
+}
+
+.dark-content #modal .create-scroll-hint span { color: #aaa2ff; }
+
+.dark-content #modal .create-modal-actions {
+  border-top-color: rgba(255,255,255,.09);
+  background: rgba(37,40,56,.98);
+}
+
+@keyframes create-scroll-cue {
+  0%, 100% { transform: translateY(-2px); opacity: .6; }
+  50% { transform: translateY(2px); opacity: 1; }
+}
+
+@media (max-width: 620px) {
+  #modal .create-form-scroll { padding-inline: 18px; }
+  #modal .create-modal-actions { padding-inline: 18px; }
+}

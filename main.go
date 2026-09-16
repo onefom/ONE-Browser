@@ -193,6 +193,13 @@ func main() {
 		log.Printf("准备用户数据目录失败: %v", err)
 		lifecycle.Log(appRoot, "runtime_layout.error", map[string]interface{}{"error": err.Error()})
 	}
+	webviewData, webviewDataErr := backend.PreparePortableWebviewData(appRoot)
+	if webviewDataErr != nil {
+		log.Printf("准备便携 WebView2 数据目录失败: %v", webviewDataErr)
+		lifecycle.Log(appRoot, "webview_data.error", map[string]interface{}{"error": webviewDataErr.Error()})
+	} else if webviewData.Migrated {
+		lifecycle.Log(appRoot, "webview_data.migrated", map[string]interface{}{"source": webviewData.Source, "target": webviewData.Target})
+	}
 	lifecycle.Log(appRoot, "process.start", map[string]interface{}{"dev": isDevMode})
 	singleInstance, primaryInstance, err := singleinstance.Acquire(appRoot)
 	if err != nil {
@@ -368,6 +375,7 @@ func main() {
 		Windows: &windows.Options{
 			WebviewIsTransparent:                false,
 			WindowIsTranslucent:                 false,
+			WebviewUserDataPath:                 webviewData.Target,
 			WebviewGpuIsDisabled:                false,
 			WebviewDisableRendererCodeIntegrity: true,
 		},

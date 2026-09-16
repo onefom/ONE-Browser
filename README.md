@@ -2,7 +2,7 @@
 
 One Browser 是面向 Windows x64 的本地多账号隔离浏览器管理工具，用于独立管理浏览器窗口、账号、代理、扩展程序和本地数据。
 
-当前版本：`1.8.4`
+当前版本：`1.8.10`
 
 ## 主要功能
 
@@ -16,6 +16,7 @@ One Browser 是面向 Windows x64 的本地多账号隔离浏览器管理工具�
 - 默认支持 AdGuard、篡改猴和 Google 翻译扩展。
 - 提供账号管理、本地数据备份、系统日志和主题设置。
 - Windows WebView GPU 已启用，并针对最大化和窗口缩放进行了性能优化。
+- 账号、窗口、界面设置、数据快照、日志和 WebView2 本地状态统一保存在程序旁的 `data` 目录。
 
 ## 技术栈
 
@@ -92,7 +93,7 @@ go vet ./backend/internal/browser ./backend
 - fingerprint-chromium 浏览器内核
 - `node_modules`、EXE 和发布压缩包
 
-运行产生的数据默认保存在本地 `data` 目录。上传公开仓库前，请确认 `.gitignore` 未被删除。
+运行产生的数据统一保存在程序旁的 `data` 目录。1.8.10 空白便携包不会再自动导入 Windows `%APPDATA%` 中的旧窗口；升级时请复制旧版的整个 `data` 文件夹。系统日志页仅显示当前进程会话，磁盘日志位于 `data/logs/app.log`。上传公开仓库前，请确认 `.gitignore` 未被删除。
 
 ## 项目结构
 

@@ -39,6 +39,8 @@ function installBridge() {
       });
       return call("OneBrowserKernelStatus");
     },
+    importKernelArchive: async () => { await call("BrowserCoreImportLocal"); return call("OneBrowserKernelStatus"); },
+    importKernelDirectory: async () => { await call("BrowserCoreImportLocalDirectory"); return call("OneBrowserKernelStatus"); },
     importClashSubscription: async (url: string) => (await call("OneBrowserImportClash", url) as any[]).map(node => ({ id: node.proxyId, name: node.proxyName, type: "clash", server: "Mihomo", port: "" })),
     parseProxyText: async (text: string) => (await call("OneBrowserParseClashText", text) as any[]).map(node => ({ id: node.proxyId, name: node.proxyName, type: "clash", server: "Mihomo", port: "" })),
     deleteProxyNode: (id: string) => call("OneBrowserDeleteProxy", id),
@@ -57,6 +59,7 @@ function installBridge() {
         account: String(input?.account || ""), os: String(config.osName || config.os || "Windows 11"),
         language: String(config.language || ""), timezone: String(config.timezone || ""),
         userAgent: String(config.ua || ""), windowSize: String(config.size || ""),
+        windowPosition: String(config.position || "左上"),
         extensions: Array.isArray(input?.extensions) ? input.extensions : [],
       });
       saved[String(input.id)] = result.profileId;
@@ -90,6 +93,10 @@ function installBridge() {
     clearSystemLogs: () => call("ClearAppLogs"),
     clearOldSystemLogs: (days = 30) => call("OneBrowserClearOldLogs", days),
     exportSystemLogs: () => call("OneBrowserExportLogs"),
+    clearBrowserCache: () => call("OneBrowserClearCache"),
+    exportSystemConfig: (snapshot: Record<string, unknown>) => call("OneBrowserExportConfiguration", snapshot),
+    importSystemConfig: () => call("OneBrowserImportConfiguration"),
+    initializeSystem: () => call("OneBrowserInitializeSystem"),
     logOperation: (level: string, method: string, success: boolean, message = "") => call("FrontendOperationLog", level, method, success, 0, message),
   };
 }

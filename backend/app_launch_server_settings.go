@@ -56,6 +56,16 @@ func ensureLaunchServerPortAvailable(port int) error {
 func (a *App) restartLaunchServer(port int) error {
 	log := logger.New("LaunchServer")
 	previousServer := a.launchServer
+	if previousServer != nil && previousServer.Port() == port {
+		return nil
+	}
+	// Validate the replacement port before stopping the working server. This
+	// keeps the current browser launch endpoint intact when the requested port
+	// is already occupied, and still leaves the restart fallback below to cover
+	// the small bind race between this check and server.Start().
+	if err := ensureLaunchServerPortAvailable(port); err != nil {
+		return err
+	}
 	if previousServer != nil {
 		if err := previousServer.Stop(); err != nil {
 			return fmt.Errorf("停止 LaunchServer 失败: %w", err)

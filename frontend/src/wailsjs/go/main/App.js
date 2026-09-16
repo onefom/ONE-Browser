@@ -678,6 +678,10 @@ export function MoveInstancesToGroup(arg1, arg2) {
   return window['go']['main']['App']['MoveInstancesToGroup'](arg1, arg2);
 }
 
+export function OneBrowserClearCache() {
+  return window['go']['main']['App']['OneBrowserClearCache']();
+}
+
 export function OneBrowserClearOldLogs(arg1) {
   return window['go']['main']['App']['OneBrowserClearOldLogs'](arg1);
 }
@@ -690,12 +694,24 @@ export function OneBrowserDownloadFingerprintChromium() {
   return window['go']['main']['App']['OneBrowserDownloadFingerprintChromium']();
 }
 
+export function OneBrowserExportConfiguration(arg1) {
+  return window['go']['main']['App']['OneBrowserExportConfiguration'](arg1);
+}
+
 export function OneBrowserExportLogs() {
   return window['go']['main']['App']['OneBrowserExportLogs']();
 }
 
 export function OneBrowserImportClash(arg1) {
   return window['go']['main']['App']['OneBrowserImportClash'](arg1);
+}
+
+export function OneBrowserImportConfiguration() {
+  return window['go']['main']['App']['OneBrowserImportConfiguration']();
+}
+
+export function OneBrowserInitializeSystem() {
+  return window['go']['main']['App']['OneBrowserInitializeSystem']();
 }
 
 export function OneBrowserKernelStatus() {

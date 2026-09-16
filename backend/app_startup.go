@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -27,6 +28,7 @@ func (a *App) startup(ctx context.Context) {
 	}
 
 	cfg := a.startupLoadConfig()
+	applyPortableDataLoggingPolicy(cfg)
 	a.config = cfg
 	a.applyRuntimeConfig(cfg.Runtime)
 
@@ -65,6 +67,21 @@ func (a *App) startup(ctx context.Context) {
 	log.Info("应用启动成功")
 }
 
+func applyPortableDataLoggingPolicy(cfg *config.Config) {
+	if cfg == nil {
+		return
+	}
+	cfg.Logging.FileEnabled = true
+	cfg.Logging.FilePath = filepath.Join("data", "logs", "app.log")
+	cfg.Logging.Rotation.Enabled = true
+	if cfg.Logging.Rotation.MaxAge <= 0 || cfg.Logging.Rotation.MaxAge > 30 {
+		cfg.Logging.Rotation.MaxAge = 30
+	}
+	if cfg.Logging.Rotation.MaxBackups <= 0 {
+		cfg.Logging.Rotation.MaxBackups = 30
+	}
+}
+
 func (a *App) startupLoadConfig() *config.Config {
 	cfg, err := LoadConfig(a.resolveAppPath("config.yaml"))
 	if err != nil {
@@ -91,6 +108,9 @@ func (a *App) startupInitLogger(ctx context.Context, cfg *config.Config) *logger
 		},
 	}
 	logger.InitWithConfig(ctx, logConfig)
+	// The System Logs page represents this process session only. File logs remain
+	// in data/logs for export and retention, but must not leak into a new session.
+	logger.GetMemoryWriter().Clear()
 	return logger.New("App")
 }
 

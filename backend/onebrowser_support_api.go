@@ -9,11 +9,138 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
 	wailsruntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
+
+// OneBrowserExportConfiguration writes the UI-owned configuration to a JSON
+// file selected by the user. Browser profile folders are intentionally not
+// embedded; the regular data backup remains responsible for full profiles.
+func (a *App) OneBrowserExportConfiguration(snapshot map[string]interface{}) (string, error) {
+	if a.ctx == nil {
+		return "", fmt.Errorf("应用上下文未初始化")
+	}
+	payload, err := json.MarshalIndent(snapshot, "", "  ")
+	if err != nil {
+		return "", err
+	}
+	path, err := wailsruntime.SaveFileDialog(a.ctx, wailsruntime.SaveDialogOptions{
+		Title: "导出 One Browser 配置", DefaultFilename: "OneBrowser-config-" + time.Now().Format("20060102-150405") + ".json",
+		Filters: []wailsruntime.FileFilter{{DisplayName: "One Browser 配置 (*.json)", Pattern: "*.json"}},
+	})
+	if err != nil || strings.TrimSpace(path) == "" {
+		return "", err
+	}
+	if err := os.WriteFile(path, append(payload, '\n'), 0o600); err != nil {
+		return "", err
+	}
+	return path, nil
+}
+
+// OneBrowserImportConfiguration reads and validates a previously exported
+// configuration. Applying it stays in the UI so localStorage is replaced as a
+// single transaction before reloading.
+func (a *App) OneBrowserImportConfiguration() (map[string]interface{}, error) {
+	if a.ctx == nil {
+		return nil, fmt.Errorf("应用上下文未初始化")
+	}
+	path, err := wailsruntime.OpenFileDialog(a.ctx, wailsruntime.OpenDialogOptions{
+		Title:   "加载 One Browser 配置",
+		Filters: []wailsruntime.FileFilter{{DisplayName: "One Browser 配置 (*.json)", Pattern: "*.json"}},
+	})
+	if err != nil || strings.TrimSpace(path) == "" {
+		return nil, err
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	var snapshot map[string]interface{}
+	if err := json.Unmarshal(data, &snapshot); err != nil {
+		return nil, fmt.Errorf("配置文件格式无效: %w", err)
+	}
+	if snapshot == nil || (snapshot["localStorage"] == nil && snapshot["format"] == nil) {
+		return nil, fmt.Errorf("不是有效的 One Browser 配置文件")
+	}
+	return snapshot, nil
+}
+
+// OneBrowserClearCache removes only disposable cache directories belonging to
+// One Browser profiles. Cookies, local storage and profile preferences remain.
+func (a *App) OneBrowserClearCache() (int, error) {
+	if a == nil || a.browserMgr == nil {
+		return 0, fmt.Errorf("浏览器服务未初始化")
+	}
+	cacheNames := map[string]bool{"cache": true, "code cache": true, "gpucache": true, "shadercache": true, "grshadercache": true, "dawncache": true}
+	paths := make([]string, 0)
+	for _, profile := range a.BrowserProfileList() {
+		if !oneBrowserProfile(profile) {
+			continue
+		}
+		root := a.browserMgr.ResolveUserDataDir(&profile)
+		_ = filepath.WalkDir(root, func(path string, entry os.DirEntry, walkErr error) error {
+			if walkErr != nil || entry == nil || !entry.IsDir() {
+				return nil
+			}
+			if cacheNames[strings.ToLower(entry.Name())] {
+				paths = append(paths, path)
+				return filepath.SkipDir
+			}
+			return nil
+		})
+	}
+	sort.Slice(paths, func(i, j int) bool { return len(paths[i]) > len(paths[j]) })
+	removed := 0
+	for _, path := range paths {
+		if err := os.RemoveAll(path); err != nil {
+			return removed, err
+		}
+		removed++
+	}
+	return removed, nil
+}
+
+// OneBrowserInitializeSystem clears One Browser business data while retaining
+// installed cores. The caller clears UI localStorage after this succeeds.
+func (a *App) OneBrowserInitializeSystem() error {
+	if a == nil || a.browserMgr == nil {
+		return fmt.Errorf("浏览器服务未初始化")
+	}
+	for _, profile := range a.BrowserProfileList() {
+		if !oneBrowserProfile(profile) {
+			continue
+		}
+		_, _ = a.BrowserInstanceStop(profile.ProfileId)
+		if err := a.BrowserProfileDelete(profile.ProfileId); err != nil {
+			return err
+		}
+		if err := a.BrowserProfilePermanentlyDelete(profile.ProfileId); err != nil {
+			return err
+		}
+	}
+	if err := a.SaveBrowserProxies([]BrowserProxy{{ProxyId: "__direct__", ProxyName: "直连（不走代理）", ProxyConfig: "direct://"}}); err != nil {
+		return err
+	}
+	for _, relative := range []string{filepath.Join("data", "workspaces"), filepath.Join("data", "backups")} {
+		if err := os.RemoveAll(a.resolveAppPath(relative)); err != nil {
+			return err
+		}
+	}
+	logger.GetMemoryWriter().Clear()
+	return nil
+}
+
+func oneBrowserProfile(profile BrowserProfile) bool {
+	for _, tag := range profile.Tags {
+		if strings.EqualFold(strings.TrimSpace(tag), "One Browser") {
+			return true
+		}
+	}
+	return false
+}
 
 var oneBrowserBuiltinExtensions = map[string]string{
 	"adguard":          "bgnkhhnnamicmpeenaelnjfhikgbkllg",

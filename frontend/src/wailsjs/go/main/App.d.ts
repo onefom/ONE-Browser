@@ -348,15 +348,23 @@ export function ListGroups():Promise<Array<browser.GroupWithCount>>;
 
 export function MoveInstancesToGroup(arg1:Array<string>,arg2:string):Promise<void>;
 
+export function OneBrowserClearCache():Promise<number>;
+
 export function OneBrowserClearOldLogs(arg1:number):Promise<number>;
 
 export function OneBrowserDeleteProxy(arg1:string):Promise<void>;
 
 export function OneBrowserDownloadFingerprintChromium():Promise<void>;
 
+export function OneBrowserExportConfiguration(arg1:Record<string, any>):Promise<string>;
+
 export function OneBrowserExportLogs():Promise<string>;
 
 export function OneBrowserImportClash(arg1:string):Promise<Array<config.BrowserProxy>>;
+
+export function OneBrowserImportConfiguration():Promise<Record<string, any>>;
+
+export function OneBrowserInitializeSystem():Promise<void>;
 
 export function OneBrowserKernelStatus():Promise<backend.OneBrowserKernelStatus>;
 
