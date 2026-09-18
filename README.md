@@ -20,6 +20,11 @@ One Browser 是面向 Windows x64 的本地多账号隔离浏览器管理工具�
 - Windows WebView GPU 已启用，并针对最大化和窗口缩放进行了性能优化。
 - 账号、窗口、界面设置、数据快照、日志和 WebView2 本地状态统一保存在程序旁的 `data` 目录。
 
+| 界面预览 1 | 界面预览 2 |
+| :---: | :---: |
+| <img src="https://github.com/user-attachments/assets/6421ca0e-e5d7-47e4-93e4-65820f156020" /> | <img src="https://github.com/user-attachments/assets/1b75d9d5-df87-4aff-a9a8-f3953538b6dc" /> |
+| <img src="https://github.com/user-attachments/assets/8d11a247-9e08-480b-95ef-a7ae98bbfd81" /> | <img src="https://github.com/user-attachments/assets/c53ba905-4a16-414e-8ff5-93fd94790b2d" /> |
+
 ## # Changelog
 
 ## [1.8.15] - 2026-09-19
