@@ -770,6 +770,30 @@ export namespace backend {
 	        this.coreId = source["coreId"];
 	    }
 	}
+	export class OneBrowserNetworkInfo {
+	    ok: boolean;
+	    ip: string;
+	    country: string;
+	    region: string;
+	    city: string;
+	    location: string;
+	    error: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new OneBrowserNetworkInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.ok = source["ok"];
+	        this.ip = source["ip"];
+	        this.country = source["country"];
+	        this.region = source["region"];
+	        this.city = source["city"];
+	        this.location = source["location"];
+	        this.error = source["error"];
+	    }
+	}
 	export class OneBrowserStartRequest {
 	    profileId: string;
 	    name: string;

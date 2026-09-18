@@ -360,6 +360,8 @@ export function OneBrowserExportConfiguration(arg1:Record<string, any>):Promise<
 
 export function OneBrowserExportLogs():Promise<string>;
 
+export function OneBrowserGetNetworkInfo(arg1:string):Promise<backend.OneBrowserNetworkInfo>;
+
 export function OneBrowserImportClash(arg1:string):Promise<Array<config.BrowserProxy>>;
 
 export function OneBrowserImportConfiguration():Promise<Record<string, any>>;
@@ -371,6 +373,8 @@ export function OneBrowserKernelStatus():Promise<backend.OneBrowserKernelStatus>
 export function OneBrowserOpenManagedURL(arg1:string,arg2:string):Promise<void>;
 
 export function OneBrowserParseClashText(arg1:string):Promise<Array<config.BrowserProxy>>;
+
+export function OneBrowserProxyBatchTestSpeed(arg1:Array<string>,arg2:number):Promise<Array<backend.ProxyTestResult>>;
 
 export function OneBrowserSaveLocalData(arg1:Record<string, any>):Promise<void>;
 

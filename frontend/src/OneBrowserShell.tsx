@@ -41,9 +41,11 @@ function installBridge() {
     },
     importKernelArchive: async () => { await call("BrowserCoreImportLocal"); return call("OneBrowserKernelStatus"); },
     importKernelDirectory: async () => { await call("BrowserCoreImportLocalDirectory"); return call("OneBrowserKernelStatus"); },
-    importClashSubscription: async (url: string) => (await call("OneBrowserImportClash", url) as any[]).map(node => ({ id: node.proxyId, name: node.proxyName, type: "clash", server: "Mihomo", port: "" })),
-    parseProxyText: async (text: string) => (await call("OneBrowserParseClashText", text) as any[]).map(node => ({ id: node.proxyId, name: node.proxyName, type: "clash", server: "Mihomo", port: "" })),
+    importClashSubscription: async (url: string) => (await call("OneBrowserImportClash", url) as any[]).map(node => ({ id: node.proxyId, name: node.proxyName, type: "clash", server: "Mihomo", port: "", group: node.groupName || "订阅节点" })),
+    parseProxyText: async (text: string) => (await call("OneBrowserParseClashText", text) as any[]).map(node => ({ id: node.proxyId, name: node.proxyName, type: "clash", server: "Mihomo", port: "", group: node.groupName || "手动导入" })),
     deleteProxyNode: (id: string) => call("OneBrowserDeleteProxy", id),
+    testProxyNodes: (ids: string[]) => call("OneBrowserProxyBatchTestSpeed", ids, 5),
+    getWindowNetworkInfo: (id: string | number) => call("OneBrowserGetNetworkInfo", profiles()[String(id)] || ""),
     removeKernel: async (key: string) => {
       if (key !== "chrome") throw new Error("仅支持 fingerprint-chromium Windows x64 内核");
       const state: any = await call("OneBrowserKernelStatus");
@@ -64,7 +66,7 @@ function installBridge() {
       });
       saved[String(input.id)] = result.profileId;
       localStorage.setItem(profileStoreKey, JSON.stringify(saved));
-      return { ok: result.running, message: result.running ? "" : "浏览器未能进入运行状态" };
+      return { ok: result.running, profileId: result.profileId, message: result.running ? "" : "浏览器未能进入运行状态" };
     },
     stopBrowserWindow: (id: string | number) => { const value = profiles()[String(id)]; return value ? call("OneBrowserStop", value) : Promise.resolve(); },
     onKernelProgress: (callback: (event: any) => void) => runtime?.EventsOn?.("download:progress", (event: any) => {
@@ -106,16 +108,10 @@ export default function OneBrowserShell() {
   useEffect(() => {
     document.title = "One Browser";
     const runtime = (window as any).runtime;
-    let quitting = false;
-    const off = runtime?.EventsOn?.("app:request-close", async () => {
-      if (quitting) return;
-      quitting = true;
-      try {
-        await call("ForceQuit");
-      } catch (error) {
-        console.error("关闭 One Browser 失败", error);
-        quitting = false;
-      }
+    const off = runtime?.EventsOn?.("app:request-close", () => {
+      // Windows close keeps managed browser processes alive. The application
+      // remains available from the tray, whose menu owns the explicit exits.
+      runtime?.WindowHide?.();
     });
     return () => off?.();
   }, []);

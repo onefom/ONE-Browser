@@ -38,6 +38,8 @@
   <link rel="stylesheet" href="stage7-unified-layout.css">
   <link rel="stylesheet" href="stage8-interaction-polish.css">
   <link rel="stylesheet" href="stage9-plugin-sidebar-fix.css">
+  <link rel="stylesheet" href="stage10-network-filter-latency.css">
+  <link rel="stylesheet" href="stage11-tray-backup-scroll.css">
 </head>
 <body>
   <div class="app-shell">
@@ -64,12 +66,12 @@
         <div><h1 id="pageTitle">窗口管理</h1><p id="pageSub">独立管理每个浏览器窗口的数据与访问权限</p></div>
         <div class="header-actions">
           <button class="top-icon home-only-action" id="coreUpdateBtn" aria-label="内核升级" title="内核升级"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 16V8m-3 3 3-3 3 3"/></svg><i></i></button>
-          <button class="top-icon cloud-icon home-only-action" id="cloudBackupBtn" aria-label="数据备份" title="数据备份"><svg viewBox="0 0 24 24"><path d="M7.2 18.5h9.3a3.7 3.7 0 0 0 .6-7.4A5.5 5.5 0 0 0 6.7 9.6a4.5 4.5 0 0 0 .5 8.9Z"/><path d="M12 15V9m-2.5 2.5L12 9l2.5 2.5"/></svg></button>
+          <span class="header-popover-anchor home-only-action"><button class="top-icon cloud-icon" id="cloudBackupBtn" aria-label="数据备份" title="数据备份"><svg viewBox="0 0 24 24"><path d="M7.2 18.5h9.3a3.7 3.7 0 0 0 .6-7.4A5.5 5.5 0 0 0 6.7 9.6a4.5 4.5 0 0 0 .5 8.9Z"/><path d="M12 15V9m-2.5 2.5L12 9l2.5 2.5"/></svg></button><div class="cloud-backup-popover" id="cloudBackupPopover" aria-hidden="true"><div class="core-popover-head"><span>数据备份</span><b class="up-to-date">本地可用</b></div><div class="backup-summary"><span class="backup-folder-icon">D</span><div><b>One Browser 数据包</b><small id="backupFileName">OneBrowser-data.zip</small></div></div><p>备份账号、窗口、主题、代理与内核配置。</p><section class="backup-option drive-option"><div><b>Google Drive</b><p>在受管浏览器中打开后上传数据包。</p></div><button class="ghost" id="connectGoogleDrive">打开</button></section><div class="drive-connected" id="driveConnected"><span>✓</span><div><b>Google Drive 已打开</b><small>可上传刚导出的数据包</small></div><button class="ghost" id="disconnectGoogleDrive">断开</button></div><div class="cloud-popover-actions"><button class="ghost" id="downloadLocalBackup">导出压缩包</button><button class="primary" id="startCloudBackup">立即备份</button></div></div></span>
           <button class="primary header-page-action" id="openProxyImport" data-header-page="proxy" hidden>＋ 导入代理配置</button>
           <button class="primary header-page-action" id="addAccount" data-header-page="accounts" hidden>＋ 添加账号</button>
           <button class="primary link-btn header-page-action" id="openChromeWebStore" data-header-page="plugins" hidden>打开 Chrome 应用商店 ↗</button>
           <button class="primary header-page-action kernel-download" data-header-page="kernels" data-kernel="chrome" hidden>下载内核</button>
-          <div class="header-version" data-header-page="settings" hidden>当前版本 <span>1.8.12</span></div>
+          <div class="header-version" data-header-page="settings" hidden>当前版本 <span>1.8.15</span></div>
           <button class="primary" id="createBtn">＋ 创建窗口</button>
           <div class="core-update-popover" id="coreUpdatePopover"><div class="core-popover-head"><span>内核升级</span><b id="coreUpdateBadge" class="up-to-date">当前无内核</b></div><div class="core-version-row"><span class="core-version-icon">↑</span><div><b id="coreUpdateTitle">当前无内核，请先下载</b><small id="coreUpdateMeta">下载后才会检查版本更新</small></div></div><p id="coreUpdateDescription">当前最新版本：148.0.7778.215</p><div class="core-popover-actions"><button class="ghost" id="ignoreCoreUpdate" hidden>忽略</button><button class="primary" id="upgradeCore">前往下载</button></div></div>
         </div>
@@ -84,7 +86,12 @@
         </div>
         <div class="toolbar">
           <label class="search">⌕<input id="search" placeholder="搜索名称、标签或账号" /></label>
-          <div class="filters"><button class="filter active" data-filter="all">全部 <span id="filterAllCount">0</span></button><button class="filter" data-filter="running">运行中 <span id="filterRunningCount">0</span></button><button class="filter" data-filter="stopped">已停止 <span id="filterStoppedCount">0</span></button><button class="ghost">筛选 ⌄</button></div>
+          <div class="filters"><button class="filter active" data-filter="all">全部 <span id="filterAllCount">0</span></button><button class="filter" data-filter="running">运行中 <span id="filterRunningCount">0</span></button><button class="filter" data-filter="stopped">已停止 <span id="filterStoppedCount">0</span></button><button class="filter advanced-filter-trigger" id="advancedFilterBtn" aria-expanded="false">筛选</button><div class="advanced-filter-popover" id="advancedFilterPopover" aria-hidden="true">
+            <label>内核版本<select id="filterKernel"><option value="all">全部内核</option><option value="chrome">Fingerprint Chromium 148</option></select></label>
+            <label>分组<select id="filterGroup"><option value="all">全部分组</option></select></label>
+            <label>代理情况<select id="filterProxy"><option value="all">全部代理</option><option value="node">已选节点</option><option value="system">系统代理</option><option value="direct">直连</option></select></label>
+            <div><button class="ghost" id="resetAdvancedFilter">重置</button><button class="primary" id="applyAdvancedFilter">应用筛选</button></div>
+          </div></div>
         </div>
         <div class="table-wrap">
           <table>
@@ -101,7 +108,7 @@
       <section class="page kernel-page" id="kernels"><div class="kernel-grid"><article class="kernel-card" data-kernel-card="chrome"><div class="kernel-brand chromium-mark">C</div><div class="kernel-copy"><div><b>Fingerprint Chromium</b></div><p>下载并验证后供所有独立窗口使用，窗口数据与浏览器配置彼此隔离。</p><small>Windows x64 · 按需安装</small></div><div class="kernel-action kernel-version-summary"><span>当前内核版本</span><b class="kernel-status">未安装</b></div></article></div><div class="kernel-secondary-actions"><div><b>已有本地内核？</b><span>支持导入压缩包，或直接选择已解压的内核目录。</span></div><button class="ghost" id="importKernelArchive">导入内核包</button><button class="ghost" id="importKernelDirectory">导入本地内核</button></div></section>
       <section class="page proxy-page" id="proxy">
         <div class="clash-import-card"><div class="clash-mark">◎</div><div class="clash-import-copy"><b>导入 Clash 订阅</b><span>仅支持 HTTP / HTTPS 链接，节点数据仅在当前设备会话中使用。</span></div><div class="clash-import-form"><input id="clashLink" type="url" placeholder="粘贴 Clash 订阅链接" autocomplete="off" /><button class="primary" id="importClash">导入节点</button></div></div>
-        <div class="proxy-node-head"><b>已导入节点</b><span id="proxyNodeCount">0 个节点</span></div>
+        <div class="proxy-node-head"><b>已导入节点</b><div><button class="ghost proxy-latency-refresh" id="refreshProxyLatency" title="节点延迟每 60 秒自动刷新">↻ 刷新延迟</button><span id="proxyNodeCount">0 个节点</span></div></div>
         <div class="proxy-node-grid" id="proxyNodeGrid"><div class="proxy-empty"><span>◎</span><b>尚未导入节点</b><small>粘贴 Clash 订阅链接后，节点将在这里显示。</small></div></div>
       </section>
       <section class="page" id="logs"><div class="log-toolbar"><div class="log-level-filters" role="group" aria-label="日志级别筛选"><button class="active" data-log-level="ALL">ALL</button><button data-log-level="DEBUG">DEBUG</button><button data-log-level="INFO">INFO</button><button data-log-level="WARN">WARN</button><button data-log-level="ERROR">ERROR</button></div><div class="log-actions"><button class="ghost" id="exportSystemLogs">导出日志</button><button class="ghost" id="clearOldSystemLogs">清理30天以上</button><button class="ghost" id="clearSystemLogs">清空当前列表</button></div></div><div class="log-card system-log-card"><div class="system-log-head"><span>级别</span><span>内容</span><span>时间</span></div><div id="systemLogRows"></div><div class="system-log-empty" id="systemLogEmpty">暂时没有系统日志</div></div></section>
@@ -130,21 +137,22 @@
               <details class="help-item"><summary>如何下载、导入、更新或删除内核？</summary><p>打开「内核管理」，未安装时点击「下载内核」。下载连接中断时程序会自动重试、断点续传并校验完整性；网络仍无法连接 GitHub 时，可使用「导入内核包」或「导入本地内核」。安装完成后按钮变为「管理」，可更新或删除。</p></details>
             </section>
             <section class="help-group" id="help-window"><h3><span>02</span>窗口与账号</h3>
-              <details class="help-item"><summary>如何创建和启动浏览器窗口？</summary><p>点击右上角「创建窗口」，填写窗口名称，并选择账号、代理、系统和已安装的浏览器内核。列表中的系统、网络和加号图标可分别查看窗口配置、查看出口 IP 与位置、添加或关联账号。启动后默认打开「工作台配置页」和 Google 首页两个标签，每个窗口的 Cookie、缓存和本地存储彼此隔离。</p></details>
+              <details class="help-item"><summary>如何创建、筛选和启动浏览器窗口？</summary><p>点击右上角「创建窗口」，填写窗口名称，并选择账号、代理、系统和已安装的浏览器内核。主页「筛选」可按内核版本、分组和代理情况组合查询。列表中的系统、网络和加号图标可分别查看窗口配置、查看出口 IP 与位置、添加或关联账号。启动后默认打开工作台配置页和 Google 首页，每个窗口的数据彼此隔离。</p></details>
               <details class="help-item"><summary>如何添加、登录或切换账号？</summary><p>在「账号管理」中填写账号名称、密码和备注。点击侧栏底部的头像或名字可打开登录对话框；切换账号时必须再次输入对应密码。未登录时头像为灰色 O，登录后显示账号名称首字母并使用主题色。</p></details>
               <details class="help-item"><summary>账号如何关联到窗口？</summary><p>创建窗口时，在「账号管理」输入框中选择已有账号或直接输入内容。也可在账号管理中设置关联窗口；备注为自由填写文本。</p></details>
             </section>
             <section class="help-group" id="help-network"><h3><span>03</span>代理与插件</h3>
-              <details class="help-item"><summary>支持哪些代理导入方式？</summary><p>支持 Clash 订阅或 YAML、HTTP / SOCKS5 单层代理，以及两层链式代理。导入成功后，主页代理信息会显示「已开启」，并可在创建窗口时选择节点。</p></details>
+              <details class="help-item"><summary>支持哪些代理导入方式？如何选择节点？</summary><p>支持 Clash 订阅或 YAML、HTTP / SOCKS5 单层代理，以及两层链式代理。点击节点即可选用；再次点击当前节点会取消选择并恢复 Windows 系统代理。节点延迟每 60 秒自动刷新，也可点击「刷新延迟」立即测试；Timeout 表示当前连接栈、节点或测试目标暂时不可达。</p></details>
               <details class="help-item"><summary>默认插件如何加载？</summary><p>插件中心默认提供 AdGuard 广告拦截器、篡改猴和 Google 翻译。程序打开后会提前准备插件包；首次启动窗口会等待启用的插件下载并校验完成，确认安装成功后才打开 fingerprint-chromium。浏览器扩展程序页会自动开启“开发者模式”。若下载失败，窗口不会以缺少插件的状态启动，请根据提示检查系统代理后重试。</p></details>
             </section>
             <section class="help-group" id="help-data"><h3><span>04</span>数据与外观</h3>
-              <details class="help-item"><summary>如何备份或恢复个人数据？</summary><p>点击右上角云端图标可导出 OneBrowser-data.zip，同时会把最新数据快照写入安装目录的 data/backups。点击“打开 Google Drive”会在当前已启动的 One Browser 窗口内打开 Drive，登录后上传该压缩包即可。</p></details>
+              <details class="help-item"><summary>如何备份或恢复个人数据？</summary><p>点击首页右上角云端图标，会在按钮下方直接显示备份面板；可导出 OneBrowser-data.zip，也可在受管浏览器中打开 Google Drive 后上传。面板不会跳转到新页面，按 Esc 或点击面板外即可关闭。</p></details>
               <details class="help-item"><summary>系统日志保存在哪里？为什么升级后还能看到？</summary><p>页面只显示当前应用进程的会话日志，并每 3 秒刷新；磁盘日志保存在程序旁的 data/logs/app.log，最多保留 30 天。若把新版解压到旧目录、复制旧版 data 文件夹，或旧程序尚未退出，历史文件与旧进程仍会保留。需要全新环境时，请先退出 One Browser，再将新版解压到新的独立目录；「清空当前列表」只清除当前会话列表，「清理30天以上」清理过期磁盘日志。</p></details>
               <details class="help-item"><summary>如何更换主题、窗口图标颜色或迁移配置？</summary><p>进入「系统设置」可选择预设配色、自定义主色或开启深色内容区；内核图标和默认窗口图标会同步使用当前主题色。点击窗口列表中的彩色图标，可在圆角配色面板中选择跟随主题、预设色或输入十六进制颜色。「高级设置」提供清除缓存、加载配置、导出配置和初始化系统；初始化会清除业务数据但保留已经下载的内核。</p></details>
             </section>
             <section class="help-group" id="help-trouble"><h3><span>05</span>常见问题</h3>
-              <details class="help-item"><summary>为什么窗口无法启动或内核无法下载？</summary><p>请先确认 Fingerprint Chromium 内核已经安装。如果下载提示 EOF，新版本会自动分段重试并切换断点续传；仍失败通常是当前系统代理无法稳定访问 GitHub，可暂时切换网络，或下载内核压缩包后在「内核管理」中本地导入。窗口使用代理时也请确认节点已成功导入。</p></details>
+              <details class="help-item"><summary>为什么窗口无法启动、节点 Timeout 或内核无法下载？</summary><p>请先确认 Fingerprint Chromium 内核已经安装。代理节点会按系统设置中的当前连接栈测速和启动；普通 Clash 节点可自动选择兼容内核，Mihomo 专属协议需要先切换到 Mihomo 连接栈并确认运行时可用。内核下载若持续失败，可切换网络，或使用「导入内核包／导入本地内核」。</p></details>
+              <details class="help-item"><summary>关闭主窗口后应用为什么仍在运行？</summary><p>点击 Windows 关闭按钮会把 One Browser 隐藏到系统托盘，已打开的浏览器窗口不会被关闭。需要退出时，请右键托盘图标，选择“仅退出应用”或“退出应用与浏览器”。所有弹窗均可按 Esc 返回。</p></details>
               <details class="help-item"><summary>为什么看不到刚发布的界面？</summary><p>浏览器可能仍在使用缓存。请按 Ctrl + F5 强制刷新，或关闭当前标签后重新打开预览地址。</p></details>
             </section>
             <div class="help-no-results" id="helpNoResults">没有找到相关内容，请尝试更换关键词。</div>
@@ -219,19 +227,6 @@
     <div class="modal login-account-panel">
       <div class="modal-head"><div><h2 id="loginDialogTitle">登录账号</h2><p>请选择账号并确认密码。</p></div><button id="closeLoginAccount" aria-label="关闭">×</button></div>
       <form id="loginAccountForm"><label>账号<select id="loginAccountSelect"></select></label><label>密码<div class="password-field"><input id="loginAccountPassword" type="password" placeholder="••••••••" required /><button type="button" class="password-eye" data-password-toggle="loginAccountPassword" aria-label="显示密码">◉</button></div></label><p class="login-error" id="loginAccountError"></p><div class="modal-actions"><button type="button" class="ghost" id="cancelLoginAccount">取消</button><button type="submit" class="primary">确认登录</button></div></form>
-    </div>
-  </div>
-  <div class="modal-backdrop" id="cloudBackupModal">
-    <div class="modal cloud-backup-panel">
-      <div class="modal-head"><div><h2>账号数据备份</h2><p>将窗口、账号和全部个人设置统一保存。</p></div><button id="closeCloudBackup" aria-label="关闭">×</button></div>
-      <div class="cloud-backup-body">
-        <div class="backup-summary"><span class="backup-folder-icon">D</span><div><b>One Browser 数据包</b><small id="backupFileName">OneBrowser-data.zip</small></div><span class="backup-ready">可备份</span></div>
-        <section class="backup-option drive-option"><div class="google-drive-mark"><i></i><i></i><i></i></div><div><b>Google Drive</b><p>在当前 One Browser 窗口登录 Drive，再上传导出的数据压缩包。</p></div><button class="primary" id="connectGoogleDrive">打开 Google Drive</button></section>
-        <div class="drive-connected" id="driveConnected"><span>✓</span><div><b>Google Drive 已连接</b><small>备份文件将保存到 One Browser 文件夹</small></div><button class="ghost" id="disconnectGoogleDrive">断开</button></div>
-        <section class="backup-option local-option"><span class="local-data-icon">⌂</span><div><b>本地 data 文件夹</b><p>未登录云端时，数据默认保存在安装目录的 <code>data</code> 文件夹。</p></div><button class="ghost" id="downloadLocalBackup">导出压缩包</button></section>
-        <div class="backup-includes"><b>备份内容</b><span>账号信息</span><span>窗口数据</span><span>主题设置</span><span>代理与内核配置</span><span>本地个人信息</span></div>
-      </div>
-      <div class="modal-actions cloud-actions"><button class="ghost" id="cancelCloudBackup">取消</button><button class="primary" id="startCloudBackup">立即备份</button></div>
     </div>
   </div>
   <div class="modal-backdrop" id="kernelManagerModal">

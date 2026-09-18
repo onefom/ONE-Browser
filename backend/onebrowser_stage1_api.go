@@ -2,6 +2,7 @@ package backend
 
 import (
 	"ant-chrome/backend/internal/browser"
+	"ant-chrome/backend/internal/proxy"
 	"bytes"
 	"fmt"
 	"html/template"
@@ -46,6 +47,66 @@ type OneBrowserStartRequest struct {
 type OneBrowserStartResult struct {
 	ProfileID string `json:"profileId"`
 	Running   bool   `json:"running"`
+}
+
+// OneBrowserNetworkInfo is the same route-aware network snapshot shown by the
+// managed browser workspace.  The manager requests it with the profile ID so
+// the selected node/system proxy cannot drift from the launched window.
+type OneBrowserNetworkInfo struct {
+	OK       bool   `json:"ok"`
+	IP       string `json:"ip"`
+	Country  string `json:"country"`
+	Region   string `json:"region"`
+	City     string `json:"city"`
+	Location string `json:"location"`
+	Error    string `json:"error"`
+}
+
+func (a *App) OneBrowserGetNetworkInfo(profileID string) OneBrowserNetworkInfo {
+	profileID = strings.TrimSpace(profileID)
+	proxies := a.getLatestProxies()
+	probeID := ""
+	for _, item := range a.BrowserProfileList() {
+		if item.ProfileId != profileID {
+			continue
+		}
+		probeID = strings.TrimSpace(item.ProxyId)
+		if probeID == "" && strings.TrimSpace(item.ProxyConfig) != "" {
+			probeID = "__one_browser_profile__"
+			proxies = append(proxies, BrowserProxy{ProxyId: probeID, ProxyName: "One Browser 当前窗口", ProxyConfig: item.ProxyConfig})
+		}
+		break
+	}
+	if probeID == "" {
+		if systemProxy, err := oneBrowserSystemProxyAddress(); err == nil && strings.TrimSpace(systemProxy) != "" {
+			probeID = "__one_browser_system__"
+			proxies = append(proxies, BrowserProxy{ProxyId: probeID, ProxyName: "Windows 系统代理", ProxyConfig: systemProxy})
+		} else {
+			probeID = "__one_browser_direct__"
+			proxies = append(proxies, BrowserProxy{ProxyId: probeID, ProxyName: "本地直连", ProxyConfig: "direct://"})
+		}
+	}
+	data, err := proxy.FetchIPHealthInfo(probeID, proxies, a.xrayMgr, a.singboxMgr, a.clashMgr, a.defaultProxyConnectorType(), a.proxyIPHealthConfig())
+	if err != nil {
+		return OneBrowserNetworkInfo{Error: err.Error()}
+	}
+	result := OneBrowserNetworkInfo{
+		OK: true, IP: mapString(data, "ip"), Country: mapString(data, "country"),
+		Region: mapString(data, "region"), City: mapString(data, "city"),
+	}
+	parts := make([]string, 0, 3)
+	for _, value := range []string{result.Country, result.Region, result.City} {
+		value = strings.TrimSpace(value)
+		if value != "" && (len(parts) == 0 || !strings.EqualFold(parts[len(parts)-1], value)) {
+			parts = append(parts, value)
+		}
+	}
+	result.Location = strings.Join(parts, " · ")
+	if result.IP == "" {
+		result.OK = false
+		result.Error = "未获取到出口 IP"
+	}
+	return result
 }
 
 // OneBrowserKernelStatus reports only verified Ant Browser core records.
@@ -93,7 +154,8 @@ func (a *App) OneBrowserDownloadFingerprintChromium() error {
 }
 
 // OneBrowserImportClash downloads a subscription using Ant Browser's hardened
-// fetcher, persists every node, and marks nodes for the Mihomo bridge.
+// fetcher and persists every node. Kernel selection follows the active
+// connection stack instead of forcing imported nodes onto Mihomo.
 func (a *App) OneBrowserImportClash(rawURL string) ([]BrowserProxy, error) {
 	result, err := a.browserProxyFetchClashByURL(rawURL, "")
 	if err != nil {
@@ -127,6 +189,44 @@ func (a *App) OneBrowserParseClashText(content string) ([]BrowserProxy, error) {
 		return nil, err
 	}
 	return proxies, nil
+}
+
+// OneBrowserProxyBatchTestSpeed repairs the kernel pin written by versions up
+// to 1.8.13, then measures nodes through the currently selected connection
+// stack. This keeps xray/sing-box and Mihomo isolated while making old One
+// Browser imports usable without requiring the user to import them again.
+func (a *App) OneBrowserProxyBatchTestSpeed(proxyIDs []string, concurrency int) []ProxyTestResult {
+	a.oneBrowserUseActiveProxyStack(proxyIDs)
+	return a.BrowserProxyBatchTestSpeed(proxyIDs, concurrency)
+}
+
+func (a *App) oneBrowserUseActiveProxyStack(proxyIDs []string) {
+	if len(proxyIDs) == 0 {
+		return
+	}
+	wanted := make(map[string]struct{}, len(proxyIDs))
+	for _, proxyID := range proxyIDs {
+		if proxyID = strings.TrimSpace(proxyID); proxyID != "" {
+			wanted[proxyID] = struct{}{}
+		}
+	}
+	if len(wanted) == 0 {
+		return
+	}
+	items := a.getLatestProxies()
+	changed := false
+	for index := range items {
+		if _, ok := wanted[strings.TrimSpace(items[index].ProxyId)]; !ok {
+			continue
+		}
+		if strings.EqualFold(strings.TrimSpace(items[index].PreferredKernel), "mihomo") {
+			items[index].PreferredKernel = ""
+			changed = true
+		}
+	}
+	if changed {
+		_ = a.SaveBrowserProxies(items)
+	}
 }
 
 // OneBrowserDeleteProxy keeps the UI list and the real Ant Browser proxy
@@ -181,6 +281,8 @@ func (a *App) OneBrowserStart(request OneBrowserStartRequest) (OneBrowserStartRe
 		} else {
 			proxyID = "__direct__"
 		}
+	} else {
+		a.oneBrowserUseActiveProxyStack([]string{proxyID})
 	}
 
 	var profile *BrowserProfile
@@ -373,7 +475,7 @@ func oneBrowserClashNodes(content, sourceURL, group string) ([]BrowserProxy, err
 			ProxyId:           generateUUID(),
 			ProxyName:         name,
 			ProxyConfig:       string(payload),
-			PreferredKernel:   "mihomo",
+			PreferredKernel:   "",
 			GroupName:         strings.TrimSpace(group),
 			SourceID:          strings.TrimSpace(sourceURL),
 			SourceURL:         strings.TrimSpace(sourceURL),

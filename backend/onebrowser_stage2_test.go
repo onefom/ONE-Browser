@@ -45,6 +45,19 @@ func TestOneBrowserWindowLaunchArgsApplyCustomUserAgent(t *testing.T) {
 	}
 }
 
+func TestOneBrowserClashNodesFollowActiveConnectionStack(t *testing.T) {
+	nodes, err := oneBrowserClashNodes("proxies:\n  - name: node-a\n    type: vmess\n    server: example.com\n    port: 443\n    uuid: 00000000-0000-0000-0000-000000000001\n", "https://example.com/sub", "订阅")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(nodes) != 1 {
+		t.Fatalf("nodes = %d, want 1", len(nodes))
+	}
+	if nodes[0].PreferredKernel != "" {
+		t.Fatalf("preferred kernel = %q, want automatic selection", nodes[0].PreferredKernel)
+	}
+}
+
 func TestOneBrowserWorkspaceContainsConfiguration(t *testing.T) {
 	app := NewApp(t.TempDir())
 	url, err := app.oneBrowserWorkspaceURL("profile-1", "窗口一", OneBrowserStartRequest{ProxyName: "节点 A", Account: "Admin", OS: "Windows 11", Language: "de-DE", Timezone: "Europe/Berlin", WindowSize: "1440 × 900"}, OneBrowserKernelStatus{Version: "148.0"}, "")

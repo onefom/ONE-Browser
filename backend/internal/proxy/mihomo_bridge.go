@@ -469,6 +469,8 @@ func (m *ClashManager) resolveMihomoBinary() (string, error) {
 	if m.AppRoot != "" {
 		candidates = append(candidates,
 			filepath.Join(m.AppRoot, "bin", "mihomo.exe"),
+			filepath.Join(m.AppRoot, "bin", "mihomo-windows-amd64-compatible.exe"),
+			filepath.Join(m.AppRoot, "bin", "mihomo-windows-amd64.exe"),
 			filepath.Join(m.AppRoot, "bin", "mihomo"),
 			filepath.Join(m.AppRoot, "bin", runtime.GOOS+"-"+runtime.GOARCH, "mihomo", "mihomo.exe"),
 			filepath.Join(m.AppRoot, "bin", runtime.GOOS+"-"+runtime.GOARCH, "mihomo", "mihomo"),

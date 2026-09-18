@@ -702,6 +702,10 @@ export function OneBrowserExportLogs() {
   return window['go']['main']['App']['OneBrowserExportLogs']();
 }
 
+export function OneBrowserGetNetworkInfo(arg1) {
+  return window['go']['main']['App']['OneBrowserGetNetworkInfo'](arg1);
+}
+
 export function OneBrowserImportClash(arg1) {
   return window['go']['main']['App']['OneBrowserImportClash'](arg1);
 }
@@ -724,6 +728,10 @@ export function OneBrowserOpenManagedURL(arg1, arg2) {
 
 export function OneBrowserParseClashText(arg1) {
   return window['go']['main']['App']['OneBrowserParseClashText'](arg1);
+}
+
+export function OneBrowserProxyBatchTestSpeed(arg1, arg2) {
+  return window['go']['main']['App']['OneBrowserProxyBatchTestSpeed'](arg1, arg2);
 }
 
 export function OneBrowserSaveLocalData(arg1) {

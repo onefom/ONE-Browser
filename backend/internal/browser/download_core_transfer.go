@@ -19,7 +19,7 @@ func prepareCoreRequest(ctx context.Context, targetURL string, start, end int64)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("User-Agent", "OneBrowser-CoreDownloader/1.8.12")
+	req.Header.Set("User-Agent", "OneBrowser-CoreDownloader/1.8.15")
 	req.Header.Set("Accept", "application/octet-stream")
 	if start >= 0 {
 		value := fmt.Sprintf("bytes=%d-", start)

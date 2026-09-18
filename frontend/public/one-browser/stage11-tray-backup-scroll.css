@@ -1,0 +1,33 @@
+/* One Browser 1.8.15: anchored backup, stable sidebar and content-only scrolling. */
+.header-popover-anchor{position:relative;display:inline-flex;flex:0 0 auto}
+.cloud-backup-popover{position:absolute;z-index:960;top:calc(100% + 8px);right:0;display:none;width:316px;padding:16px;border:1px solid rgba(255,255,255,.9);border-radius:16px;background:rgba(255,255,255,.97);box-shadow:0 18px 44px rgba(65,63,108,.18);backdrop-filter:blur(20px)}
+.cloud-backup-popover.open{display:block}
+.cloud-backup-popover .backup-summary{grid-template-columns:40px minmax(0,1fr);margin:14px 0 10px;padding:11px}
+.cloud-backup-popover>p{margin:0 0 11px;color:var(--muted);font-size:11px;line-height:1.55}
+.cloud-backup-popover .backup-option{grid-template-columns:minmax(0,1fr) auto;padding:11px 12px;border-radius:12px}
+.cloud-backup-popover .backup-option p{font-size:10px}
+.cloud-backup-popover .drive-connected{grid-template-columns:27px minmax(0,1fr) auto;padding:10px 11px;border-radius:12px}
+.cloud-backup-popover .drive-connected>span{width:24px;height:24px}
+.cloud-backup-popover .ghost,.cloud-backup-popover .primary{height:34px;padding:0 11px;border-radius:10px;font-size:11px}
+.cloud-popover-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+
+@media(min-width:801px){
+  #proxy.page.active,#logs.page.active{display:flex!important;flex-direction:column;height:calc(100vh - 146px)!important;min-height:0!important;overflow:hidden!important}
+  #proxy .clash-import-card,#proxy .proxy-node-head,#logs .log-toolbar{flex:0 0 auto}
+  #proxy .proxy-node-grid{flex:1;min-height:0;overflow-y:auto;align-content:start;padding-right:0;scrollbar-width:none;-ms-overflow-style:none}
+  #proxy .proxy-node-grid::-webkit-scrollbar{display:none}
+  #logs .system-log-card{display:flex;flex:1;min-height:0;flex-direction:column;overflow:hidden!important}
+  #logs .system-log-head{flex:0 0 auto}
+  #logs #systemLogRows{flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none}
+  #logs #systemLogRows::-webkit-scrollbar{display:none}
+}
+
+.account{height:52px!important;min-height:52px!important;grid-template-columns:28px minmax(0,1fr) 28px!important;gap:8px!important;padding:12px 10px!important;margin-top:0!important;border-top:1px solid rgba(114,118,150,.12)!important}
+.account .avatar,.sidebar-collapsed .account .avatar{width:28px!important;height:28px!important;min-width:28px!important;flex:0 0 28px!important;margin:0!important;font-size:10px!important}
+.account-menu-btn{width:28px!important;height:28px!important}
+.sidebar-collapsed .account{width:100%!important;height:52px!important;min-height:52px!important;padding:12px 0!important;margin:0!important;display:flex!important;align-items:center!important;justify-content:center!important;border-top:1px solid rgba(114,118,150,.12)!important}
+.sidebar-collapsed #currentAccount>div:not(.avatar),.sidebar-collapsed #currentAccount .account-menu-btn{display:none!important}
+
+.dark-content .cloud-backup-popover{background:rgba(35,38,53,.98);border-color:rgba(255,255,255,.1)}
+.dark-content .cloud-backup-popover .backup-option,.dark-content .cloud-backup-popover .backup-summary{background:#202432!important;border-color:rgba(255,255,255,.1)!important}
+@media(max-width:620px){.cloud-backup-popover{right:-52px;width:min(316px,calc(100vw - 28px))}}
