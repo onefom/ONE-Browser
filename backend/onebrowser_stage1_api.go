@@ -88,7 +88,7 @@ func (a *App) OneBrowserGetNetworkInfo(profileID string) OneBrowserNetworkInfo {
 	}
 	data, err := proxy.FetchIPHealthInfo(probeID, proxies, a.xrayMgr, a.singboxMgr, a.clashMgr, a.defaultProxyConnectorType(), a.proxyIPHealthConfig())
 	if err != nil {
-		return OneBrowserNetworkInfo{Error: err.Error()}
+		return OneBrowserNetworkInfo{Error: "网络位置服务暂不可用，请稍后重试"}
 	}
 	result := OneBrowserNetworkInfo{
 		OK: true, IP: mapString(data, "ip"), Country: mapString(data, "country"),

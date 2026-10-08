@@ -1,0 +1,46 @@
+/* Stage 12: Lucide icon system, hover configuration cards and mutually
+   exclusive lightweight popovers. */
+.lucide{display:block;width:1em;height:1em;flex:0 0 auto;fill:none;stroke:currentColor}
+.nav-item>span:first-child .lucide{width:17px;height:17px}
+.top-icon>span>.lucide,.top-icon>.lucide{width:18px;height:18px}
+.primary>.lucide,.ghost>.lucide,.danger-outline>.lucide,.row-menu button>.lucide{width:15px;height:15px}
+.primary,.ghost,.danger-outline,.row-menu button{align-items:center;gap:7px}
+.primary,.ghost,.danger-outline{display:inline-flex;justify-content:center}
+#createBtn .lucide{width:16px;height:16px}
+.search>span{color:#8b91a8}.search .lucide{width:15px;height:15px}.search input{padding-left:8px!important}
+.backup-folder-icon .lucide{width:19px;height:19px}.drive-connected>svg{width:15px;height:15px}
+.kernel-brand .lucide{width:24px;height:24px}.managed-kernel-icon .lucide{width:19px;height:19px}
+.row-menu button{display:flex!important}.dots .lucide{width:17px;height:17px}.dots{display:grid;place-items:center}
+.account-delete::before,.account-delete::after{display:none!important}.account-delete .lucide,.proxy-delete .lucide{width:13px;height:13px}.password-eye .lucide{width:15px;height:15px}.confirm-delete-icon .lucide{width:22px;height:22px}.notice>span .lucide{width:13px;height:13px}.proxy-empty>span .lucide{width:24px;height:24px}
+.primary>[data-lucide],.ghost>[data-lucide],.top-icon>[data-lucide],.nav-item>[data-lucide]{display:inline-flex;align-items:center;justify-content:center}.primary>[data-lucide] .lucide,.ghost>[data-lucide] .lucide{width:15px;height:15px}.core-version-icon .lucide{width:19px;height:19px}
+
+/* Table configuration is previewed in place; clicking no longer opens a modal. */
+.config-tool{overflow:visible!important;font-size:inherit!important}
+.config-tool::before,.config-tool::after{display:none!important}
+.config-tool>.lucide{width:16px;height:16px;stroke-width:1.75}
+.config-tool.os>.lucide{color:#3e82ea}.config-tool.network>.lucide{color:#70778e}.config-tool.add>.lucide{color:#687087}
+.config-hover-card{position:absolute;z-index:1250;top:calc(100% + 11px);left:50%;width:286px;padding:13px 14px;border:1px solid rgba(103,109,145,.13);border-radius:14px;background:rgba(252,253,255,.97);box-shadow:0 18px 48px rgba(45,48,82,.18);backdrop-filter:blur(20px) saturate(145%);color:#23263d;text-align:left;font-size:11px!important;line-height:1.45;letter-spacing:0;opacity:0;visibility:hidden;pointer-events:none;transform:translate(-50%,-5px);transition:opacity .16s ease,transform .16s ease,visibility .16s ease}
+.config-hover-card::before{content:"";position:absolute;left:50%;top:-5px;width:9px;height:9px;border-left:1px solid rgba(103,109,145,.12);border-top:1px solid rgba(103,109,145,.12);background:rgba(252,253,255,.98);transform:translateX(-50%) rotate(45deg)}
+.config-tool:hover>.config-hover-card,.config-tool:focus-visible>.config-hover-card{opacity:1;visibility:visible;transform:translate(-50%,0)}
+.config-card-title{display:flex;align-items:center;gap:7px;padding-bottom:10px;margin-bottom:9px;border-bottom:1px solid rgba(103,109,145,.1);font-size:12px;font-weight:680;color:#30334d}
+.config-card-title .lucide{width:15px;height:15px;color:#7165ee}
+.config-card-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}.config-card-grid>span,.network-card-row>span{display:block;min-width:0}.config-card-grid small,.network-card-row small{display:block;margin-bottom:3px;color:#9297aa;font-size:9px;font-weight:550}.config-card-grid b,.network-card-row b{display:block;color:#34374d;font-size:10px;font-weight:620;overflow-wrap:anywhere}
+.network-config-card{width:270px}.network-card-content{display:grid;gap:8px}.network-card-row{display:grid;grid-template-columns:28px minmax(0,1fr);align-items:center;gap:9px;padding:9px 10px;border-radius:10px;background:#f6f7fb}.network-card-row>.lucide{width:15px;height:15px;margin:auto;color:#7068d8}.network-card-row b{white-space:normal;line-height:1.5}
+@media(max-width:1100px){.config-hover-card{left:0;transform:translateY(-5px)}.config-tool:hover>.config-hover-card,.config-tool:focus-visible>.config-hover-card{transform:none}.config-hover-card::before{left:17px}}
+
+/* Header panels share one interaction layer; JS guarantees only one is open. */
+.core-update-popover,.cloud-backup-popover,.kernel-manager-popover{z-index:1300!important}
+.kernel-download{min-width:126px}.kernel-download>.lucide:last-child{width:13px;height:13px;margin-left:1px;opacity:.72}
+.kernel-manager-popover{position:fixed;display:none;width:min(370px,calc(100vw - 32px));padding:15px;border:1px solid rgba(255,255,255,.92);border-radius:17px;background:rgba(251,252,255,.97);box-shadow:0 20px 55px rgba(52,55,91,.2);backdrop-filter:blur(22px) saturate(150%);color:var(--ink);animation:oneBrowserPopoverIn .16s ease-out}
+.kernel-manager-popover.open{display:block}
+@keyframes oneBrowserPopoverIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+.kernel-manager-popover-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}.kernel-manager-popover-head>div{display:grid;gap:3px}.kernel-manager-popover-head b{font-size:13px}.kernel-manager-popover-head small{color:var(--muted);font-size:10px}.kernel-manager-popover-head button{width:27px;height:27px;border:0;border-radius:8px;background:transparent;color:#858a9e;display:grid;place-items:center;cursor:pointer}.kernel-manager-popover-head button:hover{background:#f0f1f7;color:#555b75}.kernel-manager-popover-head .lucide{width:15px;height:15px}
+.kernel-manager-popover .managed-kernel-summary{padding:11px 12px;margin-bottom:11px;border-radius:12px;background:linear-gradient(135deg,rgba(113,101,238,.09),rgba(92,190,222,.07));border:1px solid rgba(113,101,238,.1)}
+.kernel-manager-popover .kernel-version-field{margin:0 0 10px;font-size:11px}.kernel-manager-popover .kernel-version-field small{font-size:9px;line-height:1.5}.kernel-popover-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.kernel-popover-meta>div{min-width:0;padding:9px 10px;border-radius:10px;background:#f5f6fa}.kernel-popover-meta span,.kernel-popover-meta b{display:block}.kernel-popover-meta span{color:var(--muted);font-size:9px}.kernel-popover-meta b{margin-top:3px;font-size:10px;overflow-wrap:anywhere}.kernel-manager-popover .kernel-manager-actions{margin:0;padding-top:11px;border-top:1px solid rgba(103,109,145,.1)}.kernel-manager-popover .kernel-manager-actions button{height:35px;font-size:11px}
+
+/* Refine helper copy and compact status feedback. */
+header p,#pageSub,.kernel-copy p,.kernel-secondary-actions span,.settings-card>p,.plugin-card p,.clash-import-copy span,.help-item p,.notice p{font-size:11px!important;line-height:1.65;color:#858ba2!important}
+.notice{gap:10px!important;padding:10px 12px!important;border:1px solid rgba(95,169,150,.16)!important;background:linear-gradient(135deg,rgba(82,191,154,.08),rgba(100,162,224,.055))!important}.notice>span{width:20px!important;height:20px!important;background:#63bea0!important;color:#fff!important;font-size:11px}.notice b{font-size:11px!important}.notice p{margin-top:2px!important}
+.toast{right:22px!important;bottom:20px!important;min-height:38px;max-width:min(360px,calc(100vw - 36px));padding:9px 12px!important;border:1px solid rgba(113,101,238,.16);border-radius:12px!important;background:rgba(246,246,255,.97)!important;color:#4c4a75!important;box-shadow:0 13px 36px rgba(52,54,88,.16)!important;display:flex;align-items:center;gap:8px;font-size:11px!important;font-weight:570;line-height:1.45;backdrop-filter:blur(18px)!important}.toast .lucide{width:15px;height:15px;color:#6b62d8}.toast.is-warning{background:rgba(255,249,236,.98)!important;border-color:rgba(218,163,68,.2);color:#7a6135!important}.toast.is-warning .lucide{color:#d29a3a}.toast.is-error{background:rgba(255,244,246,.98)!important;border-color:rgba(224,103,120,.2);color:#8d4b58!important}.toast.is-error .lucide{color:#df687b}
+
+.dark-content .config-hover-card,.dark-content .kernel-manager-popover{background:rgba(37,40,56,.98);border-color:rgba(255,255,255,.1);color:#f0f2f8}.dark-content .config-hover-card::before{background:#252838;border-color:rgba(255,255,255,.1)}.dark-content .config-card-title,.dark-content .config-card-grid b,.dark-content .network-card-row b{color:#eff1f8}.dark-content .config-card-title{border-color:rgba(255,255,255,.09)}.dark-content .network-card-row,.dark-content .kernel-popover-meta>div{background:#1f2230}.dark-content .kernel-manager-popover-head button:hover{background:#303448;color:#fff}.dark-content .kernel-manager-popover .managed-kernel-summary{background:rgba(126,111,242,.13);border-color:rgba(143,131,255,.18)}.dark-content .kernel-manager-popover .kernel-manager-actions{border-color:rgba(255,255,255,.09)}.dark-content .toast{background:rgba(41,43,61,.98)!important;border-color:rgba(143,131,255,.18);color:#e7e5ff!important}

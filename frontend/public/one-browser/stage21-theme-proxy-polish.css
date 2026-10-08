@@ -1,0 +1,98 @@
+/* One Browser 1.8.25: live theme parity, compact appearance choices and
+   proxy-list alignment. Remove this file to restore the 1.8.24 visual layer. */
+
+/* Glass mode previously replaced the selected accent with a fixed aurora
+   gradient. Every primary action now follows the live theme variables. */
+body.restrained-glass .primary,
+body.restrained-glass .launch[data-action="start"],
+body.restrained-glass .avatar,
+body.restrained-glass .core-version-icon,
+body.restrained-glass .backup-folder-icon,
+body.restrained-glass .backup-drive-icon,
+body.restrained-glass .filter[data-filter].active,
+body.restrained-glass .log-level-filters button.active{
+  background:var(--theme-gradient)!important;
+  border-color:transparent!important;
+  color:#fff!important;
+}
+body.restrained-glass .primary,
+body.restrained-glass .launch[data-action="start"]{
+  box-shadow:0 8px 20px color-mix(in srgb,var(--lime) 18%,transparent)!important;
+}
+
+/* The two visual modes are equal-width choices. The whole card is the
+   control, so a second click cancels it without a redundant switch glyph. */
+.visual-mode-options{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:9px;
+  margin-top:10px;
+}
+.visual-mode-options .visual-mode-toggle{
+  min-height:48px!important;
+  margin:0!important;
+  justify-content:flex-start!important;
+  position:relative;
+}
+.visual-mode-input{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  margin:0!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+.visual-mode-toggle::after{
+  content:"";
+  width:7px;
+  height:7px;
+  margin-left:auto;
+  border-radius:50%;
+  background:rgba(126,132,153,.25);
+  transition:background .16s ease,box-shadow .16s ease;
+}
+.visual-mode-toggle:has(input:checked)::after{
+  background:var(--lime);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--lime) 12%,transparent);
+}
+
+/* Use the same three-dot glyph as table actions instead of compressed text. */
+#accountMenuBtn::before{display:none!important;content:none!important}
+#accountMenuBtn .lucide{
+  display:block!important;
+  width:18px!important;
+  height:18px!important;
+  margin:auto!important;
+  stroke-width:1.7!important;
+}
+
+/* The search shell owns the glass background; the input must not paint a
+   second white rectangle inside it. */
+.search input,
+body.restrained-glass .search input,
+.search input:hover,
+.search input:focus,
+.search input:focus-visible{
+  background:transparent!important;
+  background-image:none!important;
+  border:0!important;
+  outline:0!important;
+  box-shadow:none!important;
+}
+
+/* Optically and geometrically centre the delete glyph. */
+.proxy-node-actions .proxy-delete{
+  display:grid!important;
+  place-items:center!important;
+  padding:0!important;
+  line-height:1!important;
+}
+.proxy-node-actions .proxy-delete .lucide{
+  display:block!important;
+  width:13px!important;
+  height:13px!important;
+  margin:0!important;
+  transform:none!important;
+}
+
+@media(max-width:620px){.visual-mode-options{grid-template-columns:1fr}}

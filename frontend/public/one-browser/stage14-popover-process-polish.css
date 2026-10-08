@@ -1,0 +1,31 @@
+/* One Browser 1.8.17: viewport-level previews, balanced panels and calmer depth. */
+
+/* The hover preview is mounted directly under body so table rows and scroll
+   containers can never clip it. Only one preview can exist at a time. */
+.config-hover-portal{position:fixed!important;z-index:4200!important;top:0;left:0;width:286px;padding:13px 14px;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-5px) scale(.985);transition:opacity .15s ease,transform .15s ease,visibility .15s ease}
+.config-hover-portal.open{opacity:1;visibility:visible;transform:none}
+.config-hover-portal.network-config-card{width:286px}
+.config-hover-portal::before{left:var(--preview-arrow-x,50%)!important}
+.config-tool>.config-hover-card{display:none!important}
+
+/* Cloud backup and core upgrade now have identical geometry and motion. */
+.core-update-popover,.cloud-backup-popover{display:flex!important;flex-direction:column;width:316px!important;height:282px!important;box-sizing:border-box;padding:16px!important;opacity:0!important;visibility:hidden!important;pointer-events:none;transform:translateY(-6px) scale(.985)!important;transform-origin:top right;transition:opacity .18s ease,transform .18s ease,visibility .18s ease!important}
+.core-update-popover.open,.cloud-backup-popover.open{opacity:1!important;visibility:visible!important;pointer-events:auto;transform:none!important}
+.core-popover-actions,.cloud-popover-actions{margin-top:auto!important}
+
+/* Keep a single Lucide ellipsis. The old pseudo-element duplicated it. */
+.dots::before{display:none!important;content:none!important}
+.dots .lucide{width:17px;height:17px;stroke-width:1.7}
+
+/* Match nested lower corners and reduce the large interior shell shadow by
+   roughly sixty percent without weakening the surface hierarchy. */
+.app-shell{border-radius:22px!important;box-shadow:0 8px 28px rgba(70,68,116,.045)!important}
+.app-shell>main{border-radius:0 22px 22px 0}
+.launch{box-shadow:0 7px 17px rgba(96,84,222,.11)!important}
+
+/* Transient surfaces stay borderless and use a lighter, consistent depth. */
+.config-hover-portal,.core-update-popover,.cloud-backup-popover,.kernel-manager-popover,.window-color-popover,.rounded-select-popover,.row-menu,.tag-menu,.profile-menu,.toast{border:0!important;background:rgba(250,251,255,.86)!important;-webkit-backdrop-filter:blur(20px) saturate(138%)!important;backdrop-filter:blur(20px) saturate(138%)!important;box-shadow:0 10px 28px rgba(48,51,85,.09)!important}
+.toast{right:24px!important;bottom:24px!important}
+.dark-content .config-hover-portal,.dark-content .core-update-popover,.dark-content .cloud-backup-popover,.dark-content .kernel-manager-popover,.dark-content .window-color-popover,.dark-content .rounded-select-popover,.dark-content .row-menu,.dark-content .tag-menu,.dark-content .profile-menu{background:rgba(36,39,55,.88)!important;box-shadow:0 12px 30px rgba(0,0,0,.16)!important}
+
+@media(max-width:620px){.core-update-popover,.cloud-backup-popover{width:min(316px,calc(100vw - 28px))!important}}

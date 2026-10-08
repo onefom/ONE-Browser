@@ -57,6 +57,7 @@ func (a *App) startup(ctx context.Context) {
 	}
 
 	a.startupInitManagers(cfg, db)
+	a.repairUnavailablePortableConnector(cfg, log)
 	a.startupInitLaunchCode(log)
 	a.startupInitLaunchServer(log)
 	a.startupInitAutomation()
@@ -65,6 +66,28 @@ func (a *App) startup(ctx context.Context) {
 	a.startupInitBackupScheduler()
 
 	log.Info("应用启动成功")
+}
+
+// Older portable packages could persist Mihomo as the active connector while
+// distributing only Xray and sing-box. In that state imports succeed but all
+// node tests and launches fail before connecting. Repair only that impossible
+// selection: an installed/configured Mihomo runtime is always respected.
+func (a *App) repairUnavailablePortableConnector(cfg *config.Config, log *logger.Logger) {
+	if cfg == nil || config.NormalizeBrowserConnectorType(cfg.Browser.DefaultConnectorType) != config.BrowserConnectorMihomo {
+		return
+	}
+	if a.clashMgr != nil && a.clashMgr.RuntimeAvailable() {
+		return
+	}
+	if a.xrayMgr == nil || !a.xrayMgr.RuntimeAvailable() {
+		return
+	}
+	cfg.Browser.DefaultConnectorType = config.BrowserConnectorXray
+	if err := cfg.Save(a.resolveAppPath("config.yaml")); err != nil {
+		log.Warn("Mihomo 运行时缺失，已临时切换到 Xray 连接栈但配置保存失败", logger.F("error", err.Error()))
+		return
+	}
+	log.Warn("Mihomo 运行时缺失，已自动切换到便携包内置的 Xray 连接栈")
 }
 
 func applyPortableDataLoggingPolicy(cfg *config.Config) {

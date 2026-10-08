@@ -77,3 +77,13 @@ func (m *XrayManager) resolveBinary() (string, error) {
 
 	return "", fmt.Errorf("未找到 xray 可执行文件。请将 xray 放到 bin/%s/ 或 bin/ 目录，或在配置中设置 XrayBinaryPath", platformDir)
 }
+
+// RuntimeAvailable reports whether Xray can be resolved from the configured
+// path, the portable bin directory or PATH.
+func (m *XrayManager) RuntimeAvailable() bool {
+	if m == nil || m.Config == nil {
+		return false
+	}
+	_, err := m.resolveBinary()
+	return err == nil
+}

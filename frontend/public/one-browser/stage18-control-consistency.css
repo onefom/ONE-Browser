@@ -1,0 +1,176 @@
+/* One Browser 1.8.22: control consistency, stable inline editing and clean
+   modal geometry. Remove this file to restore the 1.8.21 visual layer. */
+
+/* Avoid the native black focus ring that can remain after mouse clicks. */
+#createBtn,
+#createBtn:hover,
+#createBtn:focus,
+#createBtn:focus-visible{
+  border:0!important;
+  outline:0!important;
+}
+#createBtn:focus-visible{
+  box-shadow:0 8px 20px color-mix(in srgb,var(--lime) 18%,transparent)!important;
+}
+
+/* The two auxiliary create-window actions use one quiet translucent style. */
+#modal .preset-magic,
+#modal #configDetail{
+  min-width:92px!important;
+  height:36px!important;
+  padding:0 14px!important;
+  border:0!important;
+  border-radius:10px!important;
+  background:rgba(255,255,255,.42)!important;
+  color:#747a91!important;
+  font-size:12px!important;
+  font-weight:450!important;
+  box-shadow:none!important;
+  -webkit-backdrop-filter:blur(12px) saturate(112%);
+  backdrop-filter:blur(12px) saturate(112%);
+}
+#modal .preset-magic:hover,
+#modal #configDetail:hover{
+  background:rgba(245,246,255,.66)!important;
+  color:#626881!important;
+}
+
+/* Form values and placeholders stay light, thin and consistent globally. */
+input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+textarea,
+select,
+.rounded-select-trigger{
+  font-weight:400!important;
+  color:#72788e!important;
+}
+input::placeholder,
+textarea::placeholder{
+  color:#a0a5b7!important;
+  font-weight:350!important;
+  opacity:1!important;
+}
+body.dark-content input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+body.dark-content textarea,
+body.dark-content select,
+body.dark-content .rounded-select-trigger{color:#c6cada!important}
+body.dark-content input::placeholder,
+body.dark-content textarea::placeholder{color:#858ba2!important}
+
+/* Name and note always occupy exactly the same grid cells while editing. */
+.table-wrap .window-name{
+  display:grid!important;
+  grid-template-columns:36px minmax(0,1fr)!important;
+  column-gap:12px!important;
+  align-items:center!important;
+}
+.table-wrap .window-name>div{
+  width:100%!important;
+  min-width:0!important;
+  justify-self:start!important;
+}
+.table-wrap .window-title,
+.table-wrap .window-note,
+.table-wrap .inline-name-input,
+.table-wrap .inline-note-input{
+  width:170px!important;
+  max-width:100%!important;
+  padding-inline:4px!important;
+  justify-self:start!important;
+}
+.table-wrap .window-title,
+.table-wrap .window-note{margin-left:0!important}
+.table-wrap .inline-name-input{font-weight:500!important}
+
+/* Kernel manage action keeps the same contrast in normal and hover states. */
+.kernel-download[data-mode="manage"],
+.kernel-download[data-mode="manage"]:hover,
+.kernel-download[data-mode="manage"]:focus,
+.kernel-download[data-mode="manage"]:focus-visible{
+  border:0!important;
+  outline:0!important;
+  background:var(--theme-gradient)!important;
+  color:#fff!important;
+}
+.kernel-download .lucide-chevron-down,
+.kernel-download [data-lucide="chevron-down"]{display:none!important}
+
+/* Proxy controls retain rounded corners at every zoom level and cannot
+   overflow their grid cell. Scrolling still works, but no native bars show. */
+.proxy-dialog,
+.proxy-dialog *,
+.modal,
+.modal *{box-sizing:border-box}
+.proxy-dialog input,
+.proxy-dialog select,
+.proxy-dialog textarea,
+.proxy-dialog .rounded-select-trigger{
+  width:100%!important;
+  max-width:100%!important;
+  border-radius:12px!important;
+}
+.proxy-dialog textarea{
+  resize:none!important;
+  overflow:auto!important;
+}
+.proxy-dialog,
+.proxy-pane,
+.modal,
+.create-form-scroll,
+.rounded-select-popover,
+.row-menu,
+.profile-popover,
+.help-content,
+html,
+body{
+  scrollbar-width:none!important;
+  -ms-overflow-style:none!important;
+}
+.proxy-dialog::-webkit-scrollbar,
+.proxy-pane::-webkit-scrollbar,
+.modal::-webkit-scrollbar,
+.create-form-scroll::-webkit-scrollbar,
+.rounded-select-popover::-webkit-scrollbar,
+.row-menu::-webkit-scrollbar,
+.profile-popover::-webkit-scrollbar,
+.help-content::-webkit-scrollbar,
+html::-webkit-scrollbar,
+body::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
+
+/* Add-account uses the same translucent shell and borderless fields as the
+   create-window modal. */
+body.restrained-glass #accountModal .modal{
+  background:rgba(250,252,255,.7)!important;
+  border:0!important;
+  box-shadow:0 24px 72px rgba(54,60,101,.15)!important;
+  -webkit-backdrop-filter:blur(28px) saturate(130%)!important;
+  backdrop-filter:blur(28px) saturate(130%)!important;
+}
+body.restrained-glass #accountModal .modal-head{
+  background:rgba(255,255,255,.12)!important;
+  border-bottom-color:rgba(103,109,145,.07)!important;
+}
+body.restrained-glass #accountModal input,
+body.restrained-glass #accountModal select,
+body.restrained-glass #accountModal .rounded-select-trigger{
+  height:40px!important;
+  border:0!important;
+  outline:0!important;
+  border-radius:11px!important;
+  background:linear-gradient(135deg,rgba(245,248,255,.72),rgba(250,246,255,.58))!important;
+  box-shadow:none!important;
+}
+body.restrained-glass #accountModal input:focus,
+body.restrained-glass #accountModal select:focus,
+body.restrained-glass #accountModal .rounded-select-trigger:focus-visible{
+  background:linear-gradient(135deg,rgba(237,243,255,.86),rgba(249,239,255,.72))!important;
+  box-shadow:0 0 0 3px rgba(113,101,238,.055)!important;
+}
+body.dark-content.restrained-glass #accountModal .modal{
+  background:rgba(27,31,48,.72)!important;
+  box-shadow:0 24px 72px rgba(0,0,0,.24)!important;
+}
+body.dark-content.restrained-glass #accountModal input,
+body.dark-content.restrained-glass #accountModal select,
+body.dark-content.restrained-glass #accountModal .rounded-select-trigger{
+  background:linear-gradient(135deg,rgba(18,22,36,.62),rgba(35,31,50,.56))!important;
+}

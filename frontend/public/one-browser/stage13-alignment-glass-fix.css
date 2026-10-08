@@ -1,0 +1,61 @@
+/* One Browser 1.8.16: unclipped previews, anchored header panels, refined
+   sidebar rhythm and borderless frosted transient surfaces. */
+
+/* Hover previews must be allowed to leave the table row and sit above the
+   following content. Earlier fixed-table rules clipped the fourth cell. */
+.table-wrap,
+.table-wrap tbody,
+.table-wrap tr,
+.table-wrap td:nth-child(4){overflow:visible!important}
+.table-wrap td:nth-child(4){position:relative;z-index:40}
+.table-wrap .config-tools{position:relative;z-index:41}
+.config-tool:hover,.config-tool:focus-visible{z-index:42}
+.config-tool:hover>.config-hover-card,.config-tool:focus-visible>.config-hover-card{z-index:3600!important}
+
+/* Each header panel is positioned from its own icon. The right edge of the
+   upgrade card now lines up with the right edge of the upgrade button. */
+.header-popover-anchor{position:relative;display:inline-flex;align-items:center}
+.core-update-anchor .core-update-popover{top:calc(100% + 10px);right:0}
+.cloud-backup-popover{top:calc(100% + 10px)!important}
+
+/* Use one width and a calmer bottom rhythm for the two sidebar actions. */
+.sidebar-bottom{display:grid;grid-template-rows:43px 43px auto;align-content:end;row-gap:3px;width:100%}
+.sidebar-bottom>.nav-item{width:100%!important;min-width:0;min-height:43px!important;margin:0!important}
+.sidebar-bottom>.nav-item>span:first-child{flex:0 0 17px}
+.sidebar-bottom .account{height:64px!important;min-height:64px!important;margin-top:8px!important;padding:17px 10px 8px!important}
+.sidebar-collapsed .sidebar-bottom{grid-template-rows:43px 43px 64px!important}
+.sidebar-collapsed #currentAccount{height:64px!important;min-height:64px!important;margin-top:8px!important;padding:17px 0 8px!important}
+
+/* The refreshed Lucide actions use a consistent fine outline. */
+.advanced-action-grid i>.lucide{width:18px;height:18px;stroke-width:1.7}
+.advanced-action-grid i>span{display:grid;place-items:center}
+
+/* Transient cards use borderless frosted glass. Shadows keep their edges
+   legible without a hard outline. */
+.config-hover-card,
+.core-update-popover,
+.cloud-backup-popover,
+.kernel-manager-popover,
+.window-color-popover,
+.rounded-select-popover,
+.row-menu,
+.toast{border:0!important;-webkit-backdrop-filter:blur(22px) saturate(145%)!important;backdrop-filter:blur(22px) saturate(145%)!important}
+.config-hover-card,.core-update-popover,.cloud-backup-popover,.kernel-manager-popover,.window-color-popover,.rounded-select-popover,.row-menu{background:rgba(252,253,255,.84)!important;box-shadow:0 18px 48px rgba(48,51,85,.16)!important}
+.config-hover-card::before{border:0!important;background:rgba(252,253,255,.9)!important;box-shadow:-5px -5px 12px rgba(69,72,108,.025)}
+.toast{right:28px!important;bottom:28px!important;background:rgba(247,247,255,.8)!important;box-shadow:0 14px 38px rgba(52,54,88,.17)!important}
+.toast.is-warning{background:rgba(255,249,237,.82)!important}
+.toast.is-error{background:rgba(255,244,247,.82)!important}
+
+.dark-content .config-hover-card,
+.dark-content .core-update-popover,
+.dark-content .cloud-backup-popover,
+.dark-content .kernel-manager-popover,
+.dark-content .window-color-popover,
+.dark-content .rounded-select-popover,
+.dark-content .row-menu{background:rgba(36,39,55,.84)!important;box-shadow:0 20px 52px rgba(0,0,0,.3)!important}
+.dark-content .config-hover-card::before{background:rgba(36,39,55,.92)!important}
+.dark-content .toast{background:rgba(40,42,60,.82)!important}
+
+@media(max-width:900px){
+  .config-hover-card{max-width:min(286px,calc(100vw - 28px))}
+}

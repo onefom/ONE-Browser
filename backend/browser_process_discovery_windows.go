@@ -80,7 +80,7 @@ func terminateBrowserUserDataProcessOS(pid int, timeout time.Duration) error {
 	if timeout <= 0 {
 		timeout = 5 * time.Second
 	}
-	if tryCloseBrowserViaCDPPID(pid, timeout) {
+	if tryCloseBrowserViaCDPPID(pid, timeout) && waitProcessExitWindows(pid, timeout) {
 		return nil
 	}
 
@@ -94,6 +94,9 @@ func terminateBrowserUserDataProcessOS(pid int, timeout time.Duration) error {
 	forceKillCmd := exec.Command("taskkill", "/F", "/PID", strconv.Itoa(pid), "/T")
 	hideWindow(forceKillCmd)
 	if err := forceKillCmd.Run(); err != nil {
+		if waitProcessExitWindows(pid, 500*time.Millisecond) {
+			return nil
+		}
 		return err
 	}
 	if !waitProcessExitWindows(pid, 2*time.Second) {

@@ -1,0 +1,145 @@
+/* One Browser 1.8.23: dark surface parity, compact header popovers and final
+   alignment polish. Remove this file to restore the 1.8.22 visual layer. */
+
+/* The proxy empty state should be a compact card, not a page-height sheet. */
+@media(min-width:801px){
+  #proxy .proxy-node-grid:has(.proxy-empty){
+    flex:0 0 auto!important;
+    min-height:0!important;
+    height:auto!important;
+    overflow:visible!important;
+    padding:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    -webkit-backdrop-filter:none!important;
+    backdrop-filter:none!important;
+  }
+}
+#proxy .proxy-node-grid:has(.proxy-empty) .proxy-empty{min-height:154px!important}
+
+/* Remove the stray divider under the header and the inset line on its icon
+   buttons. */
+body.restrained-glass main>header{border-bottom:0!important;box-shadow:none!important}
+body.restrained-glass main>header::after{display:none!important;content:none!important}
+body.restrained-glass .top-icon{
+  border:0!important;
+  outline:0!important;
+  box-shadow:0 5px 14px rgba(58,64,105,.055)!important;
+}
+body.dark-content.restrained-glass .top-icon{
+  background:rgba(34,39,58,.62)!important;
+  box-shadow:0 5px 14px rgba(0,0,0,.1)!important;
+}
+
+/* Keep the title block immediately after the logo and lock both display and
+   editing states to the same coordinates. */
+.table-wrap .window-name{
+  display:flex!important;
+  width:max-content!important;
+  max-width:100%!important;
+  gap:8px!important;
+  justify-content:flex-start!important;
+  align-items:center!important;
+}
+.table-wrap .window-name>div{
+  flex:0 1 170px!important;
+  width:170px!important;
+  min-width:0!important;
+  margin:0!important;
+  transform:none!important;
+}
+
+/* Backup and upgrade use the same compact geometry. The hidden copy remains
+   in the DOM so backup naming and connection logic stay intact. */
+.core-update-popover,.cloud-backup-popover{
+  height:244px!important;
+  padding:14px!important;
+}
+.cloud-backup-popover #backupFileName,
+.cloud-backup-popover .drive-option p{display:none!important}
+.cloud-backup-popover .backup-summary{margin:10px 0 8px!important;padding:9px 10px!important}
+.cloud-backup-popover>p{margin-bottom:8px!important}
+.cloud-backup-popover .backup-option{padding:9px 10px!important}
+.core-version-row{margin:12px 0 8px!important}
+.core-popover-actions,.cloud-popover-actions{margin-top:auto!important}
+
+/* Log levels belong to one family, with restrained semantic tinting. */
+.log-level-filters button{border:0!important;box-shadow:none!important}
+.log-level-filters button[data-log-level="ALL"]{background:rgba(113,101,238,.09)!important;color:#7269aa!important}
+.log-level-filters button[data-log-level="DEBUG"]{background:rgba(126,132,160,.09)!important;color:#747b90!important}
+.log-level-filters button[data-log-level="INFO"]{background:rgba(75,142,224,.09)!important;color:#5e83b2!important}
+.log-level-filters button[data-log-level="WARN"]{background:rgba(213,157,58,.1)!important;color:#a17c3d!important}
+.log-level-filters button[data-log-level="ERROR"]{background:rgba(218,98,116,.09)!important;color:#a86672!important}
+.log-level-filters button.active{background:var(--theme-gradient)!important;color:#fff!important;box-shadow:0 5px 13px color-mix(in srgb,var(--lime) 12%,transparent)!important}
+
+/* Every configuration value gets the same visual grouping as network rows. */
+.config-card-grid{gap:7px!important}
+.config-card-grid>span{
+  padding:8px 9px!important;
+  border-radius:9px!important;
+  background:rgba(243,245,251,.82)!important;
+}
+
+/* Dark mode: apply the dark material to each complete transient surface, not
+   just its children. This also fixes text contrast in glass mode. */
+body.dark-content.restrained-glass .core-update-popover,
+body.dark-content.restrained-glass .cloud-backup-popover,
+body.dark-content.restrained-glass .advanced-filter-popover,
+body.dark-content.restrained-glass .kernel-manager-popover{
+  background:rgba(28,33,50,.9)!important;
+  color:#edf0f8!important;
+  border:0!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.16)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(128%)!important;
+  backdrop-filter:blur(24px) saturate(128%)!important;
+}
+body.dark-content.restrained-glass .core-popover-head>span,
+body.dark-content.restrained-glass .core-version-row b,
+body.dark-content.restrained-glass .backup-summary b,
+body.dark-content.restrained-glass .backup-option b,
+body.dark-content.restrained-glass .kernel-manager-popover b,
+body.dark-content.restrained-glass .advanced-filter-popover label{color:#edf0f8!important}
+body.dark-content.restrained-glass .core-version-row small,
+body.dark-content.restrained-glass .core-update-popover>p,
+body.dark-content.restrained-glass .cloud-backup-popover>p,
+body.dark-content.restrained-glass .kernel-manager-popover small{color:#a7aec2!important}
+body.dark-content.restrained-glass .backup-summary,
+body.dark-content.restrained-glass .backup-option,
+body.dark-content.restrained-glass .managed-kernel-summary,
+body.dark-content.restrained-glass .kernel-popover-meta>div,
+body.dark-content.restrained-glass .config-card-grid>span{
+  background:rgba(15,20,34,.48)!important;
+  border-color:transparent!important;
+}
+body.dark-content.restrained-glass .advanced-filter-popover select{
+  background:rgba(16,21,35,.62)!important;
+  color:#d8dce8!important;
+  border:0!important;
+}
+body.dark-content.restrained-glass .log-level-filters button{filter:saturate(.8) brightness(1.2)}
+body.dark-content.restrained-glass .log-level-filters button.active{filter:none;color:#fff!important}
+
+/* Center the account overflow affordance independently from the glyph's text
+   baseline. */
+#currentAccount{align-items:center!important}
+#accountMenuBtn{
+  position:relative!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:0!important;
+  font-size:0!important;
+  line-height:1!important;
+  align-self:center!important;
+}
+#accountMenuBtn::before{
+  content:"•••";
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  padding-bottom:3px;
+  color:currentColor;
+  font-size:9px;
+  line-height:1;
+  letter-spacing:-1px;
+}

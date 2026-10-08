@@ -496,6 +496,15 @@ func (m *ClashManager) resolveMihomoBinary() (string, error) {
 	return "", fmt.Errorf("mihomo/clash 可执行文件未找到，请配置 browser.clash_binary_path")
 }
 
+// RuntimeAvailable reports whether the configured Mihomo/Clash executable is
+// actually usable. The portable One Browser bundle intentionally ships Xray
+// and sing-box; this lets startup repair an older persisted Mihomo selection
+// instead of making every imported node time out.
+func (m *ClashManager) RuntimeAvailable() bool {
+	_, err := m.resolveMihomoBinary()
+	return err == nil
+}
+
 func (m *ClashManager) resolveMihomoWorkdir(key string) string {
 	root := "data"
 	if m != nil && m.Config != nil {

@@ -14,6 +14,18 @@ import (
 
 const DefaultIPHealthURL = "https://my.ippure.com/v1/info"
 
+type ipHealthFallbackTarget struct {
+	URL    string
+	Source string
+	Parser string
+}
+
+var defaultIPHealthFallbacks = []ipHealthFallbackTarget{
+	{URL: "https://ipwho.is/", Source: "ipwho.is", Parser: "json"},
+	{URL: "https://ipinfo.io/json", Source: "ipinfo.io", Parser: "json"},
+	{URL: "https://api.ipify.org?format=json", Source: "ipify", Parser: "json"},
+}
+
 type IPHealthConfig struct {
 	URL     string
 	Source  string
@@ -76,49 +88,90 @@ func FetchIPHealthInfo(
 		return meta, fmt.Errorf("创建 IP 健康检测客户端失败（source=%s）: %w", source, err)
 	}
 
+	result, primaryErr := fetchIPHealthTarget(client, targetURL, cfg.Parser, source)
+	if primaryErr == nil {
+		return result, nil
+	}
+
+	// The bundled public endpoint can reject desktop traffic temporarily. Only
+	// the default target uses fallbacks; an administrator's custom target keeps
+	// its configured semantics. All fallbacks use the same route-aware client.
+	if strings.EqualFold(strings.TrimSpace(targetURL), DefaultIPHealthURL) {
+		for _, fallback := range defaultIPHealthFallbacks {
+			if result, err = fetchIPHealthTarget(client, fallback.URL, fallback.Parser, fallback.Source); err == nil {
+				result["_fallbackFrom"] = source
+				return result, nil
+			}
+		}
+	}
+
+	meta["error"] = "公网 IP 服务暂不可用"
+	return meta, fmt.Errorf("公网 IP 服务暂不可用（source=%s）: %w", source, primaryErr)
+}
+
+func fetchIPHealthTarget(client *http.Client, targetURL string, parser string, source string) (map[string]interface{}, error) {
 	req, err := http.NewRequest(http.MethodGet, targetURL, nil)
 	if err != nil {
-		meta["error"] = err.Error()
-		return meta, fmt.Errorf("创建 IP 健康检测请求失败（source=%s）: %w", source, err)
+		return nil, fmt.Errorf("创建请求失败: %w", err)
 	}
 	req.Header.Set("Accept", "application/json")
-	req.Header.Set("User-Agent", "AntChrome/1.0")
-
+	req.Header.Set("User-Agent", "OneBrowser/1.8")
 	resp, err := client.Do(req)
 	if err != nil {
-		meta["error"] = err.Error()
-		return meta, fmt.Errorf("调用 IP 健康检测接口失败（source=%s）: %w", source, err)
+		return nil, fmt.Errorf("请求失败: %w", err)
 	}
 	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
 	if err != nil {
-		meta["error"] = err.Error()
-		return meta, fmt.Errorf("读取 IP 健康检测响应失败（source=%s）: %w", source, err)
+		return nil, fmt.Errorf("读取响应失败: %w", err)
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		snippet := bodySnippet(body, 180)
-		meta["error"] = fmt.Sprintf("HTTP %d", resp.StatusCode)
-		meta["_statusCode"] = resp.StatusCode
-		if snippet != "" {
-			meta["_bodySnippet"] = snippet
-		}
-		return meta, fmt.Errorf("IP 健康检测 HTTP %d（source=%s）: %s", resp.StatusCode, source, snippet)
+		return nil, fmt.Errorf("HTTP %d", resp.StatusCode)
 	}
-
-	result, err := parseIPHealthBody(body, cfg.Parser)
+	result, err := parseIPHealthBody(body, parser)
 	if err != nil {
-		snippet := bodySnippet(body, 180)
-		meta["error"] = err.Error()
-		if snippet != "" {
-			meta["_bodySnippet"] = snippet
-		}
-		return meta, fmt.Errorf("IP 健康检测响应解析失败（source=%s, parser=%s）: %w", source, parser, err)
+		return nil, fmt.Errorf("响应解析失败: %w", err)
+	}
+	if err := normalizeIPHealthPayload(result, source); err != nil {
+		return nil, err
 	}
 	result["_source"] = source
 	result["_targetUrl"] = targetURL
-	result["_parser"] = parser
+	result["_parser"] = resolveIPHealthParser(parser)
 	return result, nil
+}
+
+func normalizeIPHealthPayload(result map[string]interface{}, source string) error {
+	if result == nil {
+		return fmt.Errorf("响应为空")
+	}
+	if strings.EqualFold(source, "ipwho.is") && result["success"] == false {
+		return fmt.Errorf("服务返回失败")
+	}
+	if location, ok := result["location"].(map[string]interface{}); ok {
+		copyIPHealthField(result, location, "country", "country")
+		copyIPHealthField(result, location, "region", "state")
+		copyIPHealthField(result, location, "city", "city")
+		copyIPHealthField(result, location, "countryCode", "country_code")
+	}
+	if strings.EqualFold(source, "ipinfo.io") {
+		if code := strings.TrimSpace(mapString(result, "country")); code != "" {
+			result["countryCode"] = code
+		}
+	}
+	if strings.TrimSpace(mapString(result, "ip")) == "" {
+		return fmt.Errorf("响应缺少出口 IP")
+	}
+	return nil
+}
+
+func copyIPHealthField(target map[string]interface{}, source map[string]interface{}, targetKey string, sourceKey string) {
+	if strings.TrimSpace(mapString(target, targetKey)) != "" {
+		return
+	}
+	if value := strings.TrimSpace(mapString(source, sourceKey)); value != "" {
+		target[targetKey] = value
+	}
 }
 
 func parseIPHealthBody(body []byte, parser string) (map[string]interface{}, error) {

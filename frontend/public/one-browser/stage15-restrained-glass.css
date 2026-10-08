@@ -1,0 +1,64 @@
+/* One Browser 1.8.19 optional visual layer.
+   Every visual rule is scoped to body.restrained-glass. Turning off the
+   setting restores the 1.8.17 cascade without replacing any source file. */
+
+/* Stable sidebar geometry: expanded and collapsed modes share the same
+   vertical tracks, so the brand, help row, divider and account avatar do not
+   jump while the grid column animates. */
+.brand{box-sizing:border-box!important;height:34px!important;min-height:34px!important;padding:0 19px!important;margin:0 0 38px!important;align-items:center!important}
+.logo.logo-ring{flex:0 0 34px!important;width:34px!important;height:34px!important;margin:0!important}
+.sidebar-collapsed .brand{height:34px!important;min-height:34px!important;padding:0!important;margin:0 0 38px!important;justify-content:center!important}
+.sidebar-bottom,.sidebar-collapsed .sidebar-bottom{box-sizing:border-box!important;display:grid!important;grid-template-rows:43px 43px 72px!important;row-gap:3px!important;flex:0 0 164px!important;height:164px!important;min-height:164px!important;align-content:end!important;width:100%!important}
+.sidebar-bottom>.nav-item,.sidebar-collapsed .sidebar-bottom>.nav-item{box-sizing:border-box!important;width:100%!important;height:43px!important;min-height:43px!important;margin:0!important}
+.sidebar-bottom #currentAccount,.sidebar-collapsed #currentAccount{box-sizing:border-box!important;width:100%!important;height:72px!important;min-height:72px!important;margin:0!important;padding:17px 10px 8px!important;border-top:1px solid rgba(114,118,150,.12)!important;align-self:stretch!important}
+.sidebar-collapsed #currentAccount{display:flex!important;align-items:center!important;justify-content:center!important;padding:17px 0 8px!important}
+.sidebar-collapsed #currentAccount .avatar{flex:0 0 28px!important;width:28px!important;height:28px!important;margin:0!important}
+
+/* One z-index scale for lightweight surfaces. Mutual exclusion handles the
+   interaction; this scale prevents legitimate surfaces from being clipped. */
+.advanced-filter-popover{z-index:3400!important}
+.core-update-popover,.cloud-backup-popover,.kernel-manager-popover,.row-menu,.tag-menu,.profile-menu,.window-color-popover,.rounded-select-popover,.account-popover{z-index:3500!important}
+.config-hover-portal{z-index:3600!important}
+
+/* Transparent glass mode: static gradients, local blur and low-alpha light.
+   The main canvas has no full-screen live blur. */
+body.restrained-glass{--ob-glass-bg:rgba(252,253,255,.58);--ob-glass-line:rgba(255,255,255,.7);--ob-glass-shadow:0 12px 34px rgba(64,67,108,.055);background:radial-gradient(circle at 76% 8%,rgba(111,173,244,.2),transparent 30%),radial-gradient(circle at 13% 92%,rgba(230,151,221,.13),transparent 26%),linear-gradient(135deg,#eaf0fb 0%,#e8edf8 54%,#f0f1fa 100%)!important;background-attachment:fixed!important}
+body.restrained-glass .app-shell{isolation:isolate;background:rgba(245,249,255,.3)!important;border-color:rgba(255,255,255,.76)!important;box-shadow:0 12px 38px rgba(62,68,112,.065)!important}
+body.restrained-glass main{isolation:isolate;overflow:hidden;background:rgba(247,250,255,.24)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+body.restrained-glass main::before{content:"";position:absolute;z-index:0;left:-4%;right:-4%;bottom:-7%;height:43%;pointer-events:none;background:radial-gradient(ellipse at 13% 88%,rgba(236,156,222,.15) 0%,rgba(236,156,222,.07) 28%,transparent 60%),radial-gradient(ellipse at 43% 92%,rgba(143,222,205,.105) 0%,rgba(143,222,205,.045) 31%,transparent 62%),radial-gradient(ellipse at 69% 83%,rgba(115,163,246,.115) 0%,rgba(115,163,246,.045) 33%,transparent 63%),radial-gradient(ellipse at 94% 92%,rgba(244,215,132,.08) 0%,transparent 56%);filter:blur(28px);opacity:.82;transform:translateZ(0)}
+body.restrained-glass main>header{position:relative;z-index:20}
+body.restrained-glass main>.page{position:relative;z-index:1}
+body.restrained-glass .sidebar{background:rgba(249,251,255,.5)!important;-webkit-backdrop-filter:blur(16px) saturate(122%)!important;backdrop-filter:blur(16px) saturate(122%)!important}
+body.restrained-glass .metrics article,
+body.restrained-glass .table-wrap,
+body.restrained-glass .account-card,
+body.restrained-glass .plugin-card,
+body.restrained-glass .settings-card,
+body.restrained-glass .advanced-settings-card,
+body.restrained-glass .kernel-card,
+body.restrained-glass .kernel-secondary-actions,
+body.restrained-glass .proxy-import-bar,
+body.restrained-glass .log-card{background:var(--ob-glass-bg)!important;border-color:var(--ob-glass-line)!important;box-shadow:var(--ob-glass-shadow)!important;-webkit-backdrop-filter:blur(14px) saturate(116%)!important;backdrop-filter:blur(14px) saturate(116%)!important}
+body.restrained-glass .table-wrap th{background:rgba(249,251,255,.43)!important}
+body.restrained-glass .table-wrap td{background:rgba(252,253,255,.15)}
+body.restrained-glass .search,
+body.restrained-glass .filter,
+body.restrained-glass .ghost,
+body.restrained-glass .top-icon{background:rgba(253,254,255,.57)!important;border-color:rgba(255,255,255,.68)!important;-webkit-backdrop-filter:blur(12px) saturate(116%)!important;backdrop-filter:blur(12px) saturate(116%)!important}
+body.restrained-glass .primary{background:linear-gradient(135deg,#68b8f0 0%,#7b6eef 52%,#e99ad0 100%)!important;box-shadow:0 8px 20px rgba(103,91,219,.14)!important}
+body.restrained-glass .config-hover-portal,
+body.restrained-glass .core-update-popover,
+body.restrained-glass .cloud-backup-popover,
+body.restrained-glass .advanced-filter-popover,
+body.restrained-glass .kernel-manager-popover,
+body.restrained-glass .row-menu,
+body.restrained-glass .tag-menu,
+body.restrained-glass .profile-menu,
+body.restrained-glass .rounded-select-popover,
+body.restrained-glass .account-popover{background:rgba(252,253,255,.89)!important;box-shadow:0 12px 32px rgba(48,51,85,.085)!important;-webkit-backdrop-filter:blur(18px) saturate(125%)!important;backdrop-filter:blur(18px) saturate(125%)!important}
+.visual-mode-toggle{box-sizing:border-box;min-height:52px;margin:0!important;padding:14px 0!important;border-top:1px solid rgba(111,115,147,.1);font-size:13px!important;font-weight:650!important;line-height:1.3}
+.custom-color-control+.visual-mode-toggle{margin-top:8px!important}
+.visual-mode-toggle>.switch{margin:0!important;flex:0 0 40px}
+body.dark-content.restrained-glass{--ob-glass-bg:rgba(36,39,55,.72);--ob-glass-line:rgba(255,255,255,.07);--ob-glass-shadow:0 11px 30px rgba(0,0,0,.13)}
+
+@media(max-width:900px){.brand,.sidebar-collapsed .brand{padding:0!important;justify-content:center!important}}

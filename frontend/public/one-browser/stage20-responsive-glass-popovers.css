@@ -1,0 +1,139 @@
+/* One Browser 1.8.24: compact backup layout, card-style visual toggles and
+   complete dark-glass coverage for every transient surface. Remove this file
+   to restore the 1.8.23 visual layer. */
+
+/* Visual-mode rows behave like the advanced-setting cards below them. */
+.visual-mode-toggle{
+  min-height:48px!important;
+  margin-top:9px!important;
+  padding:0 13px!important;
+  border:0!important;
+  border-radius:12px!important;
+  background:rgba(255,255,255,.42)!important;
+  box-shadow:none!important;
+  cursor:pointer;
+  user-select:none;
+  transition:background .16s ease,box-shadow .16s ease,transform .16s ease;
+}
+.custom-color-control+.visual-mode-toggle{margin-top:10px!important}
+.visual-mode-toggle+.visual-mode-toggle{margin-top:8px!important}
+.visual-mode-toggle:hover{background:rgba(246,248,255,.7)!important}
+.visual-mode-toggle:active{transform:translateY(1px)}
+.visual-mode-toggle:has(input:checked){
+  background:linear-gradient(135deg,rgba(113,101,238,.095),rgba(101,190,220,.07))!important;
+  box-shadow:inset 0 0 0 1px rgba(113,101,238,.08)!important;
+}
+.visual-mode-toggle:focus-visible{outline:0;box-shadow:0 0 0 3px rgba(113,101,238,.09)!important}
+
+/* Backup rows share one icon/content/action grid and use less vertical space. */
+.core-update-popover,.cloud-backup-popover{height:222px!important;padding:13px!important}
+.cloud-backup-popover .backup-summary{
+  grid-template-columns:34px minmax(0,1fr)!important;
+  min-height:44px!important;
+  margin:8px 0 6px!important;
+  padding:7px 9px!important;
+}
+.cloud-backup-popover .backup-folder-icon,
+.cloud-backup-popover .backup-drive-icon{
+  width:30px!important;
+  height:30px!important;
+  border-radius:9px!important;
+  display:grid!important;
+  place-items:center!important;
+  color:#fff!important;
+  background:var(--theme-gradient)!important;
+}
+.cloud-backup-popover .backup-drive-icon>.lucide{width:16px;height:16px;stroke-width:1.7}
+.cloud-backup-popover>p{margin:0 0 6px!important;font-size:10px!important}
+.cloud-backup-popover .drive-option{
+  grid-template-columns:30px minmax(0,1fr) auto!important;
+  gap:9px!important;
+  min-height:42px!important;
+  padding:6px 9px!important;
+}
+.cloud-backup-popover .drive-option b{font-size:12px!important}
+.cloud-backup-popover .drive-option .ghost{height:30px!important}
+.cloud-popover-actions{gap:7px!important}
+.cloud-popover-actions .ghost,.cloud-popover-actions .primary{height:32px!important}
+
+/* The icon is a true wrapper, so its glyph remains optically centred. */
+.core-version-icon{display:grid!important;place-items:center!important;padding:0!important}
+.core-version-icon>[data-lucide],.core-version-icon>.lucide{display:grid!important;place-items:center!important;margin:auto!important}
+.core-version-icon .lucide{width:18px!important;height:18px!important}
+
+/* Give configuration values enough horizontal room to remain on one line. */
+.config-hover-portal,.config-hover-card{width:330px!important}
+.config-hover-portal.network-config-card{width:300px!important}
+.config-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px 8px!important}
+.config-card-grid b{white-space:nowrap!important;font-size:9.5px!important;overflow:hidden!important;text-overflow:ellipsis!important}
+
+/* Light glass surfaces stay translucent and borderless. */
+body.restrained-glass .config-hover-portal,
+body.restrained-glass .core-update-popover,
+body.restrained-glass .cloud-backup-popover,
+body.restrained-glass .advanced-filter-popover,
+body.restrained-glass .kernel-manager-popover,
+body.restrained-glass .window-color-popover,
+body.restrained-glass .rounded-select-popover,
+body.restrained-glass .row-menu,
+body.restrained-glass .tag-menu,
+body.restrained-glass .profile-menu,
+body.restrained-glass .account-popover{
+  border:0!important;
+  background:rgba(250,252,255,.88)!important;
+  box-shadow:0 10px 28px rgba(48,51,85,.085)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(132%)!important;
+  backdrop-filter:blur(22px) saturate(132%)!important;
+}
+
+/* Full dark-glass parity. This selector is intentionally more specific than
+   the light restrained-glass layer so no dropdown can inherit a white sheet. */
+body.dark-content.restrained-glass .config-hover-portal,
+body.dark-content.restrained-glass .core-update-popover,
+body.dark-content.restrained-glass .cloud-backup-popover,
+body.dark-content.restrained-glass .advanced-filter-popover,
+body.dark-content.restrained-glass .kernel-manager-popover,
+body.dark-content.restrained-glass .window-color-popover,
+body.dark-content.restrained-glass .rounded-select-popover,
+body.dark-content.restrained-glass .row-menu,
+body.dark-content.restrained-glass .tag-menu,
+body.dark-content.restrained-glass .profile-menu,
+body.dark-content.restrained-glass .account-popover{
+  background:rgba(27,31,47,.94)!important;
+  color:#edf0f8!important;
+  border:0!important;
+  box-shadow:0 11px 28px rgba(0,0,0,.19)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(124%)!important;
+  backdrop-filter:blur(24px) saturate(124%)!important;
+}
+body.dark-content.restrained-glass .config-hover-portal::before{background:rgba(27,31,47,.96)!important}
+body.dark-content.restrained-glass .config-card-grid>span,
+body.dark-content.restrained-glass .network-card-row,
+body.dark-content.restrained-glass .backup-summary,
+body.dark-content.restrained-glass .backup-option,
+body.dark-content.restrained-glass .managed-kernel-summary,
+body.dark-content.restrained-glass .kernel-popover-meta>div{
+  background:rgba(14,18,31,.72)!important;
+  border-color:transparent!important;
+}
+body.dark-content.restrained-glass .config-card-grid small,
+body.dark-content.restrained-glass .network-card-row small{color:#8f97ad!important}
+body.dark-content.restrained-glass .config-card-grid b,
+body.dark-content.restrained-glass .network-card-row b,
+body.dark-content.restrained-glass .config-card-title{color:#e7eaf4!important}
+body.dark-content.restrained-glass .row-menu button,
+body.dark-content.restrained-glass .tag-menu button,
+body.dark-content.restrained-glass .profile-menu button,
+body.dark-content.restrained-glass .account-popover button,
+body.dark-content.restrained-glass .rounded-select-popover button{color:#d9deeb!important}
+body.dark-content.restrained-glass .row-menu button:hover,
+body.dark-content.restrained-glass .tag-menu button:hover,
+body.dark-content.restrained-glass .profile-menu button:hover,
+body.dark-content.restrained-glass .account-popover button:hover,
+body.dark-content.restrained-glass .rounded-select-popover button:hover{background:rgba(255,255,255,.065)!important;color:#fff!important}
+body.dark-content.restrained-glass .row-menu .danger{color:#ff9eaa!important}
+body.dark-content.restrained-glass .visual-mode-toggle{background:rgba(17,21,35,.54)!important;color:#dce1ee!important}
+body.dark-content.restrained-glass .visual-mode-toggle:hover{background:rgba(28,33,50,.76)!important}
+body.dark-content.restrained-glass .visual-mode-toggle:has(input:checked){background:linear-gradient(135deg,rgba(113,101,238,.2),rgba(83,162,192,.13))!important}
+
+@media(max-width:900px){.config-hover-portal,.config-hover-card{max-width:min(330px,calc(100vw - 28px))}}

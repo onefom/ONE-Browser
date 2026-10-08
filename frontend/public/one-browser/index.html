@@ -40,24 +40,35 @@
   <link rel="stylesheet" href="stage9-plugin-sidebar-fix.css">
   <link rel="stylesheet" href="stage10-network-filter-latency.css">
   <link rel="stylesheet" href="stage11-tray-backup-scroll.css">
+  <link rel="stylesheet" href="stage12-hover-popovers-lucide.css">
+  <link rel="stylesheet" href="stage13-alignment-glass-fix.css">
+  <link rel="stylesheet" href="stage14-popover-process-polish.css">
+  <!-- Optional glass layers. Disable the setting or remove both links to restore the 1.8.17 UI. -->
+  <link rel="stylesheet" href="stage15-restrained-glass.css">
+  <link rel="stylesheet" href="stage16-glass-refinement.css">
+  <link rel="stylesheet" href="stage17-input-motion-polish.css">
+  <link rel="stylesheet" href="stage18-control-consistency.css">
+  <link rel="stylesheet" href="stage19-dark-surface-layout.css">
+  <link rel="stylesheet" href="stage20-responsive-glass-popovers.css">
+  <link rel="stylesheet" href="stage21-theme-proxy-polish.css">
 </head>
 <body>
   <div class="app-shell">
     <aside class="sidebar">
       <div class="brand"><span class="logo logo-ring" id="brandMark">O</span><span id="brandName">ONLINE</span></div>
       <nav>
-        <button class="nav-item active" data-page="environments"><span><svg viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="16" rx="3"/><path d="M8 4v16M8 9h12"/></svg></span>窗口管理</button>
-        <button class="nav-item" data-page="kernels"><span><svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="3"/><path d="M9 9h6v6H9zM9 2.8V5M15 2.8V5M9 19v2.2M15 19v2.2M2.8 9H5M19 9h2.2M2.8 15H5M19 15h2.2"/></svg></span>内核管理</button>
-        <button class="nav-item" data-page="proxy"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.7 12h16.6M12 3.5c2.2 2.3 3.4 5.1 3.4 8.5S14.2 18.2 12 20.5C9.8 18.2 8.6 15.4 8.6 12S9.8 5.8 12 3.5z"/></svg></span>代理管理</button>
-        <button class="nav-item" data-page="accounts"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="9.3" r="2.25"/><path d="M7.9 16.2c.8-2.05 2.15-3.05 4.1-3.05s3.3 1 4.1 3.05"/></svg></span>账号管理</button>
-        <button class="nav-item" data-page="plugins"><span><svg viewBox="0 0 24 24"><path d="M8.5 3.8h7v4.7H20v7h-4.5v4.7h-7v-4.7H4v-7h4.5z"/></svg></span>插件中心</button>
-        <button class="nav-item" data-page="logs"><span><svg viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4.5" cy="6" r=".8" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r=".8" fill="currentColor" stroke="none"/><circle cx="4.5" cy="18" r=".8" fill="currentColor" stroke="none"/></svg></span>系统日志</button>
-        <button class="nav-item" data-page="settings"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3.5v2M12 18.5v2M20.5 12h-2M5.5 12h-2M18 6l-1.4 1.4M7.4 16.6 6 18M18 18l-1.4-1.4M7.4 7.4 6 6"/><circle cx="12" cy="12" r="7"/></svg></span>系统设置</button>
+        <button class="nav-item active" data-page="environments"><span data-lucide="panels-top-left"></span>窗口管理</button>
+        <button class="nav-item" data-page="kernels"><span data-lucide="cpu"></span>内核管理</button>
+        <button class="nav-item" data-page="proxy"><span data-lucide="globe"></span>代理管理</button>
+        <button class="nav-item" data-page="accounts"><span data-lucide="circle-user-round"></span>账号管理</button>
+        <button class="nav-item" data-page="plugins"><span data-lucide="blocks"></span>插件中心</button>
+        <button class="nav-item" data-page="logs"><span data-lucide="list-filter"></span>系统日志</button>
+        <button class="nav-item" data-page="settings"><span data-lucide="settings-2"></span>系统设置</button>
       </nav>
       <div class="sidebar-bottom">
-        <button class="nav-item" data-page="help"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.8 9a2.4 2.4 0 0 1 4.5 1.2c0 2-2.3 2.1-2.3 4M12 17.5h.01"/></svg></span>帮助中心</button>
-        <button class="nav-item collapse-btn" id="collapseSidebar" aria-label="折叠侧边栏" title="折叠侧边栏"><span class="collapse-arrow"><svg viewBox="0 0 24 24"><path d="m14.5 6-6 6 6 6"/></svg></span><span class="collapse-label">收起侧栏</span></button>
-        <div class="account is-guest" id="currentAccount"><div class="avatar">O</div><div><strong>未登录</strong><small>点击登录</small></div><button class="account-menu-btn" id="accountMenuBtn" aria-label="账号菜单">•••</button></div>
+        <button class="nav-item" data-page="help"><span data-lucide="badge-help"></span>帮助中心</button>
+        <button class="nav-item collapse-btn" id="collapseSidebar" aria-label="折叠侧边栏" title="折叠侧边栏"><span class="collapse-arrow" data-lucide="chevron-left"></span><span class="collapse-label">收起侧栏</span></button>
+        <div class="account is-guest" id="currentAccount"><div class="avatar">O</div><div><strong>未登录</strong><small>点击登录</small></div><button class="account-menu-btn" id="accountMenuBtn" aria-label="账号菜单"><span data-lucide="ellipsis"></span></button></div>
       </div>
     </aside>
 
@@ -65,15 +76,14 @@
       <header>
         <div><h1 id="pageTitle">窗口管理</h1><p id="pageSub">独立管理每个浏览器窗口的数据与访问权限</p></div>
         <div class="header-actions">
-          <button class="top-icon home-only-action" id="coreUpdateBtn" aria-label="内核升级" title="内核升级"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 16V8m-3 3 3-3 3 3"/></svg><i></i></button>
-          <span class="header-popover-anchor home-only-action"><button class="top-icon cloud-icon" id="cloudBackupBtn" aria-label="数据备份" title="数据备份"><svg viewBox="0 0 24 24"><path d="M7.2 18.5h9.3a3.7 3.7 0 0 0 .6-7.4A5.5 5.5 0 0 0 6.7 9.6a4.5 4.5 0 0 0 .5 8.9Z"/><path d="M12 15V9m-2.5 2.5L12 9l2.5 2.5"/></svg></button><div class="cloud-backup-popover" id="cloudBackupPopover" aria-hidden="true"><div class="core-popover-head"><span>数据备份</span><b class="up-to-date">本地可用</b></div><div class="backup-summary"><span class="backup-folder-icon">D</span><div><b>One Browser 数据包</b><small id="backupFileName">OneBrowser-data.zip</small></div></div><p>备份账号、窗口、主题、代理与内核配置。</p><section class="backup-option drive-option"><div><b>Google Drive</b><p>在受管浏览器中打开后上传数据包。</p></div><button class="ghost" id="connectGoogleDrive">打开</button></section><div class="drive-connected" id="driveConnected"><span>✓</span><div><b>Google Drive 已打开</b><small>可上传刚导出的数据包</small></div><button class="ghost" id="disconnectGoogleDrive">断开</button></div><div class="cloud-popover-actions"><button class="ghost" id="downloadLocalBackup">导出压缩包</button><button class="primary" id="startCloudBackup">立即备份</button></div></div></span>
+          <span class="header-popover-anchor core-update-anchor home-only-action"><button class="top-icon" id="coreUpdateBtn" aria-label="内核升级" title="内核升级"><span data-lucide="upload"></span><i></i></button><div class="core-update-popover" id="coreUpdatePopover"><div class="core-popover-head"><span>内核升级</span><b id="coreUpdateBadge" class="up-to-date">当前无内核</b></div><div class="core-version-row"><span class="core-version-icon"><span data-lucide="arrow-up"></span></span><div><b id="coreUpdateTitle">当前无内核，请先下载</b><small id="coreUpdateMeta">下载后才会检查版本更新</small></div></div><p id="coreUpdateDescription">当前最新版本：148.0.7778.215</p><div class="core-popover-actions"><button class="ghost" id="ignoreCoreUpdate" hidden>忽略</button><button class="primary" id="upgradeCore">前往下载</button></div></div></span>
+          <span class="header-popover-anchor home-only-action"><button class="top-icon cloud-icon" id="cloudBackupBtn" aria-label="数据备份" title="数据备份"><span data-lucide="cloud-upload"></span></button><div class="cloud-backup-popover" id="cloudBackupPopover" aria-hidden="true"><div class="core-popover-head"><span>数据备份</span><b class="up-to-date">本地可用</b></div><div class="backup-summary"><span class="backup-folder-icon"><span data-lucide="package"></span></span><div><b>One Browser 数据包</b><small id="backupFileName">OneBrowser-data.zip</small></div></div><p>备份账号、窗口、主题、代理与内核配置。</p><section class="backup-option drive-option"><span class="backup-drive-icon"><span data-lucide="cloud-upload"></span></span><div><b>Google Drive</b><p>在受管浏览器中打开后上传数据包。</p></div><button class="ghost" id="connectGoogleDrive">打开</button></section><div class="drive-connected" id="driveConnected"><span data-lucide="check"></span><div><b>Google Drive 已打开</b><small>可上传刚导出的数据包</small></div><button class="ghost" id="disconnectGoogleDrive">断开</button></div><div class="cloud-popover-actions"><button class="ghost" id="downloadLocalBackup">导出压缩包</button><button class="primary" id="startCloudBackup">立即备份</button></div></div></span>
           <button class="primary header-page-action" id="openProxyImport" data-header-page="proxy" hidden>＋ 导入代理配置</button>
           <button class="primary header-page-action" id="addAccount" data-header-page="accounts" hidden>＋ 添加账号</button>
           <button class="primary link-btn header-page-action" id="openChromeWebStore" data-header-page="plugins" hidden>打开 Chrome 应用商店 ↗</button>
-          <button class="primary header-page-action kernel-download" data-header-page="kernels" data-kernel="chrome" hidden>下载内核</button>
-          <div class="header-version" data-header-page="settings" hidden>当前版本 <span>1.8.15</span></div>
-          <button class="primary" id="createBtn">＋ 创建窗口</button>
-          <div class="core-update-popover" id="coreUpdatePopover"><div class="core-popover-head"><span>内核升级</span><b id="coreUpdateBadge" class="up-to-date">当前无内核</b></div><div class="core-version-row"><span class="core-version-icon">↑</span><div><b id="coreUpdateTitle">当前无内核，请先下载</b><small id="coreUpdateMeta">下载后才会检查版本更新</small></div></div><p id="coreUpdateDescription">当前最新版本：148.0.7778.215</p><div class="core-popover-actions"><button class="ghost" id="ignoreCoreUpdate" hidden>忽略</button><button class="primary" id="upgradeCore">前往下载</button></div></div>
+          <button class="primary header-page-action kernel-download" data-header-page="kernels" data-kernel="chrome" hidden><span data-lucide="download"></span><span class="kernel-action-label">下载内核</span><span data-lucide="chevron-down"></span></button>
+          <div class="header-version" data-header-page="settings" hidden>当前版本 <span>1.8.25</span></div>
+          <button class="primary" id="createBtn"><span data-lucide="plus"></span>创建窗口</button>
         </div>
       </header>
 
@@ -85,7 +95,7 @@
           <article><span>代理信息</span><strong id="metricProxyStatus">未开启</strong><em id="metricProxyMeta">尚未加载代理</em></article>
         </div>
         <div class="toolbar">
-          <label class="search">⌕<input id="search" placeholder="搜索名称、标签或账号" /></label>
+          <label class="search"><span data-lucide="search"></span><input id="search" placeholder="搜索名称、标签或账号" /></label>
           <div class="filters"><button class="filter active" data-filter="all">全部 <span id="filterAllCount">0</span></button><button class="filter" data-filter="running">运行中 <span id="filterRunningCount">0</span></button><button class="filter" data-filter="stopped">已停止 <span id="filterStoppedCount">0</span></button><button class="filter advanced-filter-trigger" id="advancedFilterBtn" aria-expanded="false">筛选</button><div class="advanced-filter-popover" id="advancedFilterPopover" aria-hidden="true">
             <label>内核版本<select id="filterKernel"><option value="all">全部内核</option><option value="chrome">Fingerprint Chromium 148</option></select></label>
             <label>分组<select id="filterGroup"><option value="all">全部分组</option></select></label>
@@ -105,7 +115,7 @@
         <div class="account-grid" id="accountGrid"></div>
       </section>
 
-      <section class="page kernel-page" id="kernels"><div class="kernel-grid"><article class="kernel-card" data-kernel-card="chrome"><div class="kernel-brand chromium-mark">C</div><div class="kernel-copy"><div><b>Fingerprint Chromium</b></div><p>下载并验证后供所有独立窗口使用，窗口数据与浏览器配置彼此隔离。</p><small>Windows x64 · 按需安装</small></div><div class="kernel-action kernel-version-summary"><span>当前内核版本</span><b class="kernel-status">未安装</b></div></article></div><div class="kernel-secondary-actions"><div><b>已有本地内核？</b><span>支持导入压缩包，或直接选择已解压的内核目录。</span></div><button class="ghost" id="importKernelArchive">导入内核包</button><button class="ghost" id="importKernelDirectory">导入本地内核</button></div></section>
+      <section class="page kernel-page" id="kernels"><div class="kernel-grid"><article class="kernel-card" data-kernel-card="chrome"><div class="kernel-brand chromium-mark"><span data-lucide="cpu"></span></div><div class="kernel-copy"><div><b>Fingerprint Chromium</b></div><p>下载并验证后供所有独立窗口使用，窗口数据与浏览器配置彼此隔离。</p><small>Windows x64 · 按需安装</small></div><div class="kernel-action kernel-version-summary"><span>当前内核版本</span><b class="kernel-status">未安装</b></div></article></div><div class="kernel-secondary-actions"><div><b>已有本地内核？</b><span>支持导入压缩包，或直接选择已解压的内核目录。</span></div><button class="ghost" id="importKernelArchive"><span data-lucide="package"></span>导入内核包</button><button class="ghost" id="importKernelDirectory"><span data-lucide="folder-open"></span>导入本地内核</button></div></section>
       <section class="page proxy-page" id="proxy">
         <div class="clash-import-card"><div class="clash-mark">◎</div><div class="clash-import-copy"><b>导入 Clash 订阅</b><span>仅支持 HTTP / HTTPS 链接，节点数据仅在当前设备会话中使用。</span></div><div class="clash-import-form"><input id="clashLink" type="url" placeholder="粘贴 Clash 订阅链接" autocomplete="off" /><button class="primary" id="importClash">导入节点</button></div></div>
         <div class="proxy-node-head"><b>已导入节点</b><div><button class="ghost proxy-latency-refresh" id="refreshProxyLatency" title="节点延迟每 60 秒自动刷新">↻ 刷新延迟</button><span id="proxyNodeCount">0 个节点</span></div></div>
@@ -124,8 +134,8 @@
       <section class="page" id="settings">
         <div class="settings-grid">
           <article class="settings-card"><h2>品牌设置</h2><label>产品名称<input id="productName" value="Online"></label><label>品牌字母<input id="productMark" maxlength="2" value="O"></label><button class="primary" id="saveBrand">保存品牌</button></article>
-          <article class="settings-card"><h2>主题与配色</h2><p>选择从参考图提取的预设配色，或使用自定义品牌色。</p><div class="theme-options"><button class="theme-choice active" data-theme="aurora"><i class="gradient-swatch"></i>晨雾渐变</button><button class="theme-choice" data-theme="lime"><i style="background:#9fdf6c"></i>青柠</button><button class="theme-choice" data-theme="mint"><i style="background:#55c9aa"></i>薄荷</button><button class="theme-choice" data-theme="coral"><i style="background:#f46573"></i>珊瑚</button><button class="theme-choice" data-theme="orange"><i style="background:#f3a13b"></i>暖橙</button><button class="theme-choice" data-theme="violet"><i style="background:#7165ee"></i>柔紫</button><button class="theme-choice" data-theme="aqua"><i style="background:#55cdbf"></i>湖青</button></div><div class="custom-color-control"><div><b>自定义主色</b><small>选择颜色后立即应用于按钮和强调元素</small></div><label class="color-picker-button" aria-label="选择自定义主色"><input type="color" id="customColor" value="#7165ee"><span id="customColorSwatch"></span></label><input id="customColorHex" class="color-hex" value="#7165EE" maxlength="7" aria-label="自定义颜色代码"></div><label class="toggle-row">深色内容区<label class="switch"><input id="darkMode" type="checkbox"><span></span></label></label></article>
-          <article class="settings-card advanced-settings-card"><div class="advanced-settings-head"><div><h2>高级设置</h2><p>维护缓存、迁移配置或恢复干净状态。</p></div><span>数据仍保存在 data 文件夹</span></div><div class="advanced-action-grid"><button id="clearBrowserCache"><i><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg></i><span><b>清除缓存</b><small>释放浏览器临时文件</small></span></button><button id="loadSystemConfig"><i><svg viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M5 19h14"/></svg></i><span><b>加载配置</b><small>从 JSON 恢复设置</small></span></button><button id="exportSystemConfig"><i><svg viewBox="0 0 24 24"><path d="M12 16V4m-4 4 4-4 4 4M5 20h14"/></svg></i><span><b>导出配置</b><small>保存当前窗口与设置</small></span></button><button class="danger-setting" id="initializeSystem"><i><svg viewBox="0 0 24 24"><path d="M12 8v5m0 3.5h.01M4.7 19h14.6L12 5 4.7 19Z"/></svg></i><span><b>初始化系统</b><small>清除业务数据，保留内核</small></span></button></div></article>
+          <article class="settings-card"><h2>主题与配色</h2><p>选择从参考图提取的预设配色，或使用自定义品牌色。</p><div class="theme-options"><button class="theme-choice active" data-theme="aurora"><i class="gradient-swatch"></i>晨雾渐变</button><button class="theme-choice" data-theme="lime"><i style="background:#9fdf6c"></i>青柠</button><button class="theme-choice" data-theme="mint"><i style="background:#55c9aa"></i>薄荷</button><button class="theme-choice" data-theme="coral"><i style="background:#f46573"></i>珊瑚</button><button class="theme-choice" data-theme="orange"><i style="background:#f3a13b"></i>暖橙</button><button class="theme-choice" data-theme="violet"><i style="background:#7165ee"></i>柔紫</button><button class="theme-choice" data-theme="aqua"><i style="background:#55cdbf"></i>湖青</button></div><div class="custom-color-control"><div><b>自定义主色</b><small>选择颜色后立即应用于按钮和强调元素</small></div><label class="color-picker-button" aria-label="选择自定义主色"><input type="color" id="customColor" value="#7165ee"><span id="customColorSwatch"></span></label><input id="customColorHex" class="color-hex" value="#7165EE" maxlength="7" aria-label="自定义颜色代码"></div><div class="visual-mode-options"><div class="toggle-row visual-mode-toggle" role="switch" tabindex="0" aria-checked="true"><span>透明磨砂质感</span><input class="visual-mode-input" id="restrainedGlassMode" type="checkbox" checked></div><div class="toggle-row visual-mode-toggle" role="switch" tabindex="0" aria-checked="false"><span>深色模式</span><input class="visual-mode-input" id="darkMode" type="checkbox"></div></div></article>
+          <article class="settings-card advanced-settings-card"><div class="advanced-settings-head"><div><h2>高级设置</h2><p>维护缓存、迁移配置或恢复干净状态。</p></div><span>数据仍保存在 data 文件夹</span></div><div class="advanced-action-grid"><button id="clearBrowserCache"><i><span data-lucide="eraser"></span></i><span><b>清除缓存</b><small>释放浏览器临时文件</small></span></button><button id="loadSystemConfig"><i><span data-lucide="file-input"></span></i><span><b>加载配置</b><small>从 JSON 恢复设置</small></span></button><button id="exportSystemConfig"><i><span data-lucide="file-output"></span></i><span><b>导出配置</b><small>保存当前窗口与设置</small></span></button><button class="danger-setting" id="initializeSystem"><i><span data-lucide="database-zap"></span></i><span><b>初始化系统</b><small>清除业务数据，保留内核</small></span></button></div></article>
         </div>
       </section>
       <section class="page help-page" id="help">
@@ -148,7 +158,7 @@
             <section class="help-group" id="help-data"><h3><span>04</span>数据与外观</h3>
               <details class="help-item"><summary>如何备份或恢复个人数据？</summary><p>点击首页右上角云端图标，会在按钮下方直接显示备份面板；可导出 OneBrowser-data.zip，也可在受管浏览器中打开 Google Drive 后上传。面板不会跳转到新页面，按 Esc 或点击面板外即可关闭。</p></details>
               <details class="help-item"><summary>系统日志保存在哪里？为什么升级后还能看到？</summary><p>页面只显示当前应用进程的会话日志，并每 3 秒刷新；磁盘日志保存在程序旁的 data/logs/app.log，最多保留 30 天。若把新版解压到旧目录、复制旧版 data 文件夹，或旧程序尚未退出，历史文件与旧进程仍会保留。需要全新环境时，请先退出 One Browser，再将新版解压到新的独立目录；「清空当前列表」只清除当前会话列表，「清理30天以上」清理过期磁盘日志。</p></details>
-              <details class="help-item"><summary>如何更换主题、窗口图标颜色或迁移配置？</summary><p>进入「系统设置」可选择预设配色、自定义主色或开启深色内容区；内核图标和默认窗口图标会同步使用当前主题色。点击窗口列表中的彩色图标，可在圆角配色面板中选择跟随主题、预设色或输入十六进制颜色。「高级设置」提供清除缓存、加载配置、导出配置和初始化系统；初始化会清除业务数据但保留已经下载的内核。</p></details>
+              <details class="help-item"><summary>如何更换主题、窗口图标颜色或迁移配置？</summary><p>进入「系统设置」可选择预设配色、自定义主色、透明磨砂质感或深色模式；内核图标和默认窗口图标会同步使用当前主题色。点击窗口列表中的彩色图标，可在圆角配色面板中选择跟随主题、预设色或输入十六进制颜色。「高级设置」提供清除缓存、加载配置、导出配置和初始化系统；初始化会清除业务数据但保留已经下载的内核。</p></details>
             </section>
             <section class="help-group" id="help-trouble"><h3><span>05</span>常见问题</h3>
               <details class="help-item"><summary>为什么窗口无法启动、节点 Timeout 或内核无法下载？</summary><p>请先确认 Fingerprint Chromium 内核已经安装。代理节点会按系统设置中的当前连接栈测速和启动；普通 Clash 节点可自动选择兼容内核，Mihomo 专属协议需要先切换到 Mihomo 连接栈并确认运行时可用。内核下载若持续失败，可切换网络，或使用「导入内核包／导入本地内核」。</p></details>
@@ -172,7 +182,7 @@
         <label>标签<input id="envTag" placeholder="例如：客户服务" /></label>
         <details class="advanced" open><summary>窗口配置</summary>
           <div class="quick-preset">
-            <div class="preset-head"><div><b>快速预设</b><small>选择典型使用环境，自动生成一致的参数组合</small></div><button type="button" class="preset-magic" id="applyPreset">✦ 应用预设</button></div>
+            <div class="preset-head"><div><b>快速预设</b><small>选择典型使用环境，自动生成一致的参数组合</small></div><button type="button" class="preset-magic" id="applyPreset">应用预设</button></div>
             <div class="preset-grid">
               <label>国家 / 地区<select id="presetCountry"><option value="de">🇩🇪 德国</option><option value="us">🇺🇸 美国</option><option value="uk">🇬🇧 英国</option><option value="sg">🇸🇬 新加坡</option><option value="jp">🇯🇵 日本</option><option value="cn">🇨🇳 中国</option><option value="fr">🇫🇷 法国</option><option value="nl">🇳🇱 荷兰</option><option value="es">🇪🇸 西班牙</option><option value="it">🇮🇹 意大利</option><option value="ca">🇨🇦 加拿大</option><option value="au">🇦🇺 澳大利亚</option><option value="br">🇧🇷 巴西</option><option value="ae">🇦🇪 阿联酋</option><option value="in">🇮🇳 印度</option><option value="kr">🇰🇷 韩国</option><option value="ch">🇨🇭 瑞士</option><option value="se">🇸🇪 瑞典</option></select></label>
               <label>操作系统<select id="presetOs"><option value="win11">Windows 11</option><option value="win10">Windows 10</option><option value="mac">macOS 15</option><option value="ubuntu">Ubuntu 24.04</option></select></label>
@@ -229,17 +239,12 @@
       <form id="loginAccountForm"><label>账号<select id="loginAccountSelect"></select></label><label>密码<div class="password-field"><input id="loginAccountPassword" type="password" placeholder="••••••••" required /><button type="button" class="password-eye" data-password-toggle="loginAccountPassword" aria-label="显示密码">◉</button></div></label><p class="login-error" id="loginAccountError"></p><div class="modal-actions"><button type="button" class="ghost" id="cancelLoginAccount">取消</button><button type="submit" class="primary">确认登录</button></div></form>
     </div>
   </div>
-  <div class="modal-backdrop" id="kernelManagerModal">
-    <div class="modal kernel-manager-panel">
-      <div class="modal-head"><div><h2>管理浏览器内核</h2><p>选择版本、更新或移除当前内核。</p></div><button id="closeKernelManager" aria-label="关闭">×</button></div>
-      <div class="kernel-manager-body">
-        <div class="managed-kernel-summary"><span class="managed-kernel-icon" id="managedKernelIcon">C</span><div><b id="managedKernelName">Chromium</b><small id="managedKernelSource">Google 官方源</small></div><span class="installed-pill">已安装</span></div>
-        <label class="kernel-version-field">内核版本<select id="kernelVersionSelect"></select><small>选择需要使用的内核版本，更新后将在下次启动窗口时生效。</small></label>
-        <div class="kernel-info-row"><span>当前版本</span><b id="currentKernelVersion">—</b></div>
-        <div class="kernel-info-row"><span>安装位置</span><b>data/kernels</b></div>
-        <div class="kernel-manager-actions"><button class="danger-outline" id="deleteKernel">删除内核</button><button class="primary" id="updateKernel">更新并应用</button></div>
-      </div>
-    </div>
+  <div class="kernel-manager-popover" id="kernelManagerModal" role="menu" aria-hidden="true">
+    <div class="kernel-manager-popover-head"><div><b>管理浏览器内核</b><small>更新、导入或移除当前内核</small></div><button id="closeKernelManager" aria-label="关闭"><span data-lucide="x"></span></button></div>
+    <div class="managed-kernel-summary"><span class="managed-kernel-icon" id="managedKernelIcon"><span data-lucide="cpu"></span></span><div><b id="managedKernelName">Chromium</b><small id="managedKernelSource">Fingerprint Chromium 发布源</small></div><span class="installed-pill">已安装</span></div>
+    <label class="kernel-version-field">内核版本<select id="kernelVersionSelect"></select><small>更新后将在下次启动窗口时生效。</small></label>
+    <div class="kernel-popover-meta"><div><span>当前版本</span><b id="currentKernelVersion">—</b></div><div><span>安装位置</span><b>data/kernels</b></div></div>
+    <div class="kernel-manager-actions"><button class="danger-outline" id="deleteKernel"><span data-lucide="trash-2"></span>删除</button><button class="primary" id="updateKernel"><span data-lucide="refresh-cw"></span>更新并应用</button></div>
   </div>
   <div class="modal-backdrop" id="deleteKernelModal">
     <div class="modal confirm-delete-panel">
@@ -254,10 +259,10 @@
       <div class="modal-actions"><button class="ghost" id="cancelInitializeSystem">取消</button><button class="danger-primary" id="confirmInitializeSystem" disabled>确认初始化</button></div>
     </div>
   </div>
-  <div class="row-menu" id="rowMenu"><button data-menu-action="edit">✎ 编辑窗口</button><button data-menu-action="clone">▣ 复制窗口</button><button class="danger" data-menu-action="delete">⌫ 删除窗口</button></div>
-  <div class="row-menu account-popover" id="accountMenu"><button data-account-action="login">◎ 登录账号</button><button data-account-action="switch">⇄ 切换账号</button><button data-account-action="settings">⚙ 账号设置</button><button data-account-action="logout">↪ 退出登录</button></div>
+  <div class="row-menu" id="rowMenu"><button data-menu-action="edit"><span data-lucide="edit-3"></span>编辑窗口</button><button data-menu-action="clone"><span data-lucide="copy"></span>复制窗口</button><button class="danger" data-menu-action="delete"><span data-lucide="trash-2"></span>删除窗口</button></div>
+  <div class="row-menu account-popover" id="accountMenu"><button data-account-action="login"><span data-lucide="log-in"></span>登录账号</button><button data-account-action="switch"><span data-lucide="repeat"></span>切换账号</button><button data-account-action="settings"><span data-lucide="settings-2"></span>账号设置</button><button data-account-action="logout"><span data-lucide="log-out"></span>退出登录</button></div>
   <div class="row-menu tag-popover" id="tagMenu"><button data-tag="客户服务">客户服务</button><button data-tag="电商运营">电商运营</button><button data-tag="内容团队">内容团队</button><button data-tag="项目协作">项目协作</button><button data-tag="供应链">供应链</button><button data-tag="市场部">市场部</button></div>
-  <div class="row-menu profile-popover" id="profileMenu"><button data-profile-action="add">＋ 添加账号</button><button data-profile-action="select">⇄ 选择账号</button></div>
+  <div class="row-menu profile-popover" id="profileMenu"><button data-profile-action="add"><span data-lucide="user-round-plus"></span>添加账号</button><button data-profile-action="select"><span data-lucide="repeat"></span>选择账号</button></div>
   <div class="window-color-popover" id="windowColorPopover" role="dialog" aria-label="窗口图标颜色">
     <div class="window-color-head"><b>窗口图标颜色</b><button type="button" id="closeWindowColor" aria-label="关闭">×</button></div>
     <button type="button" class="window-color-theme" data-window-color="theme"><span></span>跟随当前主题</button>
@@ -267,6 +272,8 @@
   <div class="toast" id="toast">窗口已创建</div>
   <div class="overlay" id="proxyImportModal"><section class="proxy-dialog"><button class="modal-close" id="closeProxyImport">×</button><h2>导入代理配置</h2><div class="proxy-tabs"><button class="selected" data-proxy-tab="clash">Clash 订阅 / YAML<small>订阅或 Clash 节点列表</small></button><button data-proxy-tab="http">HTTP / SOCKS5<small>单层代理或批量文本</small></button><button data-proxy-tab="chain">链式代理<small>本机出口 + 落地代理</small></button></div><div data-pane="clash" class="proxy-pane"><label>订阅 URL（可选）<input placeholder="订阅 URL"></label><label>Clash YAML / 节点文本<textarea placeholder="proxies:\n - name: vless-v6\n   type: vless\n   server: example.com\n   port: 443"></textarea></label><label>分组名称（可选）<input placeholder="分组名称"></label></div><div data-pane="http" class="proxy-pane hidden"><div class="two"><label>代理协议<select><option>HTTP</option><option>SOCKS5</option></select></label><label>代理名称（可选）<input placeholder="节点名称"></label><label>代理地址<input placeholder="127.0.0.1 或 hk.example.com"></label><label>代理端口<input placeholder="1080"></label><label>账号（可选）<input placeholder="留空则不认证"></label><label>密码（可选）<input placeholder="留空则不使用密码"></label></div><label>文本辅助（可选）<textarea placeholder='{"name":"","protocol":"http","server":"","port":""}'></textarea></label></div><div data-pane="chain" class="proxy-pane hidden"><div class="two"><label>代理名称（可选）<input placeholder="例如：双层英国链路"></label><label>本地监听端口（可选）<input placeholder="留空自动分配"></label></div><h3>第一层代理</h3><div class="two"><label>协议<select><option>HTTP</option><option>SOCKS5</option></select></label><label>代理地址<input placeholder="代理地址"></label><label>代理端口<input placeholder="端口"></label><label>账号（可选）<input></label></div><h3>第二层代理</h3><div class="two"><label>协议<select><option>HTTP</option><option>SOCKS5</option></select></label><label>代理地址<input placeholder="代理地址"></label><label>代理端口<input placeholder="端口"></label><label>账号（可选）<input></label></div></div><footer><button class="ghost" id="cancelProxyImport">取消</button><button class="primary" id="parseProxyImport">解析</button></footer></section></div>
 <div class="browser-preview" id="browserPreview"><div class="browser-shell browser-preview-shell"><div class="browser-tabs"><button class="tab">◒　工作台配置　×</button><button class="tab active">G　Google　×</button><button class="browser-close" id="closeBrowserPreview">×</button></div><div class="browser-toolbar"><button>‹</button><button>›</button><button>↻</button><button>⌂</button><div>⌕　https://www.google.com/</div><button>☆</button></div><div class="browser-content browser-google"><div class="google-page"><b>Google</b><input placeholder="在 Google 中搜索，或输入网址"><small>Google 首页 · 可登录账号</small></div></div><div class="browser-bookmarks"><span>书签</span><button>G Google</button><button>GPT ChatGPT</button><button>X</button><button>Instagram</button><button>Facebook</button><button>YouTube</button></div></div></div>
+<script src="./lucide-icons.js"></script>
+<script>window.OneBrowserIcons?.hydrate(document)</script>
 <script src="./proxy-node-events.js"></script>
 <script src="./app.js"></script>
 </body>

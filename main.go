@@ -264,7 +264,6 @@ func main() {
 			}
 			runtime.WindowShow(wailsCtx)
 			runtime.WindowUnminimise(wailsCtx)
-			runtime.WindowSetAlwaysOnTop(wailsCtx, true)
 			runtime.WindowSetAlwaysOnTop(wailsCtx, false)
 			singleinstance.ActivateExistingWindow(os.Getpid())
 			activation.Complete()
@@ -320,6 +319,7 @@ func main() {
 			}
 			wailsCtx = ctx
 			runtime.WindowCenter(wailsCtx)
+			runtime.WindowSetAlwaysOnTop(wailsCtx, false)
 			backend.ApplyMainApplicationWindowIcon(appRoot, cfg.App.Name)
 			// 启动系统托盘（非阻塞）
 			go lifecycle.RunTraySafely(appRoot, backend.TrayCallbacks{
@@ -327,6 +327,7 @@ func main() {
 					lifecycle.Log(appRoot, "tray.show", nil)
 					runtime.WindowShow(wailsCtx)
 					runtime.WindowUnminimise(wailsCtx)
+					runtime.WindowSetAlwaysOnTop(wailsCtx, false)
 					singleinstance.ActivateExistingWindow(os.Getpid())
 				},
 				OnQuitAppOnly: func() {

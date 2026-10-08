@@ -1,0 +1,180 @@
+/* One Browser 1.8.20 glass refinement.
+   This optional layer remains fully scoped to restrained-glass so disabling
+   the setting restores the original 1.8.17 visual cascade. */
+
+body.restrained-glass{
+  --ob-glass-bg:rgba(255,255,255,.42);
+  --ob-glass-line:rgba(255,255,255,.66);
+  --ob-glass-shadow:0 14px 38px rgba(58,67,112,.045);
+  background-color:#e9effa!important;
+  background-image:
+    radial-gradient(75% 92% at 79% -8%,rgba(116,170,244,.18),transparent 72%),
+    radial-gradient(62% 78% at 5% 108%,rgba(229,153,218,.12),transparent 74%),
+    linear-gradient(138deg,#edf2fb 0%,#e9eff9 48%,#f1f2fa 100%)!important;
+}
+body.restrained-glass .app-shell{
+  background:rgba(248,251,255,.22)!important;
+  border-color:rgba(255,255,255,.74)!important;
+  box-shadow:0 14px 42px rgba(56,65,108,.055)!important;
+}
+body.restrained-glass main{background:rgba(247,250,255,.12)!important}
+body.restrained-glass .sidebar{
+  background:rgba(250,252,255,.4)!important;
+  border-right-color:rgba(255,255,255,.56)!important;
+  -webkit-backdrop-filter:blur(20px) saturate(124%)!important;
+  backdrop-filter:blur(20px) saturate(124%)!important;
+}
+
+/* Oversized, heavily blurred colour fields avoid visible gradient bands. */
+body.restrained-glass main::before{
+  left:-10%!important;
+  right:-10%!important;
+  bottom:-14%!important;
+  height:56%!important;
+  background:
+    radial-gradient(64% 110% at 4% 100%,rgba(234,154,220,.115),transparent 76%),
+    radial-gradient(66% 105% at 37% 110%,rgba(141,220,205,.075),transparent 78%),
+    radial-gradient(72% 112% at 70% 104%,rgba(110,161,244,.09),transparent 79%),
+    radial-gradient(58% 102% at 102% 108%,rgba(246,216,137,.055),transparent 78%)!important;
+  filter:blur(58px)!important;
+  opacity:.82!important;
+  transform:scale(1.08) translateZ(0)!important;
+}
+body.restrained-glass main::after{
+  content:"";
+  position:absolute;
+  z-index:0;
+  inset:0;
+  pointer-events:none;
+  opacity:.018;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  background-size:180px 180px;
+  mix-blend-mode:soft-light;
+}
+
+body.restrained-glass .metrics article,
+body.restrained-glass .table-wrap,
+body.restrained-glass .account-card,
+body.restrained-glass .account-empty,
+body.restrained-glass .plugin-card,
+body.restrained-glass .settings-card,
+body.restrained-glass .advanced-settings-card,
+body.restrained-glass .kernel-card,
+body.restrained-glass .kernel-secondary-actions,
+body.restrained-glass .clash-import-card,
+body.restrained-glass .proxy-node-grid,
+body.restrained-glass .proxy-node,
+body.restrained-glass .log-card,
+body.restrained-glass .help-index,
+body.restrained-glass .help-group{
+  background:var(--ob-glass-bg)!important;
+  border-color:var(--ob-glass-line)!important;
+  box-shadow:var(--ob-glass-shadow)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(120%)!important;
+  backdrop-filter:blur(18px) saturate(120%)!important;
+}
+body.restrained-glass .advanced-action-grid button,
+body.restrained-glass .custom-color-control,
+body.restrained-glass .theme-choice,
+body.restrained-glass .search,
+body.restrained-glass .filter,
+body.restrained-glass .ghost,
+body.restrained-glass .top-icon,
+body.restrained-glass input,
+body.restrained-glass select,
+body.restrained-glass textarea{
+  background:rgba(255,255,255,.48)!important;
+  border-color:rgba(255,255,255,.62)!important;
+}
+body.restrained-glass .table-wrap th{background:rgba(250,252,255,.31)!important}
+body.restrained-glass .table-wrap td{background:rgba(255,255,255,.07)!important}
+
+/* A complete dark-glass palette prevents light canvas and opaque dark cards
+   from mixing when both switches are enabled. */
+body.dark-content.restrained-glass{
+  --bg:#171a28!important;
+  --panel:rgba(39,43,62,.5)!important;
+  --ink:#eef1fa!important;
+  --muted:#aeb5ca!important;
+  --line:rgba(255,255,255,.09)!important;
+  --nav:rgba(24,27,42,.46)!important;
+  --ob-glass-bg:rgba(39,43,62,.5);
+  --ob-glass-line:rgba(255,255,255,.085);
+  --ob-glass-shadow:0 15px 42px rgba(3,6,18,.16);
+  color:#eef1fa!important;
+  background-color:#171a28!important;
+  background-image:
+    radial-gradient(74% 88% at 82% -8%,rgba(87,118,196,.18),transparent 72%),
+    radial-gradient(58% 72% at 4% 108%,rgba(158,80,151,.115),transparent 74%),
+    linear-gradient(138deg,#171a28 0%,#1a1e2e 52%,#1d2031 100%)!important;
+}
+body.dark-content.restrained-glass .app-shell{
+  background:rgba(20,23,37,.37)!important;
+  border-color:rgba(255,255,255,.105)!important;
+  box-shadow:0 18px 54px rgba(0,0,0,.22)!important;
+}
+body.dark-content.restrained-glass main{background:rgba(20,23,37,.18)!important}
+body.dark-content.restrained-glass .sidebar{
+  background:rgba(25,28,43,.44)!important;
+  border-right-color:rgba(255,255,255,.07)!important;
+  color:#eef1fa!important;
+}
+body.dark-content.restrained-glass main::before{
+  background:
+    radial-gradient(64% 110% at 4% 100%,rgba(199,104,183,.09),transparent 77%),
+    radial-gradient(66% 105% at 37% 110%,rgba(84,170,155,.055),transparent 79%),
+    radial-gradient(72% 112% at 70% 104%,rgba(76,117,199,.085),transparent 80%),
+    radial-gradient(58% 102% at 102% 108%,rgba(190,157,86,.04),transparent 79%)!important;
+  opacity:.72!important;
+}
+body.dark-content.restrained-glass main::after{opacity:.012;mix-blend-mode:screen}
+body.dark-content.restrained-glass .metrics article,
+body.dark-content.restrained-glass .table-wrap,
+body.dark-content.restrained-glass .account-card,
+body.dark-content.restrained-glass .account-empty,
+body.dark-content.restrained-glass .plugin-card,
+body.dark-content.restrained-glass .settings-card,
+body.dark-content.restrained-glass .advanced-settings-card,
+body.dark-content.restrained-glass .kernel-card,
+body.dark-content.restrained-glass .kernel-secondary-actions,
+body.dark-content.restrained-glass .clash-import-card,
+body.dark-content.restrained-glass .proxy-node-grid,
+body.dark-content.restrained-glass .proxy-node,
+body.dark-content.restrained-glass .log-card,
+body.dark-content.restrained-glass .help-index,
+body.dark-content.restrained-glass .help-group{
+  background:var(--ob-glass-bg)!important;
+  border-color:var(--ob-glass-line)!important;
+  box-shadow:var(--ob-glass-shadow)!important;
+}
+body.dark-content.restrained-glass .advanced-action-grid button,
+body.dark-content.restrained-glass .custom-color-control,
+body.dark-content.restrained-glass .theme-choice,
+body.dark-content.restrained-glass .search,
+body.dark-content.restrained-glass .filter,
+body.dark-content.restrained-glass .ghost,
+body.dark-content.restrained-glass .top-icon,
+body.dark-content.restrained-glass input,
+body.dark-content.restrained-glass select,
+body.dark-content.restrained-glass textarea,
+body.dark-content.restrained-glass .proxy-empty,
+body.dark-content.restrained-glass .backup-option,
+body.dark-content.restrained-glass .backup-summary{
+  background:rgba(22,26,41,.48)!important;
+  border-color:rgba(255,255,255,.09)!important;
+  color:#eef1fa!important;
+}
+body.dark-content.restrained-glass .table-wrap th,
+body.dark-content.restrained-glass .system-log-head{background:rgba(18,21,34,.34)!important;color:#b6bdd0!important}
+body.dark-content.restrained-glass .table-wrap td{background:rgba(255,255,255,.012)!important;border-color:rgba(255,255,255,.055)!important}
+body.dark-content.restrained-glass .account-empty{
+  color:#aeb5ca!important;
+  background:linear-gradient(135deg,rgba(91,82,172,.18),rgba(61,126,158,.1))!important;
+}
+body.dark-content.restrained-glass .account-empty b,
+body.dark-content.restrained-glass .proxy-empty b,
+body.dark-content.restrained-glass .kernel-copy b,
+body.dark-content.restrained-glass .clash-import-copy b{color:#f0f2fa!important}
+body.dark-content.restrained-glass .logo.logo-ring::before{background:rgba(28,32,48,.94)!important}
+
+@media(max-width:900px){body.restrained-glass main::before{height:48%!important}}
