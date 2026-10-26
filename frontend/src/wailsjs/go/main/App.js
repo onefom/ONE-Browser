@@ -722,6 +722,10 @@ export function OneBrowserKernelStatus() {
   return window['go']['main']['App']['OneBrowserKernelStatus']();
 }
 
+export function OneBrowserLatestFingerprintChromium() {
+  return window['go']['main']['App']['OneBrowserLatestFingerprintChromium']();
+}
+
 export function OneBrowserOpenManagedURL(arg1, arg2) {
   return window['go']['main']['App']['OneBrowserOpenManagedURL'](arg1, arg2);
 }
@@ -748,6 +752,10 @@ export function OneBrowserStop(arg1) {
 
 export function OneBrowserSyncBuiltinExtensions(arg1) {
   return window['go']['main']['App']['OneBrowserSyncBuiltinExtensions'](arg1);
+}
+
+export function OneBrowserUpdateFingerprintChromium() {
+  return window['go']['main']['App']['OneBrowserUpdateFingerprintChromium']();
 }
 
 export function OpenBackupPath(arg1) {
@@ -853,3 +861,10 @@ export function ValidateProxyConfig(arg1, arg2) {
 export function WaitInstanceDebugReady(arg1, arg2, arg3) {
   return window['go']['main']['App']['WaitInstanceDebugReady'](arg1, arg2, arg3);
 }
+
+export function OneBrowserRenameWindow(arg1, arg2, arg3) {
+  return window['go']['main']['App']['OneBrowserRenameWindow'](arg1, arg2, arg3);
+}
+
+export function OneBrowserDeleteWindow(arg1, arg2) { return window['go']['main']['App']['OneBrowserDeleteWindow'](arg1, arg2); }
+export function OneBrowserDetachedWindows(arg1) { return window['go']['main']['App']['OneBrowserDetachedWindows'](arg1); }

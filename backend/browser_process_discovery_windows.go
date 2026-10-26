@@ -4,6 +4,7 @@
 package backend
 
 import (
+	"ant-chrome/backend/internal/logger"
 	"bytes"
 	"context"
 	"encoding/base64"
@@ -19,6 +20,21 @@ import (
 )
 
 func findBrowserUserDataProcessesOS(userDataDir string) ([]browserUserDataProcess, error) {
+	if strings.TrimSpace(userDataDir) == "" {
+		return nil, nil
+	}
+	startedAt := time.Now()
+	result, nativeErr := findBrowserUserDataProcessesNative(userDataDir)
+	if nativeErr == nil {
+		return result, nil
+	}
+	nativeElapsed := time.Since(startedAt)
+	result, err := findBrowserUserDataProcessesCIM(userDataDir)
+	logger.New("Browser").Info(fmt.Sprintf("进程检查回退 CIM：原生检查 %d ms，总计 %d ms", nativeElapsed.Milliseconds(), time.Since(startedAt).Milliseconds()), logger.F("native_ms", nativeElapsed.Milliseconds()), logger.F("total_ms", time.Since(startedAt).Milliseconds()), logger.F("reason", nativeErr.Error()))
+	return result, err
+}
+
+func findBrowserUserDataProcessesCIM(userDataDir string) ([]browserUserDataProcess, error) {
 	userDataDir = strings.TrimSpace(userDataDir)
 	if userDataDir == "" {
 		return nil, nil
@@ -32,15 +48,16 @@ func findBrowserUserDataProcessesOS(userDataDir string) ([]browserUserDataProces
 $ErrorActionPreference = 'SilentlyContinue'
 $target = [System.IO.Path]::GetFullPath($UserDataDir).TrimEnd('\')
 $items = @()
-Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -and $_.CommandLine -match '--user-data-dir=' } | ForEach-Object {
+Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -and $_.CommandLine -match '--user-data-dir=|-{1,2}profile\s' } | ForEach-Object {
   $cmd = [string]$_.CommandLine
   $match = [regex]::Match($cmd, '--user-data-dir=(?:"([^"]+)"|([^\s]+))')
+  if (-not $match.Success) { $match = [regex]::Match($cmd, '-{1,2}profile\s+(?:"([^"]+)"|([^\s]+))') }
   if (-not $match.Success) { return }
   $dir = $match.Groups[1].Value
   if ([string]::IsNullOrWhiteSpace($dir)) { $dir = $match.Groups[2].Value }
   if ([string]::IsNullOrWhiteSpace($dir)) { return }
   try { $dir = [System.IO.Path]::GetFullPath($dir).TrimEnd('\') } catch {}
-  if (-not $dir.Equals($target, [System.StringComparison]::OrdinalIgnoreCase)) { return }
+  if (-not $dir.Equals($target, [System.StringComparison]::OrdinalIgnoreCase) -and -not $dir.Equals([System.IO.Path]::Combine($target,'camoufox'), [System.StringComparison]::OrdinalIgnoreCase)) { return }
   $port = 0
   $portMatch = [regex]::Match($cmd, '--remote-debugging-port=(\d+)')
   if ($portMatch.Success) { [void][int]::TryParse($portMatch.Groups[1].Value, [ref]$port) }

@@ -35,3 +35,7 @@ Core expectations:
 These shared skill instructions supplement project-specific rules in this `AGENTS.md`; keep more specific project rules authoritative for this repository.
 
 <!-- ant-ready-start-skills:end -->
+
+## One Browser portable delivery
+
+Keep CAMOUFOX-TESTING.md, STARTUP-REVIEW.md and TESTING-STATUS.md in source only. Exclude these three developer documents from every Windows portable release and its checksum manifest. Deliver the full portable archive and source archive only; the current version is 2.0.7.

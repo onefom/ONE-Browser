@@ -1,36 +1,26 @@
-# One Browser 1.8.3 源码上传与构建
+# One Browser 1.9 源码上传与构建
+
+源码只保留当前 One Browser 界面。`frontend/src/main.tsx` 加载桌面桥接 `OneBrowserShell.tsx`，实际界面位于 `frontend/public/one-browser/`；`wailsjs` 为生成的桌面接口绑定。旧 React 页面、路由、主题和相关依赖已移除。
 
 ## 上传 GitHub
 
-1. 解压源码 ZIP，进入 `OneBrowser-1.8.3-source` 文件夹。
-2. 在 GitHub 新建一个空仓库，不勾选自动创建 README。
-3. 在源码目录打开 PowerShell，执行：
-
-```powershell
-git init
-git add .
-git commit -m "One Browser 1.8.3"
-git branch -M main
-git remote add origin https://github.com/你的用户名/你的仓库名.git
-git push -u origin main
-```
-
-如果使用 GitHub Desktop，选择“Add an Existing Repository”，指向解压后的源码目录，再发布到 GitHub 即可。
+在源码目录初始化仓库并提交，或通过 GitHub Desktop 添加源码目录并发布。不要提交 `data` 个人数据、浏览器内核、运行时二进制或构建产物。`.gitignore` 保留这些排除规则。
 
 ## Windows x64 构建
 
-需要安装 Go、Node.js、Wails v2，以及 Wails Windows 构建所需环境。然后在源码根目录执行：
+安装 Go、Node.js 和 Wails v2，执行：
 
 ```powershell
 cd frontend
-npm install
-npm run build
+npm ci
+npm run test:one-browser
+npm run build:clean
 cd ..
+go test ./backend/... ./internal/...
 wails build -platform windows/amd64 -clean -o OneBrowser.exe
+python tools/verify-windows-resources.py build/bin/OneBrowser.exe
 ```
 
-生成文件位于 `build/bin/OneBrowser.exe`。
+最后一项检查最终 EXE 内的 Windows 启动资源。必须通过后才能打包。Windows manifest 使用明确的程序集名称及四段数字版本，不能把尚未展开的模板直接嵌入 EXE。
 
-## 源码包排除内容
-
-本源码包不包含 `node_modules`、编译产物、便携发布包、账号、代理节点、日志、缓存、数据库、浏览器内核或用户工作区。依赖请通过 `npm install` 和 `go mod download` 获取，fingerprint-chromium 内核由软件首次使用时下载。
+版本显示为 1.9；构建版本为 1.9.0，Windows 程序集版本为 1.9.0.0。

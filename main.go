@@ -252,15 +252,11 @@ func main() {
 	startupReached := make(chan struct{})
 	go func() {
 		for activation := range singleInstance.Activations() {
-			if wailsCtx == nil {
-				select {
-				case <-startupReached:
-				case <-time.After(12 * time.Second):
-				}
-				if wailsCtx == nil {
-					activation.Complete()
-					continue
-				}
+			select {
+			case <-startupReached:
+			case <-time.After(12 * time.Second):
+				activation.Complete()
+				continue
 			}
 			runtime.WindowShow(wailsCtx)
 			runtime.WindowUnminimise(wailsCtx)
@@ -313,11 +309,11 @@ func main() {
 		BackgroundColour: &options.RGBA{R: 245, G: 247, B: 250, A: 255},
 		OnStartup: func(ctx context.Context) {
 			lifecycle.Log(appRoot, "wails.on_startup.begin", nil)
-			close(startupReached)
 			if startupDebugEnabled {
 				log.Printf("Wails OnStartup 已触发，GUI 宿主已创建")
 			}
 			wailsCtx = ctx
+			close(startupReached)
 			runtime.WindowCenter(wailsCtx)
 			runtime.WindowSetAlwaysOnTop(wailsCtx, false)
 			backend.ApplyMainApplicationWindowIcon(appRoot, cfg.App.Name)
@@ -348,6 +344,14 @@ func main() {
 			if startupDebugEnabled {
 				log.Printf("后端 startup 已完成")
 			}
+		},
+		OnDomReady: func(ctx context.Context) {
+			go func() {
+				for i := 0; i < 5; i++ {
+					backend.ApplyMainApplicationWindowIcon(appRoot, cfg.App.Name)
+					time.Sleep(250 * time.Millisecond)
+				}
+			}()
 		},
 		OnShutdown: func(ctx context.Context) {
 			lifecycle.Log(appRoot, "wails.on_shutdown.begin", nil)

@@ -15,6 +15,9 @@ func (m *Manager) GetChromeVersion(corePath string) string {
 	}
 
 	baseDir := m.ResolveRelativePath(corePath)
+	if version := firefoxApplicationVersion(baseDir); version != "" {
+		return version
+	}
 
 	// 尝试读取 manifest.json 或 *.manifest 文件
 	manifestPath := filepath.Join(baseDir, "manifest.json")
@@ -30,7 +33,7 @@ func (m *Manager) GetChromeVersion(corePath string) string {
 				return version
 			}
 		}
-		return ""
+		return coreExecutableVersion(baseDir)
 	}
 
 	// 解析 JSON

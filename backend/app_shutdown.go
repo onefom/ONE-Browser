@@ -36,6 +36,7 @@ func (a *App) ForceQuit() {
 
 // QuitAppOnly 仅退出应用本身，保留当前已打开的浏览器实例。
 func (a *App) QuitAppOnly() {
+	a.camoufoxRuntimes.Range(func(key, value any) bool { _, _, _ = a.stopCamoufox(key.(string)); return true })
 	a.setQuitMode(quitModeAppOnly)
 	a.stopRuntimeEvents()
 	a.runtimeQuit()
@@ -129,9 +130,13 @@ func (a *App) stopTrackedBrowserProcesses() {
 		return
 	}
 
+	a.camoufoxRuntimes.Range(func(key, value any) bool { _, _, _ = a.stopCamoufox(key.(string)); return true })
 	a.browserMgr.Mutex.Lock()
 	cmds := make([]*exec.Cmd, 0, len(a.browserMgr.BrowserProcesses))
-	for _, cmd := range a.browserMgr.BrowserProcesses {
+	for id, cmd := range a.browserMgr.BrowserProcesses {
+		if a.isCamoufoxProfile(a.browserMgr.Profiles[id]) {
+			continue
+		}
 		cmds = append(cmds, cmd)
 	}
 	a.browserMgr.Mutex.Unlock()

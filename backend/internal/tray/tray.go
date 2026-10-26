@@ -33,7 +33,7 @@ func Run(cb Callbacks) {
 
 		mShow := systray.AddMenuItem("显示窗口", "显示主窗口")
 		systray.AddSeparator()
-		mQuitAppOnly := systray.AddMenuItem("仅退出应用", "关闭客户端，保留已打开的浏览器")
+		mQuitAppOnly := systray.AddMenuItem("仅退出应用", "关闭客户端，保留 Chromium 窗口；Camoufox 会保存后关闭")
 		mQuit := systray.AddMenuItem("退出应用与浏览器", "退出应用并关闭当前打开的浏览器")
 
 		systray.SetOnClick(func(menu systray.IMenu) {

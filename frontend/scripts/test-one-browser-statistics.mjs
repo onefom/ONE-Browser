@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import vm from 'node:vm';
+const context={module:{exports:{}},globalThis};
+vm.runInNewContext(await readFile(new URL('../public/one-browser/window-identity.js',import.meta.url),'utf8'),context);
+const api=context.module.exports,now=new Date(2026,9,22,12),first=new Date(2026,9,1),previous=new Date(first.getTime()-1),next=new Date(2026,10,1);
+const entries=[{createdAt:first.toISOString()},{createdAt:previous.toISOString()},{createdAt:now.toISOString()},{createdAt:next.toISOString()},{},{createdAt:'bad'},{createdAt:null}];
+let counts=api.monthlyCreated(entries,now);assert.equal(counts.count,2);assert.equal(counts.unknown,3);
+assert.equal(api.monthlyCreated(entries,new Date(2026,10,2)).count,1,'calendar month must advance');
+assert.equal(api.monthlyCreated([{createdAt:new Date(2025,11,31,23,59).toISOString()},{createdAt:new Date(2026,0,1).toISOString()}],new Date(2026,0,2)).count,1,'year boundary');
+assert.equal(api.monthlyCreated(JSON.parse(JSON.stringify(entries)),now).count,2,'backup/reload retains dates');
+const original={windowId:'old',profileId:'private',createdAt:previous.toISOString(),name:'Original',config:{browser:'chrome'}},before=Date.now(),copy=api.clone(original,()=> 'fresh-id');
+assert(new Date(copy.createdAt).getTime()>=before);assert.equal(original.createdAt,previous.toISOString());assert.equal(copy.profileId,'');assert.equal(copy.windowId,'fresh-id');
+console.log('Monthly statistics: local month/year boundaries, unknown dates, future dates, copy creation and persistence passed');

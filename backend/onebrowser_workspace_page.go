@@ -16,11 +16,11 @@ const compactOneBrowserWorkspacePage = `<!doctype html>
   <article class="card"><span>扩展</span><b>{{.Extensions}}</b></article>
 </section>
 <section class="panel facts">
-  <div class="fact"><span class="label">操作系统</span><b class="value">{{.OS}}</b></div><div class="fact"><span class="label">内核类型</span><b class="value">Fingerprint Chromium</b></div>
-  <div class="fact"><span class="label">语言</span><b class="value">自定义 · {{.Language}}</b></div><div class="fact"><span class="label">时区</span><b class="value">基于 IP 匹配 · {{.Timezone}}</b></div>
+  <div class="fact"><span class="label">目标系统</span><b class="value">{{.OS}}</b></div><div class="fact"><span class="label">内核类型</span><b class="value">{{.Family}}</b></div>
+  <div class="fact"><span class="label">语言</span><b class="value">自定义 · {{.Language}}</b></div><div class="fact"><span class="label">时区</span><b class="value">窗口配置 · {{.Timezone}}</b></div>
   <div class="fact"><span class="label">窗口尺寸</span><b class="value">{{.WindowSize}}</b></div><div class="fact"><span class="label">内核版本</span><b class="value">{{.Version}}</b></div>
   <div class="fact"><span class="label">地理位置提示</span><b class="value">允许 · 基于 IP 匹配</b></div><div class="fact"><span class="label">WebRTC</span><b class="value">禁止</b></div>
-  <div class="fact"><span class="label">字体指纹 / 画布 / WebGL</span><b class="value">跟随系统一致性策略</b></div><div class="fact"><span class="label">数据隔离</span><b class="value">独立 Cookie、缓存与本地存储</b></div>
+  <div class="fact"><span class="label">字体指纹 / 画布 / WebGL</span><b class="value">基础系统信息伪装；硬件特征以实际内核为准</b></div><div class="fact"><span class="label">数据隔离</span><b class="value">独立 Cookie、缓存与本地存储</b></div>
   <div class="fact wide"><span class="label">User Agent</span><b class="value">{{.UserAgent}}</b></div>
 </section>
 <p class="footer"><span>Google 已在相邻标签页打开，网络信息由当前独立窗口实时检测。</span><code>工作区 {{.WorkspaceID}}</code></p>

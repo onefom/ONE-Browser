@@ -87,15 +87,20 @@ func waitBrowserDebugPortReady(initialDebugPort int, userDataDir string, timeout
 }
 
 func waitBrowserDebugPortStable(initialDebugPort int, userDataDir string, timeout time.Duration, stableFor time.Duration, monitor *browserProcessMonitor) (int, error) {
+	trace := newBrowserStartupTrace("调试就绪等待", fmt.Sprint(initialDebugPort))
+	defer trace.finish()
 	debugPort, err := waitBrowserDebugPortReady(initialDebugPort, userDataDir, timeout, monitor)
 	if err != nil {
 		return 0, err
 	}
+	trace.step("等待内核调试接口")
 	if stableFor <= 0 {
 		return debugPort, nil
 	}
 	allowDetachedGrace := initialDebugPort > 0
-	return stabilizeBrowserDebugPort(debugPort, stableFor, allowDetachedGrace, monitor, probeBrowserDebugPort)
+	port, stableErr := stabilizeBrowserDebugPort(debugPort, stableFor, allowDetachedGrace, monitor, probeBrowserDebugPort)
+	trace.step(fmt.Sprintf("稳定确认(配置%dms)", stableFor.Milliseconds()))
+	return port, stableErr
 }
 
 func stabilizeBrowserDebugPort(debugPort int, stableFor time.Duration, allowDetachedGrace bool, monitor *browserProcessMonitor, probe func(int, time.Duration) error) (int, error) {

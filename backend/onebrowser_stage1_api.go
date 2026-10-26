@@ -2,34 +2,51 @@ package backend
 
 import (
 	"ant-chrome/backend/internal/browser"
+	"ant-chrome/backend/internal/logger"
 	"ant-chrome/backend/internal/proxy"
 	"bytes"
+	"context"
 	"fmt"
 	"html/template"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"gopkg.in/yaml.v3"
 )
 
-// One Browser 第一阶段只维护 fingerprint-chromium 的 Windows x64 发行包。
+// Chromium 在线发布源；Camoufox 测试版通过本地 Windows x64 包导入。
 // 内核不会打入初始便携包；用户点击下载后才写入 chrome/ 目录。
 const (
-	fingerprintChromiumVersion = "148.0.7778.215"
-	fingerprintChromiumWinX64  = "https://github.com/adryfish/fingerprint-chromium/releases/download/148.0.7778.215/ungoogled-chromium_148.0.7778.215-1.1_windows_x64.zip"
+	fingerprintChromiumRepo            = "adryfish/fingerprint-chromium"
+	fingerprintChromiumReleasesURL     = "https://github.com/adryfish/fingerprint-chromium/releases"
+	fingerprintChromiumFallbackVersion = "150.0.7871.186"
+	fingerprintChromiumFallbackWinX64  = "https://github.com/adryfish/fingerprint-chromium/releases/download/150.0.7871.186/ungoogled-chromium_150.0.7871.186-1.1_windows_x64.zip"
 )
+
+type OneBrowserKernelRelease struct {
+	Version     string `json:"version"`
+	DownloadURL string `json:"downloadUrl"`
+	ReleasesURL string `json:"releasesUrl"`
+	AssetName   string `json:"assetName"`
+}
 
 type OneBrowserKernelStatus struct {
 	Installed bool   `json:"installed"`
 	Version   string `json:"version"`
 	CoreID    string `json:"coreId"`
+	Family    string `json:"family"`
+	Integrity string `json:"integrity"`
 }
 
 // OneBrowserStartRequest is intentionally small: the existing One Browser UI
 // owns the presentation state while Ant Browser owns the persisted profile,
 // browser executable and proxy bridge.
 type OneBrowserStartRequest struct {
+	CoreID         string   `json:"coreId"`
+	WindowID       string   `json:"windowId"`
 	ProfileID      string   `json:"profileId"`
 	Name           string   `json:"name"`
 	ProxyID        string   `json:"proxyId"`
@@ -42,11 +59,13 @@ type OneBrowserStartRequest struct {
 	WindowSize     string   `json:"windowSize"`
 	WindowPosition string   `json:"windowPosition"`
 	Extensions     []string `json:"extensions"`
+	ExtensionIDs   []string `json:"extensionIds"`
 }
 
 type OneBrowserStartResult struct {
 	ProfileID string `json:"profileId"`
 	Running   bool   `json:"running"`
+	Warning   string `json:"warning,omitempty"`
 }
 
 // OneBrowserNetworkInfo is the same route-aware network snapshot shown by the
@@ -109,48 +128,178 @@ func (a *App) OneBrowserGetNetworkInfo(profileID string) OneBrowserNetworkInfo {
 	return result
 }
 
-// OneBrowserKernelStatus reports only verified Ant Browser core records.
-func (a *App) OneBrowserKernelStatus() OneBrowserKernelStatus {
+// OneBrowserKernels includes every registered local/downloaded version.
+func (a *App) OneBrowserKernels() []OneBrowserKernelStatus {
+	result := []OneBrowserKernelStatus{}
 	if a == nil || a.browserMgr == nil {
-		return OneBrowserKernelStatus{}
+		return result
 	}
-	cores := a.browserMgr.ListCores()
-	for _, core := range cores {
-		if strings.Contains(strings.ToLower(core.CoreName+" "+core.CorePath), "fingerprint-chromium") {
-			version := strings.TrimSpace(a.browserMgr.GetChromeVersion(core.CorePath))
-			if version == "" {
-				version = strings.TrimPrefix(strings.TrimSpace(core.CoreName), "fingerprint-chromium-")
-			}
-			if version == "" || version == core.CoreName {
-				version = fingerprintChromiumVersion
-			}
-			return OneBrowserKernelStatus{Installed: true, Version: version, CoreID: core.CoreId}
+	for _, core := range a.browserMgr.ListCores() {
+		version := strings.TrimSpace(a.browserMgr.GetChromeVersion(core.CorePath))
+		if version == "" {
+			version = core.CoreName
+		}
+		result = append(result, OneBrowserKernelStatus{Installed: true, Version: version, CoreID: core.CoreId, Family: a.browserMgr.CoreFamily(core), Integrity: oneBrowserCoreIntegrity(a.browserMgr.ResolveRelativePath(core.CorePath))})
+	}
+	return result
+}
+
+// Chromium update status must not compare Firefox versions against Chrome releases.
+func (a *App) OneBrowserChromiumStatus() OneBrowserKernelStatus {
+	best := OneBrowserKernelStatus{}
+	for _, item := range a.OneBrowserKernels() {
+		if item.Family != "camoufox" && (!best.Installed || oneBrowserKernelNeedsUpdate(best.Version, item.Version)) {
+			best = item
 		}
 	}
-	// A manually imported and validated directory may use its original folder
-	// name (for example chrome-win). Treat the default/first registered core as
-	// available so local imports are immediately usable from One Browser.
-	if len(cores) > 0 {
-		core := cores[0]
-		for _, item := range cores {
-			if item.IsDefault {
-				core = item
+	return best
+}
+func (a *App) OneBrowserKernelStatus() OneBrowserKernelStatus {
+	items := a.OneBrowserKernels()
+	if len(items) == 0 {
+		return OneBrowserKernelStatus{}
+	}
+	chromium := []OneBrowserKernelStatus{}
+	for _, item := range items {
+		if item.Family != "camoufox" {
+			chromium = append(chromium, item)
+		}
+	}
+	if len(chromium) > 0 {
+		items = chromium
+	}
+	best := items[0]
+	for _, item := range items[1:] {
+		if oneBrowserKernelNeedsUpdate(best.Version, item.Version) {
+			best = item
+		}
+	}
+	return best
+}
+func (a *App) oneBrowserSelectedKernel(coreID, profileID string) (OneBrowserKernelStatus, error) {
+	coreID = strings.TrimSpace(coreID)
+	if coreID == "" && profileID != "" {
+		for _, p := range a.BrowserProfileList() {
+			if p.ProfileId == profileID {
+				coreID = p.CoreId
 				break
 			}
 		}
-		version := strings.TrimSpace(a.browserMgr.GetChromeVersion(core.CorePath))
-		if version == "" {
-			version = "本地版本"
-		}
-		return OneBrowserKernelStatus{Installed: true, Version: version, CoreID: core.CoreId}
 	}
-	return OneBrowserKernelStatus{}
+	if coreID == "" {
+		return a.OneBrowserKernelStatus(), nil
+	}
+	for _, item := range a.OneBrowserKernels() {
+		if item.CoreID == coreID {
+			return item, nil
+		}
+	}
+	return OneBrowserKernelStatus{}, fmt.Errorf("所选内核已移除，请编辑窗口重新选择内核版本")
+}
+
+// Manual/weekly checks surface network failures instead of claiming latest.
+func (a *App) OneBrowserCheckKernelUpdate() (OneBrowserKernelRelease, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	return latestFingerprintChromiumRelease(ctx)
+}
+
+func fallbackFingerprintChromiumRelease() OneBrowserKernelRelease {
+	return OneBrowserKernelRelease{
+		Version:     fingerprintChromiumFallbackVersion,
+		DownloadURL: fingerprintChromiumFallbackWinX64,
+		ReleasesURL: fingerprintChromiumReleasesURL,
+		AssetName:   filepath.Base(fingerprintChromiumFallbackWinX64),
+	}
+}
+
+func fingerprintChromiumWindowsX64Asset(release githubRelease) (githubReleaseAsset, bool) {
+	for _, asset := range release.Assets {
+		name := strings.ToLower(strings.TrimSpace(asset.Name))
+		if !strings.HasSuffix(name, ".zip") || !strings.Contains(name, "windows") {
+			continue
+		}
+		if !strings.Contains(name, "x64") && !strings.Contains(name, "x86_64") && !strings.Contains(name, "amd64") {
+			continue
+		}
+		if strings.TrimSpace(asset.BrowserDownloadURL) == "" {
+			continue
+		}
+		return asset, true
+	}
+	return githubReleaseAsset{}, false
+}
+
+func oneBrowserReleaseClients(timeout time.Duration) []*http.Client {
+	clients := make([]*http.Client, 0, 2)
+	if client, _, err := oneBrowserSystemProxyClient(timeout); err == nil && client != nil {
+		clients = append(clients, client)
+	}
+	clients = append(clients, &http.Client{Timeout: timeout, Transport: &http.Transport{Proxy: http.ProxyFromEnvironment}})
+	return clients
+}
+
+func latestFingerprintChromiumRelease(ctx context.Context) (OneBrowserKernelRelease, error) {
+	var lastErr error
+	for _, client := range oneBrowserReleaseClients(12 * time.Second) {
+		release, err := fetchGitHubRelease(ctx, client, fingerprintChromiumRepo, "latest")
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		asset, ok := fingerprintChromiumWindowsX64Asset(release)
+		if !ok {
+			lastErr = fmt.Errorf("最新版本没有 Windows x64 ZIP")
+			continue
+		}
+		version := strings.TrimSpace(release.TagName)
+		if version == "" {
+			lastErr = fmt.Errorf("最新版本号为空")
+			continue
+		}
+		return OneBrowserKernelRelease{
+			Version:     version,
+			DownloadURL: strings.TrimSpace(asset.BrowserDownloadURL),
+			ReleasesURL: fingerprintChromiumReleasesURL,
+			AssetName:   strings.TrimSpace(asset.Name),
+		}, nil
+	}
+	return OneBrowserKernelRelease{}, lastErr
+}
+
+// OneBrowserLatestFingerprintChromium reads the current GitHub release using
+// the Windows system proxy first, then a direct/environment-proxy fallback.
+// The verified bundled release keeps the UI and downloader usable offline.
+func (a *App) OneBrowserLatestFingerprintChromium() OneBrowserKernelRelease {
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	if release, err := latestFingerprintChromiumRelease(ctx); err == nil {
+		return release
+	}
+	return fallbackFingerprintChromiumRelease()
 }
 
 // OneBrowserDownloadFingerprintChromium starts Ant Browser's verified archive
 // downloader. Completion is reported through the existing download:progress event.
 func (a *App) OneBrowserDownloadFingerprintChromium() error {
-	return a.BrowserCoreDownload("fingerprint-chromium-"+fingerprintChromiumVersion, fingerprintChromiumWinX64, "__system__")
+	release := a.OneBrowserLatestFingerprintChromium()
+	return a.BrowserCoreDownload("Chrome-"+release.Version, release.DownloadURL, "__system__")
+}
+
+// OneBrowserUpdateFingerprintChromium replaces the verified installed core in
+// place. The old directory remains available until the new archive passes
+// extraction and executable validation.
+func (a *App) OneBrowserUpdateFingerprintChromium() error {
+	release := a.OneBrowserLatestFingerprintChromium()
+	status := a.OneBrowserKernelStatus()
+	if status.Installed && !oneBrowserKernelNeedsUpdate(status.Version, release.Version) {
+		a.emitRuntimeEvent("download:progress", map[string]interface{}{"phase": "done", "progress": 100, "message": "当前内核已是最新版本，无需重新下载"})
+		return nil
+	}
+	if strings.TrimSpace(status.CoreID) == "" {
+		return a.BrowserCoreDownload("Chrome-"+release.Version, release.DownloadURL, "__system__")
+	}
+	return a.BrowserCoreDownload("Chrome-"+release.Version, release.DownloadURL, "__system__")
 }
 
 // OneBrowserImportClash downloads a subscription using Ant Browser's hardened
@@ -259,14 +408,36 @@ func (a *App) OneBrowserDeleteProxy(proxyID string) error {
 // always the downloaded fingerprint-chromium executable, never the OS default
 // browser.
 func (a *App) OneBrowserStart(request OneBrowserStartRequest) (OneBrowserStartResult, error) {
-	status := a.OneBrowserKernelStatus()
+	trace := newBrowserStartupTrace("One Browser 启动阶段耗时", request.WindowID)
+	defer trace.finish()
+	phase := trace.step
+
+	windowID, err := oneBrowserWindowID(request.WindowID)
+	if err != nil {
+		return OneBrowserStartResult{}, err
+	}
+	if _, validationErr := oneBrowserPluginIDs(request.Extensions, request.ExtensionIDs); validationErr != nil {
+		return OneBrowserStartResult{}, validationErr
+	}
+	a.oneBrowserWindowMu.Lock()
+	defer a.oneBrowserWindowMu.Unlock()
+	phase("启动队列锁")
+	status, kernelErr := a.oneBrowserSelectedKernel(request.CoreID, request.ProfileID)
+	if kernelErr != nil {
+		return OneBrowserStartResult{}, kernelErr
+	}
 	if !status.Installed || strings.TrimSpace(status.CoreID) == "" {
-		return OneBrowserStartResult{}, fmt.Errorf("请先下载并完成 fingerprint-chromium 内核安装")
+		return OneBrowserStartResult{}, fmt.Errorf("请先下载并完成 Chrome 内核安装")
+	}
+	phase("内核状态及版本")
+	if status.Family == "camoufox" && (len(request.Extensions) > 0 || len(request.ExtensionIDs) > 0) {
+		return OneBrowserStartResult{}, fmt.Errorf("Firefox 不兼容当前 Chrome 插件，请先在插件中心取消此窗口的插件关联；Firefox 扩展请在浏览器中安装")
 	}
 	if warnings := a.OneBrowserSyncBuiltinExtensions(request.Extensions); len(warnings) > 0 {
 		return OneBrowserStartResult{}, fmt.Errorf("插件准备失败：%s", strings.Join(warnings, "；"))
 	}
 
+	phase("内置插件同步")
 	profileID := strings.TrimSpace(request.ProfileID)
 	name := strings.TrimSpace(request.Name)
 	if name == "" {
@@ -276,67 +447,132 @@ func (a *App) OneBrowserStart(request OneBrowserStartRequest) (OneBrowserStartRe
 	proxyConfig := ""
 	if proxyID == "" || proxyID == "__system__" {
 		proxyID = ""
-		if systemProxy, systemErr := oneBrowserSystemProxyAddress(); systemErr == nil {
+		if systemProxy, systemErr := oneBrowserSystemProxyAddress(); systemErr == nil && strings.TrimSpace(systemProxy) != "" {
 			proxyConfig = systemProxy
 		} else {
-			proxyID = "__direct__"
+			proxyConfig = "direct://"
 		}
 	} else {
 		a.oneBrowserUseActiveProxyStack([]string{proxyID})
 	}
 
+	phase("选择代理及连接栈")
 	var profile *BrowserProfile
-	for _, item := range a.BrowserProfileList() {
-		if item.ProfileId == profileID {
-			input := BrowserProfileInput{
-				ProfileName:        name,
-				UserDataDir:        item.UserDataDir,
-				CoreId:             status.CoreID,
-				RestoreLastSession: item.RestoreLastSession,
-				FingerprintArgs:    item.FingerprintArgs,
-				ProxyId:            proxyID,
-				ProxyConfig:        proxyConfig,
-				MemoryLimitMB:      item.MemoryLimitMB,
-				LaunchArgs:         oneBrowserWindowLaunchArgs(item.LaunchArgs, request),
-				Tags:               item.Tags,
-				Keywords:           item.Keywords,
-				GroupId:            item.GroupId,
-			}
-			updated, err := a.BrowserProfileUpdate(profileID, input)
-			if err != nil {
-				return OneBrowserStartResult{}, err
-			}
-			profile = updated
-			break
+	existing, err := resolveOneBrowserWindowProfile(windowID, profileID, a.BrowserProfileList())
+	if err != nil {
+		return OneBrowserStartResult{}, err
+	}
+	if existing == nil && profileID != "" {
+		return OneBrowserStartResult{}, fmt.Errorf("窗口配置已删除，请刷新窗口列表")
+	}
+	if existing != nil && strings.TrimSpace(request.CoreID) == "" {
+		status, err = a.oneBrowserSelectedKernel("", existing.ProfileId)
+		if err != nil {
+			return OneBrowserStartResult{}, err
 		}
+	}
+	if status.Family == "camoufox" && (len(request.Extensions) > 0 || len(request.ExtensionIDs) > 0) {
+		return OneBrowserStartResult{}, fmt.Errorf("Firefox 不兼容当前 Chrome 插件，请先取消此窗口的插件关联")
+	}
+	if existing != nil {
+		item := *existing
+		profileID = item.ProfileId
+		input := BrowserProfileInput{
+			ProfileName:        name,
+			UserDataDir:        item.UserDataDir,
+			CoreId:             status.CoreID,
+			RestoreLastSession: browser.RestoreLastSessionEnabled,
+			FingerprintArgs:    oneBrowserConfiguredFingerprintArgs(item.FingerprintArgs, request),
+			ProxyId:            proxyID,
+			ProxyConfig:        proxyConfig,
+			MemoryLimitMB:      item.MemoryLimitMB,
+			LaunchArgs:         oneBrowserWindowLaunchArgs(item.LaunchArgs, request),
+			Tags:               item.Tags,
+			Keywords:           oneBrowserIPModeKeywords(oneBrowserWindowKeywords(item.Keywords, windowID), request.ProxyID),
+			GroupId:            item.GroupId,
+		}
+		if oneBrowserHasSavedSession(a.browserMgr.ResolveUserDataDir(&item)) {
+			input.LaunchArgs = oneBrowserSessionLaunchArgs(input.LaunchArgs)
+		}
+		updated, err := a.BrowserProfileUpdate(profileID, input)
+		if err != nil {
+			return OneBrowserStartResult{}, err
+		}
+		profile = updated
 	}
 	if profile == nil {
 		created, err := a.BrowserProfileCreate(BrowserProfileInput{
-			ProfileName: name,
-			CoreId:      status.CoreID,
-			ProxyId:     proxyID,
-			ProxyConfig: proxyConfig,
-			Tags:        []string{"One Browser"},
-			LaunchArgs:  oneBrowserWindowLaunchArgs(nil, request),
+			ProfileName:        name,
+			RestoreLastSession: browser.RestoreLastSessionEnabled,
+			CoreId:             status.CoreID,
+			FingerprintArgs:    oneBrowserConfiguredFingerprintArgs(a.config.Browser.DefaultFingerprintArgs, request),
+			ProxyId:            proxyID,
+			ProxyConfig:        proxyConfig,
+			Tags:               []string{"One Browser"},
+			Keywords:           oneBrowserIPModeKeywords(oneBrowserWindowKeywords(nil, windowID), request.ProxyID),
+			LaunchArgs:         oneBrowserWindowLaunchArgs(nil, request),
 		})
 		if err != nil {
 			return OneBrowserStartResult{}, err
 		}
 		profile = created
 	}
-	_, _ = browser.RemoveBookmarkURL(a.browserMgr.ResolveUserDataDir(profile), fingerprintCheckBookmarkURL)
-	_, _ = browser.RemoveBookmarkName(a.browserMgr.ResolveUserDataDir(profile), "指纹检测")
-	_, _ = browser.RemoveBookmarkName(a.browserMgr.ResolveUserDataDir(profile), "Ant 指纹检测")
+	if status.Family == "camoufox" {
+		args := []string{}
+		for _, arg := range profile.LaunchArgs {
+			if !strings.HasPrefix(arg, "--lang=") && !strings.HasPrefix(arg, "--timezone=") {
+				args = append(args, arg)
+			}
+		}
+		lang := strings.TrimSpace(strings.Split(request.Language, " · ")[0])
+		if lang != "" {
+			args = append(args, "--lang="+lang)
+		}
+		if request.Timezone != "" {
+			args = append(args, "--timezone="+request.Timezone)
+		}
+		profile.LaunchArgs = args
+		if err := a.browserMgr.SaveProfiles(); err != nil {
+			return OneBrowserStartResult{}, err
+		}
+	}
+	if err := a.configureOneBrowserPlugins(profile.ProfileId, request.Extensions, request.ExtensionIDs); err != nil {
+		return OneBrowserStartResult{}, err
+	}
+	phase("查找及保存窗口配置")
+	if err := a.validateOneBrowserDataIsolation(profile); err != nil {
+		return OneBrowserStartResult{}, err
+	}
+	phase("窗口数据隔离校验")
+	if _, err := a.syncOneBrowserDirectory(profile.ProfileId, name, windowID); err != nil {
+		return OneBrowserStartResult{}, err
+	}
+	phase("目录归属及改名同步")
+	if !profile.Running && status.Family != "camoufox" {
+		if migrationErr := browser.MigrateOneBrowserLegacyBookmarks(a.browserMgr.ResolveUserDataDir(profile), fingerprintCheckBookmarkURL); migrationErr != nil {
+			logger.New("Browser").Warn("旧书签迁移未完成，下次重试", logger.F("error", migrationErr.Error()))
+		}
+	}
 
+	phase("清理旧指纹书签")
 	workspaceURL, err := a.oneBrowserWorkspaceURL(profile.ProfileId, profile.ProfileName, request, status, proxyConfig)
 	if err != nil {
 		return OneBrowserStartResult{}, err
 	}
-	started, err := a.BrowserInstanceStartWithParams(profile.ProfileId, nil, []string{workspaceURL, "https://www.google.com/"}, true)
+	startURLs := []string{workspaceURL, "https://www.google.com/"}
+	// A saved session is authoritative. Reopening must not append workspace/Google
+	// tabs on every launch or override Chromium's saved placement.
+	if (status.Family != "camoufox" && oneBrowserHasSavedSession(a.browserMgr.ResolveUserDataDir(profile))) || (status.Family == "camoufox" && camoufoxHasSession(a.browserMgr.ResolveUserDataDir(profile))) {
+		startURLs = nil
+	}
+	phase("工作台及会话判断")
+	started, err := a.BrowserInstanceStartWithParams(profile.ProfileId, nil, startURLs, true)
 	if err != nil {
 		return OneBrowserStartResult{}, err
 	}
-	return OneBrowserStartResult{ProfileID: started.ProfileId, Running: started.Running}, nil
+	phase("浏览器准备启动并就绪")
+	a.oneBrowserWakeIPMonitor()
+	return OneBrowserStartResult{ProfileID: started.ProfileId, Running: started.Running, Warning: started.RuntimeWarning}, nil
 }
 
 func (a *App) OneBrowserStop(profileID string) error {
@@ -370,18 +606,27 @@ func oneBrowserWindowLaunchArgs(items []string, request OneBrowserStartRequest) 
 	for _, item := range items {
 		value := strings.TrimSpace(item)
 		lower := strings.ToLower(value)
-		if value == "" || lower == "--start-maximized" || strings.HasPrefix(lower, "--window-size") || strings.HasPrefix(lower, "--window-position") || strings.HasPrefix(lower, "--user-agent") {
+		if value == "" || lower == "--start-maximized" || strings.HasPrefix(lower, "--window-size") || strings.HasPrefix(lower, "--window-position") || strings.HasPrefix(lower, "--user-agent") || strings.HasPrefix(lower, "--onebrowser-os=") {
 			continue
 		}
 		result = append(result, value)
 	}
 	result = ensureOneBrowserLaunchArgs(result)
+	hasCacheLimit := false
+	for _, arg := range result {
+		if strings.HasPrefix(strings.ToLower(arg), "--disk-cache-size=") {
+			hasCacheLimit = true
+		}
+	}
+	if !hasCacheLimit {
+		result = append(result, "--disk-cache-size=67108864")
+	}
 
 	width, height := 900, 680
 	if _, err := fmt.Sscanf(strings.NewReplacer("×", "x", "X", "x", " ", "").Replace(request.WindowSize), "%dx%d", &width, &height); err != nil || width < 360 || height < 480 {
 		width, height = 900, 680
 	}
-	result = append(result, fmt.Sprintf("--window-size=%d,%d", width, height))
+	result = append(result, fmt.Sprintf("--window-size=%d,%d", width, height), "--onebrowser-os="+request.OS)
 	// Use a stable top-left origin so Chromium does not apply a half-screen
 	// placement heuristic and the One Browser manager remains visible.
 	result = append(result, "--window-position=12,12")
@@ -402,17 +647,17 @@ func (a *App) oneBrowserWorkspaceURL(profileID, profileName string, request OneB
 	filePath := filepath.Join(dir, profileID+".html")
 	proxyName := strings.TrimSpace(request.ProxyName)
 	if proxyName == "" {
-		if systemProxy != "" {
+		if systemProxy != "" && systemProxy != "direct://" {
 			proxyName = "Windows 系统代理"
 		} else {
 			proxyName = "直连（未检测到系统代理）"
 		}
 	}
-	data := struct{ Name, Account, Proxy, OS, Language, Timezone, UserAgent, WindowSize, Version, Extensions, WorkspaceID string }{
-		Name: profileName, Account: request.Account, Proxy: proxyName, OS: request.OS,
+	data := struct{ Name, Account, Proxy, OS, Language, Timezone, UserAgent, WindowSize, Version, Extensions, WorkspaceID, Family string }{
+		Name: profileName, Account: request.Account, Proxy: proxyName, OS: request.OS, Family: "Chrome",
 		Language: request.Language, Timezone: request.Timezone, UserAgent: request.UserAgent,
 		WindowSize: request.WindowSize, Version: status.Version,
-		Extensions: fmt.Sprintf("%d 个已启用", len(request.Extensions)), WorkspaceID: profileID,
+		Extensions: fmt.Sprintf("%d 个已启用", len(request.Extensions)+len(request.ExtensionIDs)), WorkspaceID: profileID,
 	}
 	if strings.TrimSpace(data.Account) == "" {
 		data.Account = "未关联账号"
@@ -426,12 +671,18 @@ func (a *App) oneBrowserWorkspaceURL(profileID, profileName string, request OneB
 	if strings.TrimSpace(data.Timezone) == "" {
 		data.Timezone = "跟随窗口配置"
 	}
-	if strings.TrimSpace(data.UserAgent) == "" {
+	if status.Family == "camoufox" {
+		data.Family = "Firefox"
+		config := camoufoxConfig(&BrowserProfile{ProfileId: profileID, LaunchArgs: oneBrowserWindowLaunchArgs(nil, request)}, status.Version)
+		if ua, ok := config["navigator.userAgent"].(string); ok {
+			data.UserAgent = ua
+		}
+	} else if strings.TrimSpace(data.UserAgent) == "" {
 		chromeVersion := strings.TrimSpace(data.Version)
 		if chromeVersion == "" {
-			chromeVersion = "148.0.7778.215"
+			chromeVersion = fingerprintChromiumFallbackVersion
 		}
-		data.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/" + chromeVersion + " Safari/537.36"
+		data.UserAgent = oneBrowserChromiumUA(data.OS, chromeVersion)
 	}
 	if strings.TrimSpace(data.WindowSize) == "" {
 		data.WindowSize = "自适应"

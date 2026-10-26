@@ -286,14 +286,7 @@ func latestXrayErrorSummary(path string) string {
 func doSpeedTestRequest(client *http.Client, testURL string) (int64, int, error) {
 	latency, statusCode, err := doSpeedTestRequestWithMethod(client, http.MethodHead, testURL)
 	if err != nil || statusCode != http.StatusMethodNotAllowed {
-		if err != nil {
-			return latency, statusCode, err
-		}
-		secondLatency, secondStatusCode, secondErr := doSpeedTestRequestWithMethod(client, http.MethodHead, testURL)
-		if secondErr == nil {
-			return secondLatency, secondStatusCode, nil
-		}
-		return latency, statusCode, nil
+		return latency, statusCode, err
 	}
 	return doSpeedTestRequestWithMethod(client, http.MethodGet, testURL)
 }

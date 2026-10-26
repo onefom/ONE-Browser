@@ -35,6 +35,7 @@ type profileWindowMarkerWindowState struct {
 	chromeIconApplied           bool
 	appUserModelID              string
 	appUserModelIDApplied       bool
+	appUserModelIDLastAppliedAt time.Time
 	relaunchIconResource        string
 	relaunchIconResourceApplied bool
 	processID                   uint32
@@ -147,7 +148,7 @@ func profileWindowMarkerAppUserModelID(profileID, markerCode string) string {
 	if suffix == "" {
 		suffix = "unknown"
 	}
-	appID := "AntBrowser.Instance." + suffix
+	appID := "OneBrowser.Instance." + suffix
 	if len(appID) > 128 {
 		appID = appID[:128]
 		appID = strings.TrimRight(appID, ".-_")

@@ -7,6 +7,9 @@ import (
 )
 
 func (a *App) BrowserInstanceStop(profileId string) (*BrowserProfile, error) {
+	if result, handled, err := a.stopCamoufox(profileId); handled {
+		return result, err
+	}
 	log := logger.New("Browser")
 	a.browserMgr.Mutex.Lock()
 	profile, exists := a.browserMgr.Profiles[profileId]

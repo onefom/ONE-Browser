@@ -4,9 +4,12 @@
 package backend
 
 import (
+	"golang.org/x/sys/windows"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
+	"unsafe"
 )
 
 var mainApplicationWindowIconState struct {
@@ -18,6 +21,9 @@ var mainApplicationWindowIconState struct {
 
 func ApplyMainApplicationWindowIcon(appRoot, expectedTitle string) {
 	resourcePath := profileWindowMarkerIconResourcePath(appRoot)
+	if strings.TrimSpace(resourcePath) == "" {
+		resourcePath, _ = os.Executable()
+	}
 	if strings.TrimSpace(resourcePath) == "" {
 		return
 	}
@@ -34,7 +40,7 @@ func ApplyMainApplicationWindowIcon(appRoot, expectedTitle string) {
 	if mainApplicationWindowIconState.resourcePath != resourcePath ||
 		mainApplicationWindowIconState.bigIcon == 0 ||
 		mainApplicationWindowIconState.smallIcon == 0 {
-		bigIcon, smallIcon := extractProfileWindowMarkerExecutableIcons(resourcePath)
+		bigIcon, smallIcon := loadMainApplicationIcons(resourcePath)
 		if bigIcon == 0 && smallIcon == 0 {
 			return
 		}
@@ -76,4 +82,25 @@ func selectMainApplicationWindow(candidates []profileWindowMarkerWindow, expecte
 		}
 	}
 	return profileWindowMarkerWindow{}, false
+}
+
+// ICO files use LoadImageW directly; ExtractIconEx is reserved for executable resources.
+func loadMainApplicationIcons(path string) (uintptr, uintptr) {
+	if strings.EqualFold(filepath.Ext(path), ".ico") {
+		if ptr, err := windows.UTF16PtrFromString(path); err == nil {
+			load := user32WindowMarker.NewProc("LoadImageW")
+			big, _, _ := load.Call(0, uintptr(unsafe.Pointer(ptr)), 1, 32, 32, 0x10)
+			small, _, _ := load.Call(0, uintptr(unsafe.Pointer(ptr)), 1, 16, 16, 0x10)
+			if big != 0 || small != 0 {
+				return big, small
+			}
+		}
+	}
+	big, small := extractProfileWindowMarkerExecutableIcons(path)
+	if big == 0 && small == 0 {
+		if exe, err := os.Executable(); err == nil {
+			return extractProfileWindowMarkerExecutableIcons(exe)
+		}
+	}
+	return big, small
 }

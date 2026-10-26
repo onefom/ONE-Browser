@@ -19,7 +19,7 @@ func tryLockSingleInstanceFile(path string) (*singleInstanceFileLock, bool, erro
 	if err != nil {
 		return nil, false, err
 	}
-	err = windows.LockFileEx(windows.Handle(file.Fd()), windows.LOCKFILE_EXCLUSIVE_LOCK|windows.LOCKFILE_FAIL_IMMEDIATELY, 0, 1, 0, &windows.Overlapped{})
+	err = windows.LockFileEx(windows.Handle(file.Fd()), windows.LOCKFILE_EXCLUSIVE_LOCK|windows.LOCKFILE_FAIL_IMMEDIATELY, 0, 1, 0, &windows.Overlapped{Offset: 0x7fffffff})
 	if err != nil {
 		_ = file.Close()
 		if errors.Is(err, windows.ERROR_LOCK_VIOLATION) || errors.Is(err, windows.ERROR_IO_PENDING) || errors.Is(err, windows.ERROR_SHARING_VIOLATION) {
@@ -34,7 +34,7 @@ func (l *singleInstanceFileLock) Close() error {
 	if l == nil || l.file == nil {
 		return nil
 	}
-	unlockErr := windows.UnlockFileEx(windows.Handle(l.file.Fd()), 0, 1, 0, &windows.Overlapped{})
+	unlockErr := windows.UnlockFileEx(windows.Handle(l.file.Fd()), 0, 1, 0, &windows.Overlapped{Offset: 0x7fffffff})
 	closeErr := l.file.Close()
 	l.file = nil
 	if unlockErr != nil {

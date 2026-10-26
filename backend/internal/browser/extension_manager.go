@@ -67,12 +67,12 @@ func buildChromeExtensionDownloadURLs(extensionID string) []string {
 	if normalizedID == "" {
 		return nil
 	}
-	const prefix = "https://clients2.google.com/service/update2/crx?response=redirect&os=win&arch=x64&os_arch=x86_64&prodchannel=stable&prodversion=148.0.7778.215&acceptformat=crx2,crx3&x=id%3D"
+	const prefix = "https://clients2.google.com/service/update2/crx?response=redirect&os=win&arch=x64&os_arch=x86_64&prodchannel=stable&prodversion=150.0.7871.186&acceptformat=crx2,crx3&x=id%3D"
 	suffix := normalizedID + "%26installsource%3Dondemand%26uc"
 	return []string{
 		prefix + suffix + "&prod=chromecrx",
 		prefix + suffix + "&prod=chromiumcrx",
-		"https://clients2.google.com/service/update2/crx?response=redirect&prodversion=148.0.7778.215&acceptformat=crx2,crx3&x=id%3D" + suffix,
+		"https://clients2.google.com/service/update2/crx?response=redirect&prodversion=150.0.7871.186&acceptformat=crx2,crx3&x=id%3D" + suffix,
 	}
 }
 

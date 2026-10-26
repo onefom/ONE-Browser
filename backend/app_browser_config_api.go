@@ -98,9 +98,9 @@ func (a *App) BrowserCoreImportLocal() (*BrowserCore, error) {
 	}
 
 	selectedPath, err := wailsruntime.OpenFileDialog(a.ctx, wailsruntime.OpenDialogOptions{
-		Title: "选择 Chrome 内核归档文件",
+		Title: "选择 Chromium / Firefox 内核归档文件",
 		Filters: []wailsruntime.FileFilter{
-			{DisplayName: "Chrome 内核归档 (" + browser.SupportedCoreArchiveDescription() + ")", Pattern: browser.SupportedCoreArchivePattern()},
+			{DisplayName: "浏览器内核归档 (" + browser.SupportedCoreArchiveDescription() + ")", Pattern: browser.SupportedCoreArchivePattern()},
 			{DisplayName: "所有文件 (*.*)", Pattern: "*.*"},
 		},
 	})
@@ -121,6 +121,9 @@ func (a *App) BrowserCoreImportLocal() (*BrowserCore, error) {
 
 func (a *App) importLocalBrowserCoreArchive(archivePath string) (*BrowserCore, error) {
 	archiveName := strings.TrimSpace(filepath.Base(archivePath))
+	if err := oneBrowserCoreImportCompatibility(archiveName); err != nil {
+		return nil, err
+	}
 	coreName := strings.TrimSpace(coreNameFromArchiveName(archiveName))
 	if coreName == "" {
 		coreName = "本地内核"
@@ -160,6 +163,9 @@ func (a *App) importLocalBrowserCoreArchive(archivePath string) (*BrowserCore, e
 	if _, _, ok := browser.FindCoreExecutable(tempExtractDir); !ok {
 		err := fmt.Errorf("所选归档不是当前平台可用的内核包：当前平台 %s，未找到浏览器可执行文件（候选：%s）", browser.CoreExecutablePlatform(), strings.Join(browser.CoreExecutableCandidates(), ", "))
 		a.emitBrowserCoreImportProgress("error", 0, err.Error())
+		return nil, err
+	}
+	if err := browser.ValidateCamoufoxArchitecture(tempExtractDir); err != nil {
 		return nil, err
 	}
 	a.emitBrowserCoreImportProgress("saving", 95, "正在保存内核配置...")
@@ -220,7 +226,7 @@ func (a *App) BrowserCoreImportLocalDirectory() (*BrowserCore, error) {
 	}
 
 	selectedDir, err := wailsruntime.OpenDirectoryDialog(a.ctx, wailsruntime.OpenDialogOptions{
-		Title: "选择已解压的 Chrome 内核目录",
+		Title: "选择已解压的 Chromium / Firefox 内核目录",
 	})
 	if err != nil {
 		return nil, err
@@ -234,10 +240,16 @@ func (a *App) BrowserCoreImportLocalDirectory() (*BrowserCore, error) {
 	if err != nil {
 		return nil, err
 	}
+	if err := oneBrowserCoreImportCompatibility(filepath.Base(absDir)); err != nil {
+		return nil, err
+	}
 	if _, _, ok := browser.FindCoreExecutable(absDir); !ok {
 		return nil, fmt.Errorf("所选目录不是当前平台可用的内核目录：当前平台 %s，未找到浏览器可执行文件（候选：%s）", browser.CoreExecutablePlatform(), strings.Join(browser.CoreExecutableCandidates(), ", "))
 	}
 
+	if err := browser.ValidateCamoufoxArchitecture(absDir); err != nil {
+		return nil, err
+	}
 	corePath := a.relativeCorePathIfPossible(absDir)
 	coreName := strings.TrimSpace(filepath.Base(absDir))
 	if coreName == "" || coreName == "." || coreName == string(filepath.Separator) {
@@ -307,4 +319,19 @@ func (a *App) BrowserCoreRedownload(coreId, url, proxyConfig string) error {
 	return a.startBackgroundTask(func(ctx context.Context) {
 		a.browserMgr.RedownloadCore(ctx, coreId, url, proxyConfig)
 	})
+}
+
+// Windows portable builds accept Chromium and Camoufox x64 packages.
+func oneBrowserCoreImportCompatibility(name string) error {
+	lower := strings.ToLower(name)
+	if strings.Contains(lower, "i686") || strings.Contains(lower, "win32") {
+		return fmt.Errorf("当前仅支持 Windows x64 内核，此包为32位，请选择 x64 / x86_64 版本")
+	}
+	if strings.Contains(lower, "firefox") && !strings.Contains(lower, "camoufox") {
+		return fmt.Errorf("普通 Firefox 尚未接入，请选择 Firefox Windows x86_64 包")
+	}
+	if strings.Contains(lower, "camoufox") && (strings.Contains(lower, "linux") || strings.Contains(lower, "macos")) {
+		return fmt.Errorf("请选择 Firefox Windows x86_64 包")
+	}
+	return nil
 }

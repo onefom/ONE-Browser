@@ -754,6 +754,24 @@ export namespace backend {
 	        this.sameSite = source["sameSite"];
 	    }
 	}
+	export class OneBrowserKernelRelease {
+	    version: string;
+	    downloadUrl: string;
+	    releasesUrl: string;
+	    assetName: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new OneBrowserKernelRelease(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.version = source["version"];
+	        this.downloadUrl = source["downloadUrl"];
+	        this.releasesUrl = source["releasesUrl"];
+	        this.assetName = source["assetName"];
+	    }
+	}
 	export class OneBrowserKernelStatus {
 	    installed: boolean;
 	    version: string;
@@ -794,7 +812,21 @@ export namespace backend {
 	        this.error = source["error"];
 	    }
 	}
-	export class OneBrowserStartRequest {
+	export class OneBrowserDirectoryResult {
+    profileId: string;
+    directory: string;
+    deferred: boolean;
+    static createFrom(source: any = {}) { return new OneBrowserDirectoryResult(source); }
+    constructor(source: any = {}) {
+        if ('string' === typeof source) source = JSON.parse(source);
+        this.profileId = source["profileId"];
+        this.directory = source["directory"];
+        this.deferred = source["deferred"];
+    }
+}
+
+    export class OneBrowserStartRequest {
+	windowId: string;
 	    profileId: string;
 	    name: string;
 	    proxyId: string;
@@ -814,6 +846,7 @@ export namespace backend {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.windowId = source["windowId"];
 	        this.profileId = source["profileId"];
 	        this.name = source["name"];
 	        this.proxyId = source["proxyId"];

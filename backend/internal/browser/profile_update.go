@@ -53,7 +53,13 @@ func (m *Manager) Update(profileId string, input ProfileInput) (*Profile, error)
 	profile.UpdatedAt = time.Now().Format(time.RFC3339)
 
 	log.Info("浏览器配置更新", logger.F("profile_id", profileId), logger.F("profile_name", input.ProfileName))
-	if err := m.SaveProfiles(); err != nil {
+	var saveErr error
+	if isOneBrowserOwnedProfile(profile) && m.ProfileDAO != nil {
+		saveErr = m.ProfileDAO.Upsert(profile)
+	} else {
+		saveErr = m.SaveProfiles()
+	}
+	if err := saveErr; err != nil {
 		return nil, err
 	}
 	return profile, nil

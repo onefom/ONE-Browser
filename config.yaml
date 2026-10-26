@@ -47,9 +47,9 @@ browser:
         - --no-first-run
     default_start_urls: []
     light_start_enabled: true
-    restore_last_session: false
+    restore_last_session: true
     start_ready_timeout_ms: 3000
-    start_stable_window_ms: 1200
+    start_stable_window_ms: 250
     default_connector_type: xray
 proxy_check:
     bridge_start_timeout_ms: 15000

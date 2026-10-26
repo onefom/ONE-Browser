@@ -139,6 +139,9 @@ func (a *App) markProfileStoppedLocked(profileId string, profile *BrowserProfile
 	profile.DebugPort = 0
 	profile.RuntimeWarning = ""
 	profile.LastStopAt = time.Now().Format(time.RFC3339)
+	if oneBrowserWindowOwner(*profile) != "" {
+		go a.syncStoppedOneBrowserDirectory(profileId)
+	}
 	delete(a.browserMgr.BrowserProcesses, profileId)
 	a.clearDeferredStartTargets(profileId)
 	a.releaseProfileProxyBridge(profileId)

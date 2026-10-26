@@ -56,6 +56,7 @@ const LANG_OPTIONS = [
 ]
 
 const BRAND_VERSION_OPTIONS = [
+  { value: '150.0.7871.186', label: '150.0.7871.186' },
   { value: '144.0.7559.132', label: '144.0.7559.132' },
   { value: '143.0.7499.10', label: '143.0.7499.10' },
   { value: '148.0.7778.215', label: '148.0.7778.215' },

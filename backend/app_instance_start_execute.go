@@ -11,6 +11,8 @@ import (
 func (a *App) startBrowserProfileWithPlan(input browserStartInput, plan *browserStartPlan) (*BrowserProfile, error) {
 	log := logger.New("Browser")
 	profile := plan.profile
+	trace := newBrowserStartupTrace("浏览器进程启动明细", input.ProfileID)
+	defer trace.finish()
 	a.clearDeferredStartTargets(input.ProfileID)
 	a.markProfileLastLaunchArgsLocked(profile, plan.args)
 
@@ -40,6 +42,7 @@ func (a *App) startBrowserProfileWithPlan(input browserStartInput, plan *browser
 		profile.LastError = startErr.Error()
 		return profile, startErr
 	}
+	trace.step("进程参数及创建进程")
 	memoryLimitCleanup, err := applyBrowserProcessMemoryLimit(cmd, profile.MemoryLimitMB)
 	if err != nil {
 		_ = a.stopProcessCmd(cmd)
@@ -60,10 +63,12 @@ func (a *App) startBrowserProfileWithPlan(input browserStartInput, plan *browser
 		}
 	}()
 	monitor.Start()
+	trace.step("内存限制及输出监听")
 
 	var lastStartErr error
 	for attempt := 1; attempt <= plan.maxStartAttempts; attempt++ {
 		stableDebugPort, readyErr := waitBrowserDebugPortStable(plan.assignedDebugPort, plan.userDataDir, plan.startReadyTimeout, plan.startStableWindow, monitor)
+		trace.step("调试端口探测及稳定确认")
 		if readyErr == nil {
 			a.markProfileRunningLocked(input.ProfileID, profile, cmd, cmd.Process.Pid, stableDebugPort, true, "")
 			if plan.extensionWarning != "" {
@@ -93,6 +98,7 @@ func (a *App) startBrowserProfileWithPlan(input browserStartInput, plan *browser
 				}
 			}
 
+			trace.step("运行状态保存及延后页面")
 			log.Info("实例启动",
 				logger.F("profile_id", input.ProfileID),
 				logger.F("debug_port", stableDebugPort),
@@ -104,6 +110,9 @@ func (a *App) startBrowserProfileWithPlan(input browserStartInput, plan *browser
 				logger.F("args", strings.Join(plan.args, " ")),
 			)
 			a.emitBrowserInstanceStarted(profile, false)
+			if oneBrowserWindowOwner(*profile) != "" {
+				go a.cleanOneBrowserStartupTabsForMonitor(input.ProfileID, stableDebugPort, monitor)
+			}
 
 			cleanup := memoryLimitCleanup
 			memoryLimitCleanup = nil

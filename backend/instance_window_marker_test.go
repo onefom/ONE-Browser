@@ -183,14 +183,14 @@ func TestProfileWindowMarkerWindowStateResetsWhenProcessChanges(t *testing.T) {
 
 func TestProfileWindowMarkerAppUserModelIDUsesStableProfileID(t *testing.T) {
 	appID := profileWindowMarkerAppUserModelID("profile one/中文:A", "B")
-	if appID != "AntBrowser.Instance.profile.one.A" {
+	if appID != "OneBrowser.Instance.profile.one.A" {
 		t.Fatalf("unexpected AppUserModelID: %q", appID)
 	}
 }
 
 func TestProfileWindowMarkerAppUserModelIDFallsBackToMarkerCode(t *testing.T) {
 	appID := profileWindowMarkerAppUserModelID("", "A")
-	if appID != "AntBrowser.Instance.A" {
+	if appID != "OneBrowser.Instance.A" {
 		t.Fatalf("unexpected fallback AppUserModelID: %q", appID)
 	}
 }

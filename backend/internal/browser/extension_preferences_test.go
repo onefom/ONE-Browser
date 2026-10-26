@@ -26,3 +26,21 @@ func TestEnableProfileExtensionDeveloperMode(t *testing.T) {
 		t.Fatalf("developer_mode = %#v, want true", ui["developer_mode"])
 	}
 }
+
+func TestDeveloperModeOverridesSecurePreference(t *testing.T) {
+	root := t.TempDir()
+	secure := filepath.Join(root, "Default", "Secure Preferences")
+	if err := writeProfileJSON(secure, map[string]any{"extensions": map[string]any{"ui": map[string]any{"developer_mode": false}}, "other": "keep"}); err != nil {
+		t.Fatal(err)
+	}
+	if err := EnableProfileExtensionDeveloperMode(root); err != nil {
+		t.Fatal(err)
+	}
+	prefs, err := readProfileJSON(secure, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if prefs["extensions"].(map[string]any)["ui"].(map[string]any)["developer_mode"] != true || prefs["other"] != "keep" {
+		t.Fatal("secure developer mode not enabled or unrelated data overwritten")
+	}
+}

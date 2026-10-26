@@ -48,6 +48,10 @@ type App struct {
 	backgroundTasks        sync.WaitGroup
 	backgroundTasksBlocked bool
 	maintenanceMu          sync.Mutex
+	oneBrowserWindowMu     sync.Mutex
+	oneBrowserIPMu         sync.Mutex
+	oneBrowserIPMonitor    *oneBrowserIPMonitor
+	camoufoxRuntimes       sync.Map // profile ID -> *camoufoxRuntime; pipes never shared between profiles
 	bridgeMu               sync.Mutex
 	profileBridgeRefs      map[string]profileProxyBridgeRef
 	deferredStartTargetsMu sync.Mutex

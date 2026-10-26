@@ -71,7 +71,7 @@ func downloadChromeExtensionCRXOnce(ctx context.Context, client *http.Client, do
 	if err != nil {
 		return nil, err
 	}
-	request.Header.Set("User-Agent", "Mozilla/5.0 AppleWebKit/537.36 Chrome/148.0.0.0 Safari/537.36")
+	request.Header.Set("User-Agent", "Mozilla/5.0 AppleWebKit/537.36 Chrome/150.0.0.0 Safari/537.36")
 	request.Header.Set("Accept", "*/*")
 	response, err := client.Do(request)
 	if err != nil {
@@ -239,6 +239,12 @@ func resolveExtensionMessage(value string, messages map[string]string) string {
 	key := strings.TrimSuffix(strings.TrimPrefix(trimmed, "__MSG_"), "__")
 	if message := strings.TrimSpace(messages[key]); message != "" {
 		return message
+	}
+	// Chromium message identifiers are case-insensitive.
+	for candidate, message := range messages {
+		if strings.EqualFold(candidate, key) && strings.TrimSpace(message) != "" {
+			return strings.TrimSpace(message)
+		}
 	}
 	return trimmed
 }

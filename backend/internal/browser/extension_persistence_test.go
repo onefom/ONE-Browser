@@ -457,3 +457,52 @@ func newTestExtensionDAO(t *testing.T, appRoot string) *SQLiteExtensionDAO {
 	t.Cleanup(func() { _ = db.Close() })
 	return NewSQLiteExtensionDAO(db.GetConn())
 }
+
+// A nonexistent executable makes any accidental installer launch fail. Preparing
+// built-ins must be entirely offline once the CRX has been downloaded.
+func TestPrepareExtensionsDoesNotLaunchBrowserOrTouchSession(t *testing.T) {
+	root := t.TempDir()
+	manager := NewManager(config.DefaultConfig(), root)
+	manager.ExtensionDAO = newTestExtensionDAO(t, root)
+	var archive bytes.Buffer
+	z := zip.NewWriter(&archive)
+	w, _ := z.Create("manifest.json")
+	_, _ = w.Write([]byte(`{"name":"Test","version":"1.0","manifest_version":3}`))
+	_ = z.Close()
+	publicKey := []byte("test-public-key")
+	data := make([]byte, 16+len(publicKey))
+	copy(data, []byte("Cr24"))
+	binary.LittleEndian.PutUint32(data[4:], 2)
+	binary.LittleEndian.PutUint32(data[8:], uint32(len(publicKey)))
+	copy(data[16:], publicKey)
+	data = append(data, archive.Bytes()...)
+	extension, err := manager.InstallExtensionPackageBytes(extensionIDFromPublicKey(publicKey), "test", data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := manager.ExtensionDAO.SetDefaultInstall(extension.ExtensionID, true); err != nil {
+		t.Fatal(err)
+	}
+	profile := &Profile{ProfileId: "profile", UserDataDir: "profile"}
+	userDir := filepath.Join(root, "profile")
+	session := filepath.Join(userDir, "Default", "Sessions", "Session_123")
+	if err := os.MkdirAll(filepath.Dir(session), 0700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(session, []byte("saved-session"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	for i := 0; i < 2; i++ {
+		dirs, warnings := manager.PrepareProfileExtensions(profile, filepath.Join(root, "does-not-exist.exe"), userDir, nil)
+		if len(warnings) > 0 || len(dirs) != 1 {
+			t.Fatalf("dirs=%v warnings=%v", dirs, warnings)
+		}
+		if !persistentExtensionArtifactMatches(userDir, extension.ExtensionID, "1.0") {
+			t.Fatal("extension code missing")
+		}
+		sessionData, _ := os.ReadFile(session)
+		if string(sessionData) != "saved-session" {
+			t.Fatal("session changed")
+		}
+	}
+}

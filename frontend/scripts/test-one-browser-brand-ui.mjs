@@ -1,0 +1,86 @@
+import assert from 'node:assert/strict';
+const {chromium}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
+const browser=await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE,headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--allow-file-access-from-files']});
+try{
+ const page=await browser.newPage({viewport:{width:1440,height:900}}),errors=[];
+ page.on('pageerror',error=>errors.push(error.message));
+ await page.addInitScript(()=>{
+  window.onlineDesktop={getKernelStatus:async()=>({chrome:{installed:false}}),syncWindowDirectories:async()=>[],registerBrowserWindows:()=>{},logOperation:async()=>{}};
+  if(localStorage.getItem('__brandFixture'))return;
+  localStorage.clear();localStorage.setItem('__brandFixture','1');
+  localStorage.setItem('online-brand',JSON.stringify({name:'ADMG',mark:'Z'}));
+  localStorage.setItem('one-browser-environments',JSON.stringify([{windowId:crypto.randomUUID(),name:'Window A',owner:'10',state:'stopped',config:{browser:'chrome'},tag:'新环境'}]));
+  localStorage.setItem('one-browser-accounts',JSON.stringify([{service:'10',identity:'saved-secret'}]));
+ });
+ await page.goto(new URL('../public/one-browser/index.html',import.meta.url).href);
+ await page.waitForTimeout(150);
+ assert.equal(await page.locator('#brandName').textContent(),'ADMG');
+ const profile=page.locator('[data-action="profile"]').first();
+ assert((await profile.getAttribute('class')).includes('is-linked'));
+ const hue=await profile.evaluate(e=>e.style.getPropertyValue('--account-hue'));
+ const accountHue=await page.evaluate(()=>JSON.parse(localStorage.getItem('one-browser-accounts'))[0].colorHue);
+ assert.equal(Number(hue),accountHue);
+ assert((await profile.locator('svg').evaluate(e=>getComputedStyle(e).backgroundImage)).includes('radial-gradient'));
+ const lightStatus=await page.locator('.status.stopped').evaluate(e=>getComputedStyle(e).backgroundColor);
+ await page.evaluate(()=>document.body.classList.add('dark-content'));
+ const darkStatus=await page.locator('.status.stopped').evaluate(e=>getComputedStyle(e).backgroundColor);
+ assert.notEqual(lightStatus,darkStatus);assert(darkStatus.includes('0.12'),'dark stopped state must have a subdued translucent background');
+ await page.locator('[data-page="settings"]').click();
+ assert.equal(await page.locator('#productMark').count(),0);
+ assert((await page.locator('.advanced-settings-head').textContent()).includes('数据储存 DATA 文件夹'));
+ const buffers=await page.evaluate(()=>{
+  const canvas=document.createElement('canvas');canvas.width=400;canvas.height=200;
+  const ctx=canvas.getContext('2d');ctx.fillStyle='#ff0000';ctx.fillRect(0,0,200,200);ctx.fillStyle='#0000ff';ctx.fillRect(200,0,200,200);
+  return ['image/png','image/jpeg','image/webp'].map(type=>canvas.toDataURL(type).split(',')[1]);
+ });
+ const upload=async(index,name,type)=>page.locator('#brandLogoFile').setInputFiles({name,mimeType:type,buffer:Buffer.from(buffers[index],'base64')});
+ await page.locator('#brandLogoFile').setInputFiles({name:'large.png',mimeType:'image/png',buffer:Buffer.alloc(5*1024*1024+1)});
+ assert((await page.locator('#toast').textContent()).includes('5 MB'));assert.equal(await page.locator('#brandCropModal.open').count(),0);
+ await page.locator('#brandLogoFile').setInputFiles({name:'vector.svg',mimeType:'image/svg+xml',buffer:Buffer.from('<svg/>')});
+ assert.equal(await page.locator('#brandCropModal.open').count(),0);
+ await page.locator('#brandLogoFile').setInputFiles({name:'broken.png',mimeType:'image/png',buffer:Buffer.from('broken')});
+ await page.waitForFunction(()=>document.getElementById('toast').textContent.includes('无法读取'));
+ await upload(0,'logo.png','image/png');await page.locator('#brandCropModal.open').waitFor();
+ const canvas=page.locator('#brandCropCanvas'),box=await canvas.boundingBox();
+ await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();await page.mouse.move(box.x+box.width/2+100,box.y+box.height/2,{steps:5});await page.mouse.up();
+ await page.locator('#brandCropZoom').evaluate(e=>{e.value='1.5';e.dispatchEvent(new Event('input'))});
+ assert.equal(await page.locator('#brandCropZoomValue').textContent(),'150%');
+ await canvas.focus();await page.keyboard.press('ArrowRight');
+ await page.locator('#confirmBrandCrop').click();
+ assert.equal(await page.locator('#brandLogoPreview img').count(),1);
+ assert.equal(await page.locator('#brandMark img').count(),0,'draft must wait for save');
+ await page.locator('#productName').fill('My Brand');await page.locator('#saveBrand').click();
+ const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('online-brand')));
+ assert.equal(saved.name,'My Brand');assert(saved.logo.startsWith('data:image/png;base64,'));
+ const pixels=await page.evaluate(async logo=>{
+  const image=new Image();image.src=logo;await image.decode();
+  const c=document.createElement('canvas');c.width=c.height=256;const ctx=c.getContext('2d');ctx.drawImage(image,0,0);
+  return {corner:[...ctx.getImageData(0,0,1,1).data],center:[...ctx.getImageData(128,128,1,1).data],width:image.naturalWidth};
+ },saved.logo);
+ assert.equal(pixels.width,256);assert.equal(pixels.corner[3],0);assert(pixels.center[0]>240&&pixels.center[2]<10,'dragged crop must retain the selected red area');
+ assert.equal(await page.locator('#brandMark img').count(),1);
+ const dot=await page.locator('#brandMark').evaluate(e=>{const s=getComputedStyle(e,'::after');return {content:s.content,background:s.backgroundColor,width:s.width}});
+ assert.equal(dot.width,'7px');assert.equal(dot.background,'rgb(95, 193, 220)');
+ await page.reload();await page.locator('[data-page="settings"]').click();
+ assert.equal(await page.locator('#brandName').textContent(),'MY BRAND');assert.equal(await page.locator('#brandMark img').getAttribute('src'),saved.logo);
+ for(const [index,name,type] of [[1,'logo.jpg','image/jpeg'],[2,'logo.webp','image/webp']]){
+  await upload(index,name,type);await page.locator('#brandCropModal.open').waitFor();
+  await page.locator('#resetBrandCrop').click();assert.equal(await page.locator('#brandCropZoomValue').textContent(),'100%');
+  await page.keyboard.press('Escape');assert.equal(await page.locator('#brandCropModal.open').count(),0);
+  assert.equal(await page.locator('#brandLogoPreview img').getAttribute('src'),saved.logo,'cancel must retain previous draft');
+ }
+ const limit=Buffer.alloc(5*1024*1024);Buffer.from(buffers[0],'base64').copy(limit);
+ await page.locator('#brandLogoFile').setInputFiles({name:'limit.png',mimeType:'image/png',buffer:limit});
+ await page.locator('#brandCropModal.open').waitFor();await page.locator('#cancelBrandCrop').click();
+ await page.setViewportSize({width:900,height:680});
+ await upload(2,'logo.webp','image/webp');await page.locator('#brandCropModal.open').waitFor();
+ const confirm=await page.locator('#confirmBrandCrop').boundingBox();assert(confirm.y+confirm.height<=680,'small viewport must show crop actions');
+ await page.locator('#cancelBrandCrop').click();
+ await page.locator('#resetBrandLogo').click();await page.locator('#saveBrand').click();await page.reload();
+ assert.equal(await page.locator('#brandMark img').count(),0);assert.equal(await page.locator('#brandMark.has-custom-logo').count(),0);
+ await page.locator('[data-page="help"]').click();assert.equal(await page.getByText('版本如何递增',{exact:false}).count(),0);
+ assert((await page.locator('#help').textContent()).includes('延迟很高'));assert((await page.locator('#help').textContent()).includes('如何上传品牌 Logo'));
+ assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('one-browser-accounts'))[0].identity),'saved-secret');
+ assert.deepEqual(errors,[]);
+ console.log('Brand UI passed: image formats, size boundary, invalid files, pan/zoom, circular alpha, cancel/reset/save/reload, legacy migration, status colours and account hues');
+}finally{await browser.close()}

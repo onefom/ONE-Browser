@@ -125,21 +125,47 @@ func (a *App) resolveBrowserStartProfile(input browserStartInput) (*BrowserProfi
 }
 
 func (a *App) prepareBrowserStartPlan(input browserStartInput, profile *BrowserProfile) (*browserStartPlan, error) {
+	trace := newBrowserStartupTrace("启动准备明细", profile.ProfileId)
+	defer trace.finish()
+	startedAt := time.Now()
+	checkedAt := startedAt
+	defer func() {
+		logger.New("Browser").Info("浏览器启动准备分段", logger.F("profile_id", profile.ProfileId), logger.F("context_ms", checkedAt.Sub(startedAt).Milliseconds()), logger.F("remaining_ms", time.Since(checkedAt).Milliseconds()))
+	}()
+
 	bookmarks := a.BookmarkList()
 	sanitizedProfileLaunchArgs, sanitizedExtraLaunchArgs, fingerprintLaunchArgs, chromeBinaryPath, userDataDir, err := a.prepareBrowserLaunchContext(input, profile, bookmarks)
 	if err != nil {
 		return nil, err
 	}
 
+	trace.step("启动上下文检查")
+	checkedAt = time.Now()
 	effectiveProxy, acquiredProxyBridge, releaseProxyBridge, err := a.resolveBrowserStartProxy(input, profile)
 	if err != nil {
 		return nil, err
 	}
 
+	trace.step("代理校验及桥接")
 	startReadyTimeout, startStableWindow := a.browserStartTimingSettings()
 	maxStartAttempts := browserStartAttemptCount()
 	totalReadyTimeout := time.Duration(maxStartAttempts) * startReadyTimeout
 	restoreLastSession := profileRestoreLastSession(profile, a.config)
+	if restoreLastSession {
+		if err := browser.EnableProfileSessionPersistence(userDataDir); err != nil {
+			if releaseProxyBridge {
+				a.releaseProxyBridgeRef(acquiredProxyBridge)
+			}
+			return nil, fmt.Errorf("准备窗口会话保存失败：%w", err)
+		}
+	}
+	managedWindow := oneBrowserWindowOwner(*profile) != ""
+	// Persistence remains enabled, but a fresh profile has nothing to restore.
+	// Launch its requested pages directly instead of restoring an empty new tab
+	// and appending startup pages after the debug-ready delay.
+	if managedWindow && !oneBrowserHasSavedSession(userDataDir) {
+		restoreLastSession = false
+	}
 	fingerprintExpectedArgs := combineFingerprintExpectedArgs(fingerprintLaunchArgs, sanitizedProfileLaunchArgs, sanitizedExtraLaunchArgs)
 	defaultStartURLs := a.resolveFingerprintCheckStartURLsForExpectedArgsAndProfile(profile.ProfileId, fingerprintExpectedArgs, profile, mergeStartURLs(browserDefaultStartURLs(a.config), bookmarkStartURLs(bookmarks)))
 	startURLs := a.resolveFingerprintCheckStartURLsForExpectedArgsAndProfile(profile.ProfileId, fingerprintExpectedArgs, profile, input.StartURLs)
@@ -150,7 +176,14 @@ func (a *App) prepareBrowserStartPlan(input browserStartInput, profile *BrowserP
 		restoreLastSession,
 		browserLightStartEnabled(a.config),
 	)
+	if managedWindow {
+		launchTargets, deferredStartTargets, deferredStartNewTabs = buildBrowserLaunchTargets(startURLs, nil, true, restoreLastSession, false)
+		if planStable := 250 * time.Millisecond; startStableWindow == defaultBrowserStartStableWindow {
+			startStableWindow = planStable
+		}
+	}
 
+	trace.step("会话持久化及启动目标")
 	assignedDebugPort, err := nextAvailablePort()
 	if err != nil {
 		if releaseProxyBridge {
@@ -167,19 +200,25 @@ func (a *App) prepareBrowserStartPlan(input browserStartInput, profile *BrowserP
 	}
 
 	instanceArgs := buildBrowserLaunchArgs(userDataDir, assignedDebugPort, effectiveProxy, fingerprintLaunchArgs, sanitizedProfileLaunchArgs, sanitizedExtraLaunchArgs, launchTargets, restoreLastSession)
-	// 插件持久安装助手进程复用实例的调试端口与代理/指纹参数：
-	// 若此时实例浏览器尚未运行，安装助手进程就是实例浏览器本身，
-	// 缺少调试端口会导致后续正式启动被 Chrome 单实例交接、误报“就绪前退出”。
-	extensionInstallArgs := buildBrowserLaunchArgs(userDataDir, assignedDebugPort, effectiveProxy, fingerprintLaunchArgs, sanitizedProfileLaunchArgs, sanitizedExtraLaunchArgs, nil, restoreLastSession)
-	if err := browser.EnableProfileExtensionDeveloperMode(userDataDir); err != nil {
-		logger.New("Browser").Warn("写入扩展开发者模式失败", logger.F("profile_id", input.ProfileID), logger.F("error", err.Error()))
+	if managedWindow && restoreLastSession {
+		instanceArgs = oneBrowserRestoreWindowArgs(instanceArgs)
 	}
-	_, extensionWarnings := a.browserMgr.PrepareProfileExtensions(profile, chromeBinaryPath, userDataDir, extensionInstallArgs)
-	// The persistent installer can update profile preference files. Re-assert the
-	// UI preference afterwards so chrome://extensions always opens in developer mode.
+	trace.step("调试端口分配及参数组装")
+	// Prepare verified managed code (shared by package hash) and private profile registration.
+	extensionDirs, extensionWarnings := a.browserMgr.PrepareProfileExtensions(profile, chromeBinaryPath, userDataDir, nil)
+	if len(extensionWarnings) > 0 {
+		if releaseProxyBridge {
+			a.releaseProxyBridgeRef(acquiredProxyBridge)
+		}
+		return nil, fmt.Errorf("插件准备失败：%s", joinBrowserStartExtensionWarnings(extensionWarnings))
+	}
+	trace.step("插件共享代码及独立注册")
+	instanceArgs = appendBrowserExtensionLaunchArgs(instanceArgs, extensionDirs)
+	// Secure Preferences is authoritative for tracked developer-mode settings.
 	if err := browser.EnableProfileExtensionDeveloperMode(userDataDir); err != nil {
 		logger.New("Browser").Warn("再次写入扩展开发者模式失败", logger.F("profile_id", input.ProfileID), logger.F("error", err.Error()))
 	}
+	trace.step("扩展开发者模式偏好")
 	extensionWarning := joinBrowserStartExtensionWarnings(extensionWarnings)
 
 	return &browserStartPlan{
@@ -224,9 +263,17 @@ func (a *App) fingerprintCheckExpectedArgsForRunningProfile(profile *BrowserProf
 }
 
 func (a *App) prepareBrowserLaunchContext(input browserStartInput, profile *BrowserProfile, bookmarks []BrowserBookmark) ([]string, []string, []string, string, string, error) {
+	trace := newBrowserStartupTrace("启动扫描明细", profile.ProfileId)
+	defer trace.finish()
 	log := logger.New("Browser")
 
-	sanitizedProfileLaunchArgs, managedProfileArgs := sanitizeManagedLaunchArgs(profile.LaunchArgs)
+	profileArgs := []string{}
+	for _, arg := range profile.LaunchArgs {
+		if !strings.HasPrefix(arg, "--onebrowser-os=") {
+			profileArgs = append(profileArgs, arg)
+		}
+	}
+	sanitizedProfileLaunchArgs, managedProfileArgs := sanitizeManagedLaunchArgs(profileArgs)
 	sanitizedExtraLaunchArgs, managedExtraArgs := sanitizeManagedLaunchArgs(input.ExtraLaunchArgs)
 	logManagedLaunchArgOverrides(log, input.ProfileID, "profile.launchArgs", managedProfileArgs)
 	logManagedLaunchArgOverrides(log, input.ProfileID, "start.extraLaunchArgs", managedExtraArgs)
@@ -236,6 +283,7 @@ func (a *App) prepareBrowserLaunchContext(input browserStartInput, profile *Brow
 		_ = a.browserMgr.SaveProfiles()
 	}
 
+	trace.step("启动参数及默认配置")
 	chromeBinaryPath, err := a.browserMgr.ResolveChromeBinary(profile)
 	if err != nil {
 		startErr := fmt.Errorf("实例启动失败：%w", err)
@@ -261,8 +309,10 @@ func (a *App) prepareBrowserLaunchContext(input browserStartInput, profile *Brow
 		return nil, nil, nil, "", "", startErr
 	}
 
+	trace.step("内核路径及数据目录")
 	fingerprintLaunchArgs := a.buildBrowserFingerprintCapabilityReport(input.ProfileID, profile.CoreId, profile.FingerprintArgs).LaunchArgs
 	fingerprintExpectedArgs := combineFingerprintExpectedArgs(fingerprintLaunchArgs, sanitizedProfileLaunchArgs, sanitizedExtraLaunchArgs)
+	trace.step("指纹能力及稳定种子")
 	runtimeBookmarks, fingerprintBookmarkURL, bookmarkErr := a.runtimeBookmarksForProfileExpectedArgsAndProfile(profile.ProfileId, fingerprintExpectedArgs, profile, bookmarks)
 	if bookmarkErr != nil {
 		log.Error("指纹检测书签生成失败", logger.F("profile_id", input.ProfileID), logger.F("error", bookmarkErr.Error()))
@@ -276,10 +326,12 @@ func (a *App) prepareBrowserLaunchContext(input browserStartInput, profile *Brow
 	if err := browser.EnsureDefaultBookmarks(userDataDir, runtimeBookmarks); err != nil {
 		log.Error("默认书签写入失败", logger.F("error", err.Error()))
 	}
+	trace.step("运行时书签检查及写入")
 	if err := writeBrowserLanguagePreferences(userDataDir, fingerprintLaunchArgs); err != nil {
 		log.Error("浏览器语言偏好写入失败", logger.F("profile_id", input.ProfileID), logger.F("error", err.Error()))
 	}
 
+	trace.step("语言偏好读写")
 	if detection, ok := detectBrowserRuntimeByActivePort(userDataDir); ok && detection.DebugReady {
 		a.markProfileLastLaunchArgsLocked(profile, nil)
 		a.markProfileRunningLocked(input.ProfileID, profile, nil, detection.PID, detection.DebugPort, true, "")
@@ -302,6 +354,7 @@ func (a *App) prepareBrowserLaunchContext(input browserStartInput, profile *Brow
 		return nil, nil, nil, "", "", errBrowserStartHandledByRecoveredRuntime
 	}
 
+	trace.step("已有调试端口探测")
 	// 同一用户数据目录存在无法通过调试端口接管的残留浏览器进程时
 	// （例如旧版本插件安装助手抢占成为实例进程，或状态丢失后的残留），
 	// 后续启动会被 Chrome 单实例机制交接而误报“就绪前退出”，启动前清理。
@@ -318,6 +371,7 @@ func (a *App) prepareBrowserLaunchContext(input browserStartInput, profile *Brow
 		)
 	}
 
+	trace.step("系统进程扫描及残留检查")
 	if !profileRestoreLastSession(profile, a.config) {
 		if err := clearBrowserSessionRestoreData(userDataDir); err != nil {
 			if terminated, terminateErr := terminateBrowserProcessesByUserDataDir(userDataDir, 5*time.Second); terminateErr == nil && terminated {
@@ -350,6 +404,7 @@ func (a *App) prepareBrowserLaunchContext(input browserStartInput, profile *Brow
 		}
 	}
 
+	trace.step("会话恢复策略检查")
 	return sanitizedProfileLaunchArgs, sanitizedExtraLaunchArgs, fingerprintLaunchArgs, chromeBinaryPath, userDataDir, nil
 }
 

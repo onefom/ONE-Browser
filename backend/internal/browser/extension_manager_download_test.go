@@ -38,7 +38,7 @@ func TestBuildChromeExtensionDownloadURLsUseCurrentChromium(t *testing.T) {
 		t.Fatalf("got %d fallback URLs, want at least 3", len(urls))
 	}
 	for _, item := range urls {
-		if !strings.Contains(item, "prodversion=148.0.7778.215") {
+		if !strings.Contains(item, "prodversion=150.0.7871.186") {
 			t.Fatalf("download URL does not use current Chromium version: %s", item)
 		}
 	}

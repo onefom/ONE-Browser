@@ -370,6 +370,8 @@ export function OneBrowserInitializeSystem():Promise<void>;
 
 export function OneBrowserKernelStatus():Promise<backend.OneBrowserKernelStatus>;
 
+export function OneBrowserLatestFingerprintChromium():Promise<backend.OneBrowserKernelRelease>;
+
 export function OneBrowserOpenManagedURL(arg1:string,arg2:string):Promise<void>;
 
 export function OneBrowserParseClashText(arg1:string):Promise<Array<config.BrowserProxy>>;
@@ -383,6 +385,8 @@ export function OneBrowserStart(arg1:backend.OneBrowserStartRequest):Promise<bac
 export function OneBrowserStop(arg1:string):Promise<void>;
 
 export function OneBrowserSyncBuiltinExtensions(arg1:Array<string>):Promise<Array<string>>;
+
+export function OneBrowserUpdateFingerprintChromium():Promise<void>;
 
 export function OpenBackupPath(arg1:string):Promise<void>;
 
@@ -435,3 +439,8 @@ export function UpdateGroup(arg1:string,arg2:browser.GroupInput):Promise<browser
 export function ValidateProxyConfig(arg1:string,arg2:string):Promise<backend.ProxyValidationResult>;
 
 export function WaitInstanceDebugReady(arg1:string,arg2:number,arg3:time.Duration):Promise<browser.Profile>;
+
+export function OneBrowserRenameWindow(arg1:string,arg2:string,arg3:string):Promise<backend.OneBrowserDirectoryResult>;
+
+export function OneBrowserDeleteWindow(arg1:string,arg2:string):Promise<void>;
+export function OneBrowserDetachedWindows(arg1:Array<string>):Promise<Array<{windowId:string,profileId:string,name:string,running:boolean}>>;

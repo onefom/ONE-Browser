@@ -478,6 +478,8 @@ func applyProfileWindowMarker(marker *profileWindowMarker, window profileWindowM
 	}
 	captureProfileWindowMarkerOriginalIcons(window.hwnd, &state, 0)
 	iconChanged := applyProfileWindowMarkerChromeIcon(window.hwnd, target.chromeBinaryPath, &state)
+	applyProfileWindowMarkerAppUserModelID(window.hwnd, target.profileID, markerCode, &state)
+	applyProfileWindowMarkerRelaunchIconResource(window.hwnd, target.chromeBinaryPath, &state)
 	applyProfileWindowMarkerTaskbarOverlay(window.hwnd, markerCode, &state)
 	if iconChanged {
 		refreshProfileWindowMarkerIcon(window.hwnd)
@@ -531,7 +533,7 @@ func applyProfileWindowMarkerAppUserModelID(hwnd uintptr, profileID, markerCode 
 		return false
 	}
 	appID := profileWindowMarkerAppUserModelID(profileID, markerCode)
-	if state.appUserModelIDApplied && state.appUserModelID == appID {
+	if state.appUserModelIDApplied && state.appUserModelID == appID && time.Since(state.appUserModelIDLastAppliedAt) < profileWindowMarkerOverlayReapplyInterval {
 		return false
 	}
 	if !setProfileWindowMarkerAppUserModelID(hwnd, appID) {
@@ -539,6 +541,7 @@ func applyProfileWindowMarkerAppUserModelID(hwnd uintptr, profileID, markerCode 
 	}
 	state.appUserModelID = appID
 	state.appUserModelIDApplied = true
+	state.appUserModelIDLastAppliedAt = time.Now()
 	return true
 }
 

@@ -11,9 +11,9 @@ import (
 func CoreExecutableCandidates() []string {
 	switch goruntime.GOOS {
 	case "windows":
-		return []string{"chrome.exe"}
+		return []string{"chrome.exe", "camoufox.exe"}
 	case "linux":
-		return []string{"chrome", "chrome-bin", "chromium", "chromium-browser", "ungoogled-chromium", "chrome.exe"}
+		return []string{"chrome", "chrome-bin", "chromium", "chromium-browser", "ungoogled-chromium", "chrome.exe", "camoufox-bin", "camoufox", "camoufox.exe"}
 	case "darwin":
 		return []string{
 			"Google Chrome.app/Contents/MacOS/Google Chrome",
