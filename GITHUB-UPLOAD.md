@@ -1,26 +1,42 @@
-# One Browser 1.9 源码上传与构建
+# One Browser 源码上传与构建
 
-源码只保留当前 One Browser 界面。`frontend/src/main.tsx` 加载桌面桥接 `OneBrowserShell.tsx`，实际界面位于 `frontend/public/one-browser/`；`wailsjs` 为生成的桌面接口绑定。旧 React 页面、路由、主题和相关依赖已移除。
+当前仓库代码版本为 2.0.7。实际下载版本以 GitHub Releases 为准。
 
-## 上传 GitHub
+## 上传代码
 
-在源码目录初始化仓库并提交，或通过 GitHub Desktop 添加源码目录并发布。不要提交 `data` 个人数据、浏览器内核、运行时二进制或构建产物。`.gitignore` 保留这些排除规则。
+上传源码时保留 .gitignore，不提交账号、密码、数据库、Cookie、浏览器用户目录、代理订阅、内核二进制、node_modules 或构建产物。data/ 中只保留说明文件。
+
+实际界面位于 frontend/public/one-browser/，React 桌面桥接入口为 frontend/src/OneBrowserShell.tsx。
 
 ## Windows x64 构建
 
-安装 Go、Node.js 和 Wails v2，执行：
+准备 Go、Node.js / npm、Wails v2、Windows 构建工具及 Microsoft Edge WebView2 Runtime。
 
 ```powershell
-cd frontend
-npm ci
-npm run test:one-browser
-npm run build:clean
-cd ..
+go install github.com/wailsapp/wails/v2/cmd/wails@v2.12.0
+go mod download
+npm --prefix frontend ci
+npm --prefix frontend run test:one-browser
 go test ./backend/... ./internal/...
 wails build -platform windows/amd64 -clean -o OneBrowser.exe
 python tools/verify-windows-resources.py build/bin/OneBrowser.exe
 ```
 
-最后一项检查最终 EXE 内的 Windows 启动资源。必须通过后才能打包。Windows manifest 使用明确的程序集名称及四段数字版本，不能把尚未展开的模板直接嵌入 EXE。
+最后一项检查最终 EXE 的 Windows 启动资源，不能用未展开的清单模板直接替代。发布前还需在 Windows 上验证启动、缩放、托盘及浏览器操作。
 
-版本显示为 1.9；构建版本为 1.9.0，Windows 程序集版本为 1.9.0.0。
+## 发布文件
+
+客户端只发布 Windows x64 完整版与源码：
+
+- OneBrowser-2.0.7-windows-x64-portable.zip
+- OneBrowser-2.0.7-source.zip
+
+正式版本标签使用 v2.0.7 形式。未来版本替换为对应版本号，客户端升级检测依赖正式发布与正确的完整版资源名。
+
+便携包保留必要运行组件和说明，不包含真实用户数据及浏览器内核。CAMOUFOX-TESTING.md、STARTUP-REVIEW.md、TESTING-STATUS.md 仅保留在源码中。
+
+注意：旧 bat/publish.ps1 中仍有 AntBrowser 名称及跨平台流程，使用旧脚本前需核对其产物命名和打包内容，不应将旧脚本输出直接当作符合当前规范的发布包。
+
+## 六张截图
+
+上传到 docs/screenshots/。六张截图已包含在仓库中，首页已启用两列三行图片区。命名和注意事项见 [截图说明](docs/screenshots/README.md)。
